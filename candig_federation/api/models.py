@@ -28,3 +28,4 @@ _SWAGGER_SPEC = Spec.from_dict(_SPEC_DICT, config=_BRAVADO_CONFIG)
 BASEPATH = _SWAGGER_SPEC.flattened_spec['basePath']
 PostSearch = _SWAGGER_SPEC.definitions['PostSearch']
 Error = _SWAGGER_SPEC.definitions['Error']
+Announcement = _SWAGGER_SPEC.definitions['Announcement']

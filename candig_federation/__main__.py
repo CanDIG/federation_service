@@ -9,6 +9,8 @@ import connexion
 import argparse
 import logging
 import pkg_resources
+
+from candig_federation.api import network
 from tornado.options import define
 
 def main(args=None):
@@ -38,6 +40,14 @@ def main(args=None):
 
     app.app.logger.addHandler(log_handler)
     app.app.logger.setLevel(numeric_loglevel)
+
+    # Peer Setup
+    app.app.config["peers"] = network.getInitialPeerList("./configs/peerlist.txt")
+    app.app.config["self"] = "http://{}:{}".format(args.host, args.port)
+
+    #network.announceToPeers("./configs/peerlist.txt", sender, app.app.logger)
+
+
 
     # Add in swagger API
 

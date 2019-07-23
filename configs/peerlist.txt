@@ -1,0 +1,11 @@
+# Put a list of initial peers you would like to add here.
+#
+#
+# Every time you start the server it will attempt to
+# read this file to bootstrap the p2p network and will announce
+# to these peers.
+#
+# local test 1
+http://10.9.208.132:8890
+# local test 2
+http://10.9.208.132:8891

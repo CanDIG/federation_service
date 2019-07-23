@@ -79,6 +79,42 @@ paths:
           description: Internal Error
         "508":
           description: Federation node time out
+
+  /announce:
+    post:
+      summary: Send node information to new node
+      description: |
+        Endpoint to announce existence to other nodes to validate peer lists
+      operationId: candig_federation.api.operations.announce
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: annoucement
+        required: true
+        schema:
+          $ref: '#/definitions/Announcement'
+      responses:
+        "200":
+          description: Successful annoucement. Heartbeat initiated
+        "500":
+          description: Internal Error
+
+  /heartbeat:
+    get:
+      summary: Receive notification that peers are alive
+      description: |
+        Endpoint to recieve a heartbeat from known peers
+      operationId: candig_federation.api.operations.heartbeat
+      responses:
+        "200":
+          description: Heartbeat received
+        "500":
+          description: Internal error
+
+
 definitions:
   PostSearch:
     type: object
@@ -104,3 +140,21 @@ definitions:
         format: int32
       message:
         type: string
+  Announcement:
+    type: object
+    required:
+    - peer
+    - sender
+    properties:
+      peer:
+        type: object
+        example:  {peer: {url: 127.0.0.1:5000}}
+        properties:
+          url:
+            type: string
+      sender:
+        type: object
+        example:  {sender: {url: 127.0.0.1:5000}}
+        properties:
+          url:
+            type: string

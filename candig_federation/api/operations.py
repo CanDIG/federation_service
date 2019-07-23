@@ -6,10 +6,13 @@ import flask
 from candig_federation.api.logging import apilog, logger
 from candig_federation.api.logging import structured_log as struct_log
 from candig_federation.api.models import Error, BASEPATH
+from candig_federation.api.federation import FederationResponse
 
 app = flask.current_app
 
+url = "https://ff345ede-96fd-4357-bc44-80ba503591b3.mock.pstmn.io"
 
+@apilog
 def get_search(path, payload=None):
     """
 
@@ -47,18 +50,17 @@ def get_search(path, payload=None):
 
     """
 
-    if flask.request.headers.get('federation'):
-        if flask.request.headers['federation'] == "False":
-            """Pass onward to microservice"""
+    request_dictionary = flask.request
+    federationResponse = FederationResponse('GET', path, url, "Blank",
+                                            'application/json', request_dictionary)
 
-            print("PATH:{}\nPAYLOAD:{}".format(path, payload))
+    federationResponse.handleLocalRequest()
 
-            return "GET SEARCH RETURN"
+    if 'federation' not in request_dictionary.headers or request_dictionary.headers.get('federation') == 'True':
 
-    else:
         """Need to federate query"""
 
-        print(flask.request.headers['federation'])
+
 
         # send to federation node
 
@@ -66,12 +68,19 @@ def get_search(path, payload=None):
 
         # Send results to aggregate script
 
-        print("Need to Federate")
+        federationResponse.handlePeerRequest('GET')
 
-        return "GET FEDERATE"
-
+    print(federationResponse.getResponseObject())
 
 
 
 def post_search():
     return "POST SEARCH RETURN"
+
+@apilog
+def announce():
+    return "ANNOUNCE"
+
+@apilog
+def heartbeat():
+    return "HEARTBEAT"
