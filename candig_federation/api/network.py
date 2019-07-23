@@ -7,9 +7,9 @@ import requests
 import json
 
 
-def getInitialPeerList(filePath, logger=None):
+def parseConfigList(filePath, logger=None):
     """
-    Attempts to get a list of peers from a file specified in configuration.
+    Attempts to get a list of peers/services from a file specified in configuration.
     This file has one URL per line and can contain newlines and comments.
 
         # Local intranet peer
@@ -35,7 +35,7 @@ def getInitialPeerList(filePath, logger=None):
 
 
 def announceToPeers(filePath, host, logger=None):
-    for peer in getInitialPeerList(filePath):
+    for peer in parseConfigList(filePath):
         try:
             headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
             data = {"peer": {"url": peer},

@@ -24,6 +24,7 @@ def main(args=None):
     parser.add_argument('--logfile', default="./log/federation.log")
     parser.add_argument('--loglevel', default='INFO',
                         choices=['DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'])
+    parser.add_argument('--services', default="./configs/services1.txt")
     args = parser.parse_args(args)
 
 
@@ -42,8 +43,13 @@ def main(args=None):
     app.app.logger.setLevel(numeric_loglevel)
 
     # Peer Setup
-    app.app.config["peers"] = network.getInitialPeerList("./configs/peerlist.txt")
+    app.app.config["peers"] = network.parseConfigList("./configs/peerlist.txt")
     app.app.config["self"] = "http://{}:{}".format(args.host, args.port)
+
+    # Service Parse
+    app.app.config["services"] = network.parseConfigList(args.services)
+
+    print(app.app.config["services"])
 
     #network.announceToPeers("./configs/peerlist.txt", sender, app.app.logger)
 

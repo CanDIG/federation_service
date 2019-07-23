@@ -1,0 +1,8 @@
+# Put a list of services you would like the federation node to contact.
+#
+#
+#
+# local test 1
+http://10.9.208.132:8890
+# local test 2
+http://10.9.208.132:8891

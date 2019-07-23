@@ -16,11 +16,11 @@ app = current_app
 
 class FederationResponse(object):
 
-    def __init__(self, request, path, url, host, return_mimetype, request_dict):
+    def __init__(self, request, args, url, host, return_mimetype, request_dict):
         self.results = {}
         self.status = []
         self.request = request
-        self.path = path
+        self.args = args
         self.url = url
         self.host = host
         self.return_mimetype = return_mimetype
@@ -38,13 +38,13 @@ class FederationResponse(object):
                 headers = {'Content-Type': 'application/json',
                            'Accept': 'application/json'}
 
-                print(self.host, self.path)
+                print(self.host, self.args)
 
                 request_handle = requests.Session()
 
-                full_path = "{}/{}".format(self.url, self.path)
+                full_path = "{}/{}".format(self.url, self.args["path"])
 
-                resp = request_handle.get(full_path, headers=headers)
+                resp = request_handle.get(full_path, headers=headers, params=self.args["payload"])
 
                 self.status.append(resp.status_code)
 
@@ -73,6 +73,7 @@ class FederationResponse(object):
         uri_list = []
         for peer in app.config["peers"]:
             if peer != app.config["self"]:
+                print(peer)
                 uri_list.append(peer)
 
         for future_response in self.async_requests(uri_list, request_type, header):
@@ -86,6 +87,7 @@ class FederationResponse(object):
             if response.status_code == 200:
                 try:
                     if request_type == "GET":
+                        print(response.json())
                         self.results = response.json()['results']
 
                     elif request_type == "POST":
@@ -140,10 +142,10 @@ class FederationResponse(object):
         :return: list of future responses
         """
 
-        async_session = FuturesSession(max_workers=10) # capping max threads
+        async_session = FuturesSession(max_workers=10)  # capping max threads
         if request_type == "GET":
             responses = [
-                async_session.get(uri, headers=header)
+                async_session.get("{}/federation/search".format(uri), headers=header, params=self.args)
                 for uri in uri_list
             ]
         elif request_type == "POST":

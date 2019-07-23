@@ -10,7 +10,7 @@ from candig_federation.api.federation import FederationResponse
 
 app = flask.current_app
 
-url = "https://ff345ede-96fd-4357-bc44-80ba503591b3.mock.pstmn.io"
+
 
 @apilog
 def get_search(path, payload=None):
@@ -49,9 +49,11 @@ def get_search(path, payload=None):
     }
 
     """
+    args = {"path": path, "payload": payload}
 
     request_dictionary = flask.request
-    federationResponse = FederationResponse('GET', path, url, "Blank",
+    print(app.config["peers"])
+    federationResponse = FederationResponse('GET', args, app.config["services"][0], "Blank",
                                             'application/json', request_dictionary)
 
     federationResponse.handleLocalRequest()
