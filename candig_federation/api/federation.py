@@ -33,16 +33,14 @@ class FederationResponse(object):
         make local data request and set the results and status for a FederationResponse
         """
         try:
+            print(self.host, self.args)
+
+            request_handle = requests.Session()
+            full_path = "{}/{}".format(self.url, self.args["path"])
+            headers = {'Content-Type': 'application/json',
+                       'Accept': 'application/json'}
 
             if self.request == "GET":
-                headers = {'Content-Type': 'application/json',
-                           'Accept': 'application/json'}
-
-                print(self.host, self.args)
-
-                request_handle = requests.Session()
-
-                full_path = "{}/{}".format(self.url, self.args["path"])
 
                 resp = request_handle.get(full_path, headers=headers, params=self.args["payload"])
 
@@ -52,8 +50,20 @@ class FederationResponse(object):
 
                 self.results = response
 
+            if self.request == "POST":
+
+                resp = request_handle.post(full_path, headers=headers, data="")
+
+                self.status.append(resp.status_code)
+
+                response = {key: value for key, value in resp.json().items() if key.lower() not in ['headers', 'url']}
+
+                self.results = response
+
+
         except requests.exceptions.ConnectionError:
             self.status.append(404)
+
 
 
     def handlePeerRequest(self, request_type):
@@ -87,17 +97,19 @@ class FederationResponse(object):
             if response.status_code == 200:
                 try:
                     if request_type == "GET":
+                        print("In line 91 \n")
                         print(response.json())
-                        self.results = response.json()['results']
+
+                        print(self.results)
 
                     elif request_type == "POST":
-                        peer_response = response.json()['results']
+                        peer_response = response.json()["results"]
 
                         if not self.results:
                             self.results = peer_response
                         else:
                             for key in peer_response:
-                                if key in ['nextPageToken', 'total']:
+                                if key in ["nextPageToken", "total"]:
                                     if key not in self.results:
                                         self.results[key] = peer_response[key]
                                     continue
@@ -106,8 +118,8 @@ class FederationResponse(object):
                 except ValueError:
                     pass
 
-        if self.results:
-            self.mergeCounts()
+        # if self.results:
+        #     self.mergeCounts()
 
     def mergeCounts(self):
         """
@@ -117,9 +129,11 @@ class FederationResponse(object):
 
         table = list(set(self.results.keys()))
         prepare_counts = {}
-        print(self.results)
+
+        print(table)
         print("\n\n\n\n")
-        for record in self.results[table]:
+        for record in self.results:
+            print(record)
             for k, v in record.items():
                 if k in prepare_counts:
                     prepare_counts[k].append(Counter(v))
@@ -161,4 +175,4 @@ class FederationResponse(object):
         """
         :return: formatted dict that can be returned as application/json response
         """
-        return {'status':self.status, 'results':self.results}
+        return {"status": self.status, "results": self.results}

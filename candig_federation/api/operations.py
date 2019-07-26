@@ -14,13 +14,33 @@ app = flask.current_app
 
 @apilog
 def get_search(path, payload=None):
+    return generic_search('GET', path, payload)
+
+@apilog
+def post_search():
+    print("\n\n")
+    data = json.loads(flask.request.data)
+
+    return generic_search('POST', data["path"], data["payload"])
+
+@apilog
+def announce():
+    return "ANNOUNCE"
+
+@apilog
+def heartbeat():
+    return "HEARTBEAT"
+
+
+def generic_search(requestType, path, payload=None):
     """
 
-    Federate GET queries by forwarding request to other nodes
-    and aggregating the result
+    Federate queries by forwarding request to other nodes
+    and aggregating the results
 
     Parameters:
     ===========
+    requestType: GET or POST
     path: Path to microservice endpoint - Assumed to be on the same domain
     payload: Parameters to be passed on to the endpoint
 
@@ -53,7 +73,7 @@ def get_search(path, payload=None):
 
     request_dictionary = flask.request
     print(app.config["peers"])
-    federationResponse = FederationResponse('GET', args, app.config["services"][0], "Blank",
+    federationResponse = FederationResponse(requestType, args, app.config["services"][0], "Blank",
                                             'application/json', request_dictionary)
 
     federationResponse.handleLocalRequest()
@@ -72,17 +92,7 @@ def get_search(path, payload=None):
 
         federationResponse.handlePeerRequest('GET')
 
-    print(federationResponse.getResponseObject())
+    responseObject = federationResponse.getResponseObject()
+    print(responseObject)
 
-
-
-def post_search():
-    return "POST SEARCH RETURN"
-
-@apilog
-def announce():
-    return "ANNOUNCE"
-
-@apilog
-def heartbeat():
-    return "HEARTBEAT"
+    return responseObject
