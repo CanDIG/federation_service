@@ -16,10 +16,10 @@ app = current_app
 
 class FederationResponse(object):
 
-    def __init__(self, request, args, url, host, return_mimetype, request_dict):
+    def __init__(self, request_type, args, url, host, return_mimetype, request_dict):
         self.results = {}
         self.status = []
-        self.request = request
+        self.request = request_type
         self.args = args
         self.url = url
         self.host = host
@@ -52,11 +52,14 @@ class FederationResponse(object):
 
             if self.request == "POST":
 
-                resp = request_handle.post(full_path, headers=headers, data="")
+                resp = request_handle.post(full_path, headers=headers, json={"test": "this"})
 
                 self.status.append(resp.status_code)
 
-                response = {key: value for key, value in resp.json().items() if key.lower() not in ['headers', 'url']}
+                response = {key: value for key, value in resp.json().items() if key.lower()
+                            not in ['headers', 'url',  'args', 'json']}
+
+                print("Local Request Response: \n {}".format(response))
 
                 self.results = response
 
@@ -66,7 +69,7 @@ class FederationResponse(object):
 
 
 
-    def handlePeerRequest(self, request_type):
+    def handlePeerRequest(self):
         """
 
         make peer data requests and update the results and status for a FederationResponse
@@ -86,7 +89,7 @@ class FederationResponse(object):
                 print(peer)
                 uri_list.append(peer)
 
-        for future_response in self.async_requests(uri_list, request_type, header):
+        for future_response in self.async_requests(uri_list, self.request, header):
             try:
                 response = future_response.result()
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
@@ -96,25 +99,25 @@ class FederationResponse(object):
             # If the call was successful append the results
             if response.status_code == 200:
                 try:
-                    if request_type == "GET":
+                    if self.request == "GET":
                         print("In line 91 \n")
                         print(response.json())
 
                         print(self.results)
 
-                    elif request_type == "POST":
+                    elif self.request == "POST":
+                        print("In line 106\n")
+                        print(response.json())
+                        print("\n")
+                        print(self.results)
                         peer_response = response.json()["results"]
 
                         if not self.results:
                             self.results = peer_response
                         else:
-                            for key in peer_response:
-                                if key in ["nextPageToken", "total"]:
-                                    if key not in self.results:
-                                        self.results[key] = peer_response[key]
-                                    continue
-                                for record in peer_response[key]:
-                                    self.results[key].append(record)
+                            for entries in peer_response["data"]["datasets"]:
+                                print(self.results)
+                                self.results["data"]["datasets"].append(entries)
                 except ValueError:
                     pass
 
@@ -164,7 +167,7 @@ class FederationResponse(object):
             ]
         elif request_type == "POST":
             responses = [
-                async_session.post(uri, json=json.loads(self.request), headers=header)
+                async_session.post("{}/federation/search".format(uri), json=self.args, headers=header)
                 for uri in uri_list
             ]
         else:

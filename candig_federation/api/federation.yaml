@@ -126,9 +126,8 @@ definitions:
         type: string
         example: /v2/get
       payload:
-        type: array
-        items:
-          type: string
+        type: object
+        additionalProperties: true
   Error:
     type: object
     required:

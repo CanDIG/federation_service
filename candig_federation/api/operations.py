@@ -20,6 +20,9 @@ def get_search(path, payload=None):
 def post_search():
     print("\n\n")
     data = json.loads(flask.request.data)
+    print(flask.request)
+    print(flask.request.json)
+    print("\n -----Generic Start-----")
 
     return generic_search('POST', data["path"], data["payload"])
 
@@ -32,7 +35,7 @@ def heartbeat():
     return "HEARTBEAT"
 
 
-def generic_search(requestType, path, payload=None):
+def generic_search(request_type, path, payload=None):
     """
 
     Federate queries by forwarding request to other nodes
@@ -73,7 +76,7 @@ def generic_search(requestType, path, payload=None):
 
     request_dictionary = flask.request
     print(app.config["peers"])
-    federationResponse = FederationResponse(requestType, args, app.config["services"][0], "Blank",
+    federationResponse = FederationResponse(request_type, args, app.config["services"][0], "Blank",
                                             'application/json', request_dictionary)
 
     federationResponse.handleLocalRequest()
@@ -90,7 +93,7 @@ def generic_search(requestType, path, payload=None):
 
         # Send results to aggregate script
 
-        federationResponse.handlePeerRequest('GET')
+        federationResponse.handlePeerRequest()
 
     responseObject = federationResponse.getResponseObject()
     print(responseObject)
