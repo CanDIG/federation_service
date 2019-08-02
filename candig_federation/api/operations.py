@@ -13,8 +13,10 @@ app = flask.current_app
 
 
 @apilog
-def get_search(path, payload=None):
-    return generic_search('GET', path, payload)
+def get_search(endpoint_path, endpoint_payload=None):
+    print("\n -----Generic Start 4 GET-----")
+
+    return generic_search('GET', endpoint_path, endpoint_payload)
 
 @apilog
 def post_search():
@@ -22,7 +24,7 @@ def post_search():
     data = json.loads(flask.request.data)
     print(flask.request)
     print(flask.request.json)
-    print("\n -----Generic Start-----")
+    print("\n -----Generic Start 4 POST-----")
 
     return generic_search('POST', data["path"], data["payload"])
 
@@ -72,7 +74,7 @@ def generic_search(request_type, path, payload=None):
     }
 
     """
-    args = {"path": path, "payload": payload}
+    args = {"endpoint_path": path, "endpoint_payload": payload}
 
     request_dictionary = flask.request
     print(app.config["peers"])

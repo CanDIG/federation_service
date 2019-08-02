@@ -17,10 +17,12 @@ app = current_app
 class FederationResponse(object):
 
     def __init__(self, request_type, args, url, host, return_mimetype, request_dict):
-        self.results = {}
+        self.results = []
         self.status = []
         self.request = request_type
         self.args = args
+        self.endpoint_path = args["endpoint_path"]
+        self.endpoint_payload = args["endpoint_payload"]
         self.url = url
         self.host = host
         self.return_mimetype = return_mimetype
@@ -33,22 +35,24 @@ class FederationResponse(object):
         make local data request and set the results and status for a FederationResponse
         """
         try:
-            print(self.host, self.args)
+            print(self.host, self.endpoint_path, self.endpoint_payload)
 
             request_handle = requests.Session()
-            full_path = "{}/{}".format(self.url, self.args["path"])
+            full_path = "{}/{}".format(self.url, self.endpoint_path)
             headers = {'Content-Type': 'application/json',
                        'Accept': 'application/json'}
 
             if self.request == "GET":
 
-                resp = request_handle.get(full_path, headers=headers, params=self.args["payload"])
+                resp = request_handle.get(full_path, headers=headers, params=self.endpoint_payload)
 
                 self.status.append(resp.status_code)
 
                 response = {key: value for key, value in resp.json().items() if key.lower() not in ['headers', 'url']}
 
-                self.results = response
+                print("Local GET Request Response: \n {}".format(response))
+
+                self.results.append(response)
 
             if self.request == "POST":
 
@@ -59,7 +63,7 @@ class FederationResponse(object):
                 response = {key: value for key, value in resp.json().items() if key.lower()
                             not in ['headers', 'url',  'args', 'json']}
 
-                print("Local Request Response: \n {}".format(response))
+                print("Local POST Request Response: \n {}".format(response))
 
                 self.results = response
 
@@ -78,7 +82,7 @@ class FederationResponse(object):
         header = {
             'Content-Type': self.return_mimetype,
             'Accept': self.return_mimetype,
-            'Federation': 'False',
+            'federation': 'False',
             'Authorization': self.token,
         }
 
@@ -105,11 +109,10 @@ class FederationResponse(object):
 
                         print(self.results)
 
+                        self.results.append(response.json()["results"])
+
                     elif self.request == "POST":
-                        print("In line 106\n")
-                        print(response.json())
-                        print("\n")
-                        print(self.results)
+
                         peer_response = response.json()["results"]
 
                         if not self.results:
@@ -161,10 +164,12 @@ class FederationResponse(object):
 
         async_session = FuturesSession(max_workers=10)  # capping max threads
         if request_type == "GET":
+            print(self.args)
             responses = [
                 async_session.get("{}/federation/search".format(uri), headers=header, params=self.args)
                 for uri in uri_list
             ]
+
         elif request_type == "POST":
             responses = [
                 async_session.post("{}/federation/search".format(uri), json=self.args, headers=header)

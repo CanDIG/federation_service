@@ -26,6 +26,5 @@ _SWAGGER_SPEC = Spec.from_dict(_SPEC_DICT, config=_BRAVADO_CONFIG)
 # Generate the Python models from the spec
 
 BASEPATH = _SWAGGER_SPEC.flattened_spec['basePath']
-PostSearch = _SWAGGER_SPEC.definitions['PostSearch']
+PostObject = _SWAGGER_SPEC.definitions['PostObject']
 Error = _SWAGGER_SPEC.definitions['Error']
-Announcement = _SWAGGER_SPEC.definitions['Announcement']
