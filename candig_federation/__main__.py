@@ -11,6 +11,7 @@ import logging
 import pkg_resources
 
 from candig_federation.api import network
+from flask_session import Session
 from tornado.options import define
 
 def main(args=None):
@@ -28,12 +29,13 @@ def main(args=None):
     args = parser.parse_args(args)
 
 
-    # Application setup
-
-    app = connexion.FlaskApp(__name__, server='tornado')
-
-
     # Logging configuration
+
+    # app = connexion.FlaskApp(__name__, server='tornado')
+    #
+    # api_def = pkg_resources.resource_filename('candig_federation', 'api/federation.yaml')
+    #
+    # app.add_api(api_def, strict_validation=True, validate_responses=True)
 
     log_handler = logging.FileHandler(args.logfile)
     numeric_loglevel = getattr(logging, args.loglevel.upper())
@@ -49,20 +51,23 @@ def main(args=None):
     # Service Parse
     app.app.config["services"] = network.parseConfigList(args.services)
 
-    print(app.app.config["services"])
+    #app.run(port=args.port)
 
-    #network.announceToPeers("./configs/peerlist.txt", sender, app.app.logger)
+    return app, args.port
 
-
-
-    # Add in swagger API
+def configure_app():
+    app = connexion.FlaskApp(__name__, server='tornado')
 
     api_def = pkg_resources.resource_filename('candig_federation', 'api/federation.yaml')
 
     app.add_api(api_def, strict_validation=True, validate_responses=True)
 
-    app.run(port=args.port)
+    return app
+
+app = configure_app()
+
+application, port = main()
 
 
 if __name__ == '__main__':
-    main()
+    application.run(port=port)

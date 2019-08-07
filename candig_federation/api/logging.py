@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 """
 Logging wrappers for api calls
 """
@@ -56,5 +56,6 @@ def apilog(func, *args, **kwargs):
             entrydict[key] = kwargs[key]
 
     logentry = json.dumps(entrydict)
+
     current_app.logger.info(logentry)
     return func(*args, **kwargs)

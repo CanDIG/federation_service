@@ -20,10 +20,9 @@ def get_search(endpoint_path, endpoint_payload=None):
 
 @apilog
 def post_search():
-    print("\n\n")
+
     data = json.loads(flask.request.data)
-    print(flask.request)
-    print(flask.request.json)
+
     print("\n -----Generic Start 4 POST-----")
 
     return generic_search('POST', data["path"], data["payload"])
@@ -77,7 +76,9 @@ def generic_search(request_type, path, payload=None):
     args = {"endpoint_path": path, "endpoint_payload": payload}
 
     request_dictionary = flask.request
-    print(app.config["peers"])
+
+    # TODO Find correct service
+
     federationResponse = FederationResponse(request_type, args, app.config["services"][0], "Blank",
                                             'application/json', request_dictionary)
 
@@ -87,17 +88,10 @@ def generic_search(request_type, path, payload=None):
 
         """Need to federate query"""
 
-
-
-        # send to federation node
-
-        # send to service
-
-        # Send results to aggregate script
-
         federationResponse.handlePeerRequest()
 
     responseObject = federationResponse.getResponseObject()
-    print(responseObject)
+
+    # TODO Figure out returning to Tyk
 
     return responseObject

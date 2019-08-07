@@ -42,17 +42,22 @@ class FederationResponse(object):
             headers = {'Content-Type': 'application/json',
                        'Accept': 'application/json'}
 
+            print(full_path)
+
             if self.request == "GET":
 
                 resp = request_handle.get(full_path, headers=headers, params=self.endpoint_payload)
 
                 self.status.append(resp.status_code)
 
-                response = {key: value for key, value in resp.json().items() if key.lower() not in ['headers', 'url']}
+                if resp.status_code == 200:
 
-                print("Local GET Request Response: \n {}".format(response))
+                    response = {key: value for key, value in resp.json().items() if key.lower() not in ['headers', 'url']}
 
-                self.results.append(response)
+                    print("Local GET Request Response: \n {}".format(response))
+
+                    self.results.append(response)
+
 
             if self.request == "POST":
 
@@ -60,12 +65,14 @@ class FederationResponse(object):
 
                 self.status.append(resp.status_code)
 
-                response = {key: value for key, value in resp.json().items() if key.lower()
-                            not in ['headers', 'url',  'args', 'json']}
+                if resp.status_code == 200:
 
-                print("Local POST Request Response: \n {}".format(response))
+                    response = {key: value for key, value in resp.json().items() if key.lower()
+                                not in ['headers', 'url',  'args', 'json']}
 
-                self.results = response
+                    print("Local POST Request Response: \n {}".format(response))
+
+                    self.results.append(response)
 
 
         except requests.exceptions.ConnectionError:
@@ -124,8 +131,12 @@ class FederationResponse(object):
                 except ValueError:
                     pass
 
+        # Return is used for testing individual methods
+        return self.results
+
         # if self.results:
         #     self.mergeCounts()
+
 
     def mergeCounts(self):
         """
