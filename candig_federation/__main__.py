@@ -20,7 +20,7 @@ def main(args=None):
         args = sys.argv[1:]
 
     parser = argparse.ArgumentParser('Run federation service')
-    parser.add_argument('--port', default=8889)
+    parser.add_argument('--port', default=8890)
     parser.add_argument('--host', default='10.9.208.132')
     parser.add_argument('--logfile', default="./log/federation.log")
     parser.add_argument('--loglevel', default='INFO',

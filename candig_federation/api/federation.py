@@ -42,6 +42,7 @@ class FederationResponse(object):
             headers = {'Content-Type': 'application/json',
                        'Accept': 'application/json'}
 
+            print("**HandleLocalRequest**")
             print(full_path)
 
             if self.request == "GET":
@@ -108,6 +109,10 @@ class FederationResponse(object):
                 continue
             self.status.append(response.status_code)
             # If the call was successful append the results
+
+            print("Response:")
+            print(response.status_code)
+
             if response.status_code == 200:
                 try:
                     if self.request == "GET":
