@@ -1,0 +1,18 @@
+{
+  "peers": {
+    "type": "object",
+    "properties": {
+        "peers": {"type": "object"}
+
+    },
+    "additionalProperties": {"type": "string"}
+  },
+  "services": {
+    "type": "object",
+    "properties": {
+        "services": {"type": "object"}
+
+    },
+    "additionalProperties": {"type": "string"}
+  }
+}

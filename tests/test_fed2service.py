@@ -16,6 +16,12 @@ from candig_federation.api import operations
 from candig_federation.api.federation import FederationResponse
 
 
+TESTING_PARAMS = {
+    "URI": "10.9.208.132",
+    "PORT0": "8890",
+    "PORT1": "8891"
+}
+
 @pytest.fixture()
 def client():
     context = app.app.app_context()
@@ -39,7 +45,7 @@ def test_basic_localresponse(mock_handleLocalRequest, client):
             "endpoint_path": "get/Testing",
             "endpoint_payload": ""
         }
-        FR = FederationResponse('GET', args, "l", "o", "lw", {})
+        FR = FederationResponse('GET', args, "l", "lw", {})
 
         code, results = FR.handleLocalRequest()
 
@@ -64,7 +70,7 @@ def mocked_requests_get(*args, **kwargs):
         def status_code(self):
             return self.status_code
 
-    if args[0] == 'http://info.com/rnaget/projects':
+    if args[0] == 'http://{}:{}/rnaget/projects'.format(TESTING_PARAMS["URI"], TESTING_PARAMS["PORT0"]):
         return MockResponse({
             "projects": {
                 "Umbrella": "Biochemical",
@@ -83,7 +89,7 @@ def mocked_requests_get(*args, **kwargs):
             },
             "url": "http://info.com/rnaget/projects"
         }, 200)
-    elif args[0] == 'http://info.com/federation/search':
+    elif args[0] == 'http://{}:{}/rnaget/projects'.format(TESTING_PARAMS["URI"], TESTING_PARAMS["PORT1"]):
         return MockResponse({"key2": "value2"}, 200)
 
     return MockResponse(None, 404)
@@ -170,7 +176,7 @@ def test_basic_localresponse_get(mock_requests, client):
             "endpoint_path": "rnaget/projects",
             "endpoint_payload": ""
         }
-        FR = FederationResponse('GET', args, "http://info.com", "0.0.0.0", "application/json", {})
+        FR = FederationResponse('GET', args, "http://10.9.208.132:8890", "application/json", {})
 
         FR.handleLocalRequest()
 
@@ -193,7 +199,7 @@ def test_invalid_url_localresponse_get(mock_requests, client):
             "endpoint_path": "rnaget/projects",
             "endpoint_payload": ""
         }
-        FR = FederationResponse('GET', args, "http://io.com", "0.0.0.0", "application/json", {})
+        FR = FederationResponse('GET', args, "http://io.com", "application/json", {})
 
         FR.handleLocalRequest()
 
@@ -211,7 +217,7 @@ def test_async_requests_two_peers(mock_requests, client):
             "endpoint_path": "rnaget/projects",
             "endpoint_payload": ""
         }
-        FR = FederationResponse('GET', args, "http://info.com", "0.0.0.0", "application/json", {})
+        FR = FederationResponse('GET', args, "http://info.com", "application/json", {})
 
         resp = FR.async_requests(["http://info.com", "http://info2.com"], 'GET', {})
 
@@ -236,9 +242,12 @@ def test_valid_PeerRequest_one_peer(mock_requests, mock_session, client):
             "endpoint_path": "rnaget/projects",
             "endpoint_payload": ""
         }
-        FR = FederationResponse('GET', args, "http://info.com", "10.9.208.132", "application/json", {})
+        FR = FederationResponse('GET', args, "http://10.9.208.132:8890", "application/json", {})
 
         FR.handleLocalRequest()
+
+        print(FR.getResponseObject())
+
         resp = FR.handlePeerRequest()
 
         RO = FR.getResponseObject()

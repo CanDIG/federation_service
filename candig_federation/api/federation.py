@@ -16,7 +16,7 @@ app = current_app
 
 class FederationResponse(object):
 
-    def __init__(self, request_type, args, url, host, return_mimetype, request_dict):
+    def __init__(self, request_type, args, url,return_mimetype, request_dict):
         self.results = []
         self.status = []
         self.request = request_type
@@ -24,7 +24,6 @@ class FederationResponse(object):
         self.endpoint_path = args["endpoint_path"]
         self.endpoint_payload = args["endpoint_payload"]
         self.url = url
-        self.host = host
         self.return_mimetype = return_mimetype
         self.request_dict = request_dict
         self.token = "blank"
@@ -35,8 +34,6 @@ class FederationResponse(object):
         make local data request and set the results and status for a FederationResponse
         """
         try:
-            print(self.host, self.endpoint_path, self.endpoint_payload)
-
             request_handle = requests.Session()
             full_path = "{}/{}".format(self.url, self.endpoint_path)
             headers = {'Content-Type': 'application/json',
@@ -96,8 +93,9 @@ class FederationResponse(object):
 
         # generate peer uri
         uri_list = []
-        for peer in app.config["peers"]:
+        for peer in app.config["peers"].values():
             if peer != app.config["self"]:
+                print("PEER:")
                 print(peer)
                 uri_list.append(peer)
 

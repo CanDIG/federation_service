@@ -79,7 +79,9 @@ def generic_search(request_type, path, payload=None):
 
     # TODO Find correct service
 
-    federationResponse = FederationResponse(request_type, args, app.config["services"][0], "Blank",
+    service = path.split("/")[0]
+
+    federationResponse = FederationResponse(request_type, args, app.config["services"][service],
                                             'application/json', request_dictionary)
 
     federationResponse.handleLocalRequest()
