@@ -27,8 +27,8 @@ def main(args=None):
                         choices=['DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'])
     parser.add_argument('--services', default="./configs/services3.json")
     parser.add_argument('--peers', default="./configs/peers.json")
-    args = parser.parse_args(args)
-
+    #args = parser.parse_args(args)
+    args, unknown = parser.parse_known_args()
 
     # Logging configuration
 
