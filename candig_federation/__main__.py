@@ -11,13 +11,14 @@ import logging
 import pkg_resources
 
 from candig_federation.api import network
-from flask_session import Session
-from tornado.options import define
+
 
 def main(args=None):
     """Main Routine"""
     if args is None:
         args = sys.argv[1:]
+
+    print(args)
 
     parser = argparse.ArgumentParser('Run federation service')
     parser.add_argument('--port', default=8890)
@@ -27,16 +28,10 @@ def main(args=None):
                         choices=['DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'])
     parser.add_argument('--services', default="./configs/services3.json")
     parser.add_argument('--peers', default="./configs/peers.json")
-    #args = parser.parse_args(args)
+    parser.add_argument('--schemas', default="./configs/schemas.json")
     args, unknown = parser.parse_known_args()
 
     # Logging configuration
-
-    # app = connexion.FlaskApp(__name__, server='tornado')
-    #
-    # api_def = pkg_resources.resource_filename('candig_federation', 'api/federation.yaml')
-    #
-    # app.add_api(api_def, strict_validation=True, validate_responses=True)
 
     log_handler = logging.FileHandler(args.logfile)
     numeric_loglevel = getattr(logging, args.loglevel.upper())
@@ -46,15 +41,15 @@ def main(args=None):
     app.app.logger.setLevel(numeric_loglevel)
 
     # Peer Setup
-    app.app.config["peers"] = network.parsePeerList("peers", args.peers, app.app.logger)
+
+    app.app.config["peers"] = network.parseConfigs("peers", args.peers, args.schemas, app.app.logger)
     app.app.config["self"] = "http://{}:{}".format(args.host, args.port)
 
     # Service Parse
-    app.app.config["services"] = network.parsePeerList("services", args.services, app.app.logger)
-
-    #app.run(port=args.port)
+    app.app.config["services"] = network.parseConfigs("services", args.services, args.schemas, app.app.logger)
 
     return app, args.port
+
 
 def configure_app():
     app = connexion.FlaskApp(__name__, server='tornado')
@@ -64,6 +59,7 @@ def configure_app():
     app.add_api(api_def, strict_validation=True, validate_responses=True)
 
     return app
+
 
 app = configure_app()
 
