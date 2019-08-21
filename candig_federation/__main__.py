@@ -5,32 +5,36 @@ Driver program for service
 """
 
 import sys
-import connexion
 import argparse
 import logging
+
+import connexion
 import pkg_resources
 
 from candig_federation.api import network
-from tornado.options import define
+
 
 def main(args=None):
-    """Main Routine"""
+    """
+    Main Routine
+
+    Parse all the args and set up peer and service dictionaries
+    """
     if args is None:
         args = sys.argv[1:]
 
     parser = argparse.ArgumentParser('Run federation service')
-    parser.add_argument('--port', default=8889)
+    parser.add_argument('--port', default=8890)
     parser.add_argument('--host', default='10.9.208.132')
     parser.add_argument('--logfile', default="./log/federation.log")
     parser.add_argument('--loglevel', default='INFO',
                         choices=['DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'])
-    args = parser.parse_args(args)
+    parser.add_argument('--services', default="./configs/services3.json")
+    parser.add_argument('--peers', default="./configs/peers.json")
+    parser.add_argument('--schemas', default="./configs/schemas.json")
 
-
-    # Application setup
-
-    app = connexion.FlaskApp(__name__, server='tornado')
-
+    # known args used to supply command line args to pytest without raising an error here
+    args, _ = parser.parse_known_args()
 
     # Logging configuration
 
@@ -38,25 +42,43 @@ def main(args=None):
     numeric_loglevel = getattr(logging, args.loglevel.upper())
     log_handler.setLevel(numeric_loglevel)
 
-    app.app.logger.addHandler(log_handler)
-    app.app.logger.setLevel(numeric_loglevel)
+    APP.app.logger.addHandler(log_handler)
+    APP.app.logger.setLevel(numeric_loglevel)
 
     # Peer Setup
-    app.app.config["peers"] = network.getInitialPeerList("./configs/peerlist.txt")
-    app.app.config["self"] = "http://{}:{}".format(args.host, args.port)
 
-    #network.announceToPeers("./configs/peerlist.txt", sender, app.app.logger)
+    APP.app.config["peers"] = network.parse_configs("peers", args.peers,
+                                                    args.schemas, APP.app.logger)
+    APP.app.config["self"] = "http://{}:{}".format(args.host, args.port)
+
+    # Service Parse
+    APP.app.config["services"] = network.parse_configs("services", args.services,
+                                                       args.schemas, APP.app.logger)
+
+    return APP, args.port
 
 
+def configure_app():
+    """
+    Set up base flask app from Connexion
 
-    # Add in swagger API
+    App pulled out as global variable to allow import into
+    testing files to access application context
+    """
+    app = connexion.FlaskApp(__name__, server='tornado')
 
     api_def = pkg_resources.resource_filename('candig_federation', 'api/federation.yaml')
 
     app.add_api(api_def, strict_validation=True, validate_responses=True)
 
-    app.run(port=args.port)
+    return app
+
+
+APP = configure_app()
+
+APPLICATION, PORT = main()
 
 
 if __name__ == '__main__':
-    main()
+    print("federation_service running at {}".format(APPLICATION.app.config["self"]))
+    APPLICATION.run(port=PORT)

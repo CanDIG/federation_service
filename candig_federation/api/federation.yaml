@@ -2,7 +2,7 @@
 swagger: "2.0"
 info:
   description: Microservice implementation of CanDIG v1 federation
-  version: 0.1.0
+  version: "1.0.0"
   title: CanDIG Federation API POC
   contact:
     email: dnaidoo@bcgsc.ca
@@ -16,6 +16,7 @@ produces:
 - application/json
 schemes:
 - http
+
 paths:
   /search:
     get:
@@ -26,16 +27,10 @@ paths:
       produces:
       - application/json
       parameters:
-      - name: path
-        in: query
-        description: pass the path of the microservice to be queried
-        required: true
-        type: string
-      - name: payload
-        in: query
-        description: arguements to be passed with GET request to microservice
-        required: false
-        type: string
+      - $ref: '#/parameters/endpoint_path'
+      - $ref: '#/parameters/endpoint_payload'
+      - $ref: '#/parameters/federation'
+
       responses:
         "200":
           description: Successful query
@@ -63,7 +58,8 @@ paths:
         name: post_microservice
         required: false
         schema:
-          $ref: '#/definitions/PostSearch'
+          $ref: '#/definitions/PostObject'
+      - $ref: '#/parameters/federation'
       responses:
         "201":
           description: entry created
@@ -80,55 +76,45 @@ paths:
         "508":
           description: Federation node time out
 
-  /announce:
-    post:
-      summary: Send node information to new node
-      description: |
-        Endpoint to announce existence to other nodes to validate peer lists
-      operationId: candig_federation.api.operations.announce
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        name: annoucement
-        required: true
-        schema:
-          $ref: '#/definitions/Announcement'
-      responses:
-        "200":
-          description: Successful annoucement. Heartbeat initiated
-        "500":
-          description: Internal Error
+parameters:
+  endpoint_path:
+    name: endpoint_path
+    description: Path to microservice endpoint
+    in: query
+    type: string
+    x-example: /variantget/projects
+    required: true
 
-  /heartbeat:
-    get:
-      summary: Receive notification that peers are alive
-      description: |
-        Endpoint to recieve a heartbeat from known peers
-      operationId: candig_federation.api.operations.heartbeat
-      responses:
-        "200":
-          description: Heartbeat received
-        "500":
-          description: Internal error
+  endpoint_payload:
+    name: endpoint_payload
+    description: Semicolon separated parameters to pass on
+    in: query
+    type: string
+    x-example: abc:123;def:789
+    required: false
+
+  federation:
+    name: federation
+    description: Flag for federated query. Federation assumed unless false is specified
+    in: header
+    type: boolean
 
 
 definitions:
-  PostSearch:
+  PostObject:
     type: object
     required:
-    - path
-    - payload
+    - endpoint_path
+    - endpoint_payload
     properties:
-      path:
+      endpoint_path:
         type: string
         example: /v2/get
-      payload:
-        type: array
-        items:
+      endpoint_payload:
+        type: object
+        additionalProperties:
           type: string
+
   Error:
     type: object
     required:
@@ -140,21 +126,3 @@ definitions:
         format: int32
       message:
         type: string
-  Announcement:
-    type: object
-    required:
-    - peer
-    - sender
-    properties:
-      peer:
-        type: object
-        example:  {peer: {url: 127.0.0.1:5000}}
-        properties:
-          url:
-            type: string
-      sender:
-        type: object
-        example:  {sender: {url: 127.0.0.1:5000}}
-        properties:
-          url:
-            type: string
