@@ -4,15 +4,14 @@ Provides methods to handle both local and federated requests
 """
 
 import requests
-import json
 
-import candig_federation.api.network as network
 from flask import current_app
 from requests_futures.sessions import FuturesSession
 
 from collections import Counter
 
 app = current_app
+
 
 class FederationResponse(object):
 
@@ -39,43 +38,23 @@ class FederationResponse(object):
             headers = {'Content-Type': 'application/json',
                        'Accept': 'application/json'}
 
-            print("**HandleLocalRequest**")
-            print(full_path)
-
             if self.request == "GET":
-
                 resp = request_handle.get(full_path, headers=headers, params=self.endpoint_payload)
-
                 self.status.append(resp.status_code)
-
                 if resp.status_code == 200:
-
                     response = {key: value for key, value in resp.json().items() if key.lower() not in ['headers', 'url']}
-
-                    print("Local GET Request Response: \n {}".format(response))
-
                     self.results.append(response)
-
 
             if self.request == "POST":
-
                 resp = request_handle.post(full_path, headers=headers, json={"test": "this"})
-
                 self.status.append(resp.status_code)
-
                 if resp.status_code == 200:
-
                     response = {key: value for key, value in resp.json().items() if key.lower()
                                 not in ['headers', 'url',  'args', 'json']}
-
-                    print("Local POST Request Response: \n {}".format(response))
-
                     self.results.append(response)
-
 
         except requests.exceptions.ConnectionError:
             self.status.append(404)
-
 
 
     def handlePeerRequest(self):
@@ -95,8 +74,6 @@ class FederationResponse(object):
         uri_list = []
         for peer in app.config["peers"].values():
             if peer != app.config["self"]:
-                print("PEER:")
-                print(peer)
                 uri_list.append(peer)
 
         for future_response in self.async_requests(uri_list, self.request, header):
@@ -108,29 +85,22 @@ class FederationResponse(object):
             self.status.append(response.status_code)
             # If the call was successful append the results
 
-            print("Response:")
-            print(response.status_code)
-
             if response.status_code == 200:
                 try:
                     if self.request == "GET":
-                        print("In line 91 \n")
-                        print(response.json())
-
-                        print(self.results)
-
                         self.results.append(response.json()["results"])
 
                     elif self.request == "POST":
-
-                        peer_response = response.json()["results"]
+                        # peer_response = response.json()["results"]
+                        peer_response = response.json()
 
                         if not self.results:
                             self.results = peer_response
                         else:
-                            for entries in peer_response["data"]["datasets"]:
-                                print(self.results)
-                                self.results["data"]["datasets"].append(entries)
+                            # for entries in peer_response["data"]["datasets"]:
+                            #     print(self.results)
+                            #     self.results["data"]["datasets"].append(entries)
+                            self.results.append(peer_response)
                 except ValueError:
                     pass
 
@@ -143,17 +113,14 @@ class FederationResponse(object):
 
     def mergeCounts(self):
         """
-
         merge federated counts and set results for FederationResponse
+        TODO: Fully Implement this
         """
 
         table = list(set(self.results.keys()))
         prepare_counts = {}
 
-        print(table)
-        print("\n\n\n\n")
         for record in self.results:
-            print(record)
             for k, v in record.items():
                 if k in prepare_counts:
                     prepare_counts[k].append(Counter(v))
@@ -166,7 +133,6 @@ class FederationResponse(object):
             for count in prepare_counts[field]:
                 count_total = count_total + count
             merged_counts[field] = dict(count_total)
-        print(table, merged_counts)
         self.results[table] = [merged_counts]
 
 
@@ -178,7 +144,6 @@ class FederationResponse(object):
 
         async_session = FuturesSession(max_workers=10)  # capping max threads
         if request_type == "GET":
-            print(self.args)
             responses = [
                 async_session.get("{}/federation/search".format(uri), headers=header, params=self.args)
                 for uri in uri_list

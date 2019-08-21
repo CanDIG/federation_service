@@ -15,7 +15,7 @@ consumes:
 produces:
 - application/json
 schemes:
- - http
+- http
 
 paths:
   /search:
@@ -104,27 +104,16 @@ definitions:
   PostObject:
     type: object
     required:
-    - path
-    - payload
+    - endpoint_path
+    - endpoint_payload
     properties:
-      path:
+      endpoint_path:
         type: string
         example: /v2/get
-      payload:
+      endpoint_payload:
         type: object
-        additionalProperties: true
-  Query:
-    type: object
-    required:
-    - path
-    - payload
-    properties:
-      path:
-        type: string
-        example: /v2/get
-      payload:
-        type: object
-        additionalProperties: true
+        additionalProperties:
+          type: string
 
   Error:
     type: object

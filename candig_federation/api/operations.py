@@ -1,39 +1,28 @@
-import json
-import datetime
+"""
+Methods to handle incoming requests passed from Tyk
 
+"""
+
+import json
 import flask
 
-from candig_federation.api.logging import apilog, logger
-from candig_federation.api.logging import structured_log as struct_log
-from candig_federation.api.models import Error, BASEPATH
+from candig_federation.api.logging import apilog
 from candig_federation.api.federation import FederationResponse
 
-app = flask.current_app
-
+APP = flask.current_app
 
 
 @apilog
 def get_search(endpoint_path, endpoint_payload=None):
-    print("\n -----Generic Start 4 GET-----")
-
+    """Wrapper for GET requests"""
     return generic_search('GET', endpoint_path, endpoint_payload)
+
 
 @apilog
 def post_search():
-
+    """Wrapper for POST requests"""
     data = json.loads(flask.request.data)
-
-    print("\n -----Generic Start 4 POST-----")
-
-    return generic_search('POST', data["path"], data["payload"])
-
-@apilog
-def announce():
-    return "ANNOUNCE"
-
-@apilog
-def heartbeat():
-    return "HEARTBEAT"
+    return generic_search('POST', data["endpoint_path"], data["endpoint_payload"])
 
 
 def generic_search(request_type, path, payload=None):
@@ -50,50 +39,29 @@ def generic_search(request_type, path, payload=None):
 
     Returns:
     ========
-    responseObject: json string
-        Merged responses from the federation nodes. responseObject structure:
+    response_object: json string
+        Merged responses from the federation nodes. response_object structure:
 
     {
-    "status": {
-        "Successful communications": <number>,
-        "Known peers": <number>,
-        "Valid response": <true|false>,
-        "Queried peers": <number>
-        },
-    "results": {
-            "total": N
-            "datasets": [
-                    {record1},
-                    {record2},
-                    ...
-                    {recordN},
-                ]
-            }
-        ]
+    "status": [Status Codes],
+    "results": [Responses]
     }
 
     """
     args = {"endpoint_path": path, "endpoint_payload": payload}
-
     request_dictionary = flask.request
-
-    # TODO Find correct service
-
     service = path.split("/")[0]
 
-    federationResponse = FederationResponse(request_type, args, app.config["services"][service],
-                                            'application/json', request_dictionary)
+    federation_response = FederationResponse(request_type, args, APP.config["services"][service],
+                                             'application/json', request_dictionary)
 
-    federationResponse.handleLocalRequest()
+    federation_response.handleLocalRequest()
 
-    if 'federation' not in request_dictionary.headers or request_dictionary.headers.get('federation') == 'True':
+    if 'federation' not in request_dictionary.headers or \
+            request_dictionary.headers.get('federation') == 'True':
 
-        """Need to federate query"""
+        federation_response.handlePeerRequest()
 
-        federationResponse.handlePeerRequest()
+    response_object = federation_response.getResponseObject()
 
-    responseObject = federationResponse.getResponseObject()
-
-    # TODO Figure out returning to Tyk
-
-    return responseObject
+    return response_object
