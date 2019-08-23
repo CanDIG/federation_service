@@ -213,9 +213,9 @@ def test_basic_localresponse_get(mock_requests, client):
         }
         FR = FederationResponse('GET', args, "http://10.9.208.132:8890", "application/json", {})
 
-        FR.handleLocalRequest()
+        FR.handle_local_request()
 
-        RO = FR.getResponseObject()
+        RO = FR.get_response_object()
 
         assert RO["status"] == [200]
 
@@ -236,9 +236,9 @@ def test_invalid_url_localresponse_get(mock_requests, client):
         }
         FR = FederationResponse('GET', args, "http://io.com", "application/json", {})
 
-        FR.handleLocalRequest()
+        FR.handle_local_request()
 
-        RO = FR.getResponseObject()
+        RO = FR.get_response_object()
 
         assert RO["status"] == [404]
 
@@ -265,7 +265,7 @@ def test_async_requests_two_peers_get(mock_requests, client):
 
 
 """
-This test focuses on the output from FederationResponse.handlePeerRequest(). To efficiently test it, the response
+This test focuses on the output from FederationResponse.handle_peer_request(). To efficiently test it, the response
 from from async_requests will be mocked to resemble the expected output from FederationResponse.handleLocalRequest().
 """
 
@@ -279,9 +279,9 @@ def test_valid_PeerRequest_one_peer_get(mock_requests, mock_session, client):
             "endpoint_payload": ""
         }
         FR = FederationResponse('GET', args, "http://10.9.208.132:8890", "application/json", {})
-        FR.handleLocalRequest()
-        resp = FR.handlePeerRequest()
-        RO = FR.getResponseObject()
+        FR.handle_local_request()
+        resp = FR.handle_peer_request()
+        RO = FR.get_response_object()
 
         assert RO["results"] == [{
             "projects": {
@@ -294,7 +294,7 @@ def test_valid_PeerRequest_one_peer_get(mock_requests, mock_session, client):
 
 """
 This test will focus on the operations.get_search() function. A valid GET query will be sent to be federated. Both
-FederationResponse.handleLocalRequest() and FederationResponse.handlePeerRequest() will be rerouted to mocked services
+FederationResponse.handleLocalRequest() and FederationResponse.handle_peer_request() will be rerouted to mocked services
 to retrieve data
 """
 
@@ -337,13 +337,13 @@ def test_valid_PeerRequest_one_peer_post(mock_session, mock_requests,  client):
             "endpoint_payload": ""
         }
         FR = FederationResponse('POST', args, "http://10.9.208.132:8890", "application/json", {})
-        FR.handleLocalRequest()
+        FR.handle_local_request()
 
         print("Testing Call Response Local Object:")
-        print(FR.getResponseObject())
+        print(FR.get_response_object())
 
-        PR = FR.handlePeerRequest()
-        RO = FR.getResponseObject()
+        PR = FR.handle_peer_request()
+        RO = FR.get_response_object()
 
         print("Testing Call Response Combined Object:")
         print(RO["results"])
@@ -359,9 +359,9 @@ def test_valid_PeerRequest_no_local_one_peer_post(mock_session,  client):
             "endpoint_payload": ""
         }
         FR = FederationResponse('POST', args, "http://10.9.208.132:8890", "application/json", {})
-        FR.handleLocalRequest()
-        PR = FR.handlePeerRequest()
-        RO = FR.getResponseObject()
+        FR.handle_local_request()
+        PR = FR.handle_peer_request()
+        RO = FR.get_response_object()
 
         print(RO["results"])
 
