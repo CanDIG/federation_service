@@ -59,8 +59,8 @@ def generic_search(request_type, path, payload=None):
 
     federation_response.handle_local_request()
 
-    if 'federation' not in request_dictionary.headers or \
-            request_dictionary.headers.get('federation') == 'True':
+    if 'Federation' not in request_dictionary.headers or \
+            request_dictionary.headers.get('Federation') == 'True':
 
         federation_response.handle_peer_request()
 

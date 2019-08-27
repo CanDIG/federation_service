@@ -54,7 +54,7 @@ class FederationResponse:
                     self.results.append(response)
 
             if self.request == "POST":
-                resp = request_handle.post(full_path, headers=headers, json={"test": "this"})
+                resp = request_handle.post(full_path, headers=headers, json=self.endpoint_payload)
                 self.status.append(resp.status_code)
                 if resp.status_code == 200:
                     response = {key: value for key, value in resp.json().items() if key.lower()
@@ -74,7 +74,7 @@ class FederationResponse:
         header = {
             'Content-Type': self.return_mimetype,
             'Accept': self.return_mimetype,
-            'federation': 'False',
+            'Federation': 'False',
             'Authorization': self.token,
         }
 
