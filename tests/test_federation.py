@@ -338,15 +338,8 @@ def test_valid_PeerRequest_one_peer_post(mock_session, mock_requests,  client):
         }
         FR = FederationResponse('POST', args, "http://10.9.208.132:8890", "application/json", {})
         FR.handle_local_request()
-
-        print("Testing Call Response Local Object:")
-        print(FR.get_response_object())
-
         PR = FR.handle_peer_request()
         RO = FR.get_response_object()
-
-        print("Testing Call Response Combined Object:")
-        print(RO["results"])
 
         assert RO["results"] == [POST_RESPONSES["PLV1"], POST_RESPONSES["PLV2"]]
 
@@ -363,6 +356,6 @@ def test_valid_PeerRequest_no_local_one_peer_post(mock_session,  client):
         PR = FR.handle_peer_request()
         RO = FR.get_response_object()
 
-        print(RO["results"])
+
 
         assert RO["results"] == POST_RESPONSES["PLV2"]

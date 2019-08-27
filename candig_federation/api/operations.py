@@ -42,6 +42,8 @@ def generic_search(request_type, path, payload=None):
     response_object: json string
         Merged responses from the federation nodes. response_object structure:
 
+    ** This still needs to be finalized **
+
     {
     "status": [Status Codes],
     "results": [Responses]
