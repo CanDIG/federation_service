@@ -1,3 +1,8 @@
+"""
+Test suite to check for errors upon federation_service start up
+"""
+
+
 import sys
 import os
 import logging
