@@ -29,7 +29,7 @@ paths:
       parameters:
       - $ref: '#/parameters/endpoint_path'
       - $ref: '#/parameters/endpoint_payload'
-      - $ref: '#/parameters/federation'
+      - $ref: '#/parameters/Federation'
 
       responses:
         "200":
@@ -59,7 +59,7 @@ paths:
         required: false
         schema:
           $ref: '#/definitions/PostObject'
-      - $ref: '#/parameters/federation'
+      - $ref: '#/parameters/Federation'
       responses:
         "201":
           description: entry created
@@ -93,8 +93,8 @@ parameters:
     x-example: abc:123;def:789
     required: false
 
-  federation:
-    name: federation
+  Federation:
+    name: Federation
     description: Flag for federated query. Federation assumed unless false is specified
     in: header
     type: boolean

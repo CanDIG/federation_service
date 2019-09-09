@@ -42,6 +42,8 @@ def generic_search(request_type, path, payload=None):
     response_object: json string
         Merged responses from the federation nodes. response_object structure:
 
+    ** This still needs to be finalized **
+
     {
     "status": [Status Codes],
     "results": [Responses]
@@ -55,13 +57,13 @@ def generic_search(request_type, path, payload=None):
     federation_response = FederationResponse(request_type, args, APP.config["services"][service],
                                              'application/json', request_dictionary)
 
-    federation_response.handleLocalRequest()
+    federation_response.handle_local_request()
 
-    if 'federation' not in request_dictionary.headers or \
-            request_dictionary.headers.get('federation') == 'True':
+    if 'Federation' not in request_dictionary.headers or \
+            request_dictionary.headers.get('Federation') == 'True':
 
-        federation_response.handlePeerRequest()
+        federation_response.handle_peer_request()
 
-    response_object = federation_response.getResponseObject()
+    response_object = federation_response.get_response_object()
 
     return response_object

@@ -29,7 +29,7 @@ def main(args=None):
     parser.add_argument('--logfile', default="./log/federation.log")
     parser.add_argument('--loglevel', default='INFO',
                         choices=['DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'])
-    parser.add_argument('--services', default="./configs/services3.json")
+    parser.add_argument('--services', default="./configs/services.json")
     parser.add_argument('--peers', default="./configs/peers.json")
     parser.add_argument('--schemas', default="./configs/schemas.json")
 
