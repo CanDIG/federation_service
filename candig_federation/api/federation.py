@@ -46,16 +46,21 @@ class FederationResponse:
                        'Federation': 'false'}
 
             if self.request == "GET":
+                print("Sending to: {}".format(full_path))
                 resp = request_handle.get(full_path, headers=headers, params=self.endpoint_payload)
                 self.status.append(resp.status_code)
+                print(resp.content)
                 if resp.status_code == 200:
                     response = {key: value for key, value in resp.json().items() if key.lower()
                                 not in ['headers', 'url']}
                     self.results.append(response)
 
             if self.request == "POST":
+                print("Sending to: {}".format(full_path))
+
                 resp = request_handle.post(full_path, headers=headers, json=self.endpoint_payload)
                 self.status.append(resp.status_code)
+                print(resp)
                 if resp.status_code == 200:
                     response = {key: value for key, value in resp.json().items() if key.lower()
                                 not in ['headers', 'url', 'args', 'json']}
@@ -74,7 +79,7 @@ class FederationResponse:
         header = {
             'Content-Type': self.return_mimetype,
             'Accept': self.return_mimetype,
-            'Federation': 'False',
+            'Federation': 'false',
             'Authorization': self.token,
         }
 
@@ -82,7 +87,8 @@ class FederationResponse:
         uri_list = []
         for peer in APP.config["peers"].values():
             if peer != APP.config["self"]:
-                uri_list.append(peer)
+                uri_list.append("{}".format(peer))
+
 
         for future_response in self.async_requests(uri_list, self.request, header):
             try:

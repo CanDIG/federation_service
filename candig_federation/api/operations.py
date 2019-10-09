@@ -6,15 +6,19 @@ Methods to handle incoming requests passed from Tyk
 import json
 import flask
 
+from distutils.util import strtobool
+
 from candig_federation.api.logging import apilog
 from candig_federation.api.federation import FederationResponse
 
 APP = flask.current_app
 
 
+
 @apilog
 def get_search(endpoint_path, endpoint_payload=None):
     """Wrapper for GET requests"""
+
     return generic_search('GET', endpoint_path, endpoint_payload)
 
 
@@ -59,8 +63,10 @@ def generic_search(request_type, path, payload=None):
 
     federation_response.handle_local_request()
 
+    # This logic is dumb
+
     if 'Federation' not in request_dictionary.headers or \
-            request_dictionary.headers.get('Federation') == 'True':
+            request_dictionary.headers.get('Federation') == 'true':
 
         federation_response.handle_peer_request()
 
