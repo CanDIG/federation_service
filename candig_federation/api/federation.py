@@ -31,9 +31,16 @@ class FederationResponse:
         self.url = url
         self.return_mimetype = return_mimetype
         self.request_dict = request_dict
-        self.token = "blank"
+        self.token = self.request_dict.headers['Authorization']
 
-    def handle_local_request(self):
+        self.header = {
+            'Content-Type': self.return_mimetype,
+            'Accept': self.return_mimetype,
+            'Federation': 'false',
+            'Authorization': self.token,
+        }
+
+    def query_service(self):
         """
 
         make local data request and set the results and status for a FederationResponse
@@ -41,15 +48,11 @@ class FederationResponse:
         try:
             request_handle = requests.Session()
             full_path = "{}/{}".format(self.url, self.endpoint_path)
-            headers = {'Content-Type': 'application/json',
-                       'Accept': 'application/json',
-                       'Federation': 'false'}
 
             if self.request == "GET":
                 print("Sending to: {}".format(full_path))
-                resp = request_handle.get(full_path, headers=headers, params=self.endpoint_payload)
+                resp = request_handle.get(full_path, headers=self.header, params=self.endpoint_payload)
                 self.status.append(resp.status_code)
-                print(resp.content)
                 if resp.status_code == 200:
                     response = {key: value for key, value in resp.json().items() if key.lower()
                                 not in ['headers', 'url']}
@@ -58,7 +61,7 @@ class FederationResponse:
             if self.request == "POST":
                 print("Sending to: {}".format(full_path))
 
-                resp = request_handle.post(full_path, headers=headers, json=self.endpoint_payload)
+                resp = request_handle.post(full_path, headers=self.header, json=self.endpoint_payload)
                 self.status.append(resp.status_code)
                 print(resp)
                 if resp.status_code == 200:
@@ -69,28 +72,22 @@ class FederationResponse:
         except requests.exceptions.ConnectionError:
             self.status.append(404)
 
-
     def handle_peer_request(self):
         """
 
         make peer data requests and update the results and status for a FederationResponse
         """
 
-        header = {
-            'Content-Type': self.return_mimetype,
-            'Accept': self.return_mimetype,
-            'Federation': 'false',
-            'Authorization': self.token,
-        }
+
 
         # generate peer uri
         uri_list = []
         for peer in APP.config["peers"].values():
-            if peer != APP.config["self"]:
+            if peer != APP.config["local"]:
                 uri_list.append("{}".format(peer))
 
-
-        for future_response in self.async_requests(uri_list, self.request, header):
+        print(uri_list)
+        for future_response in self.async_requests(uri_list, self.request, self.header):
             try:
                 response = future_response.result()
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
@@ -159,14 +156,14 @@ class FederationResponse:
         async_session = FuturesSession(max_workers=10)  # capping max threads
         if request_type == "GET":
             responses = [
-                async_session.get("{}/federation/search".format(uri),
+                async_session.get("{}".format(uri),
                                   headers=header, params=self.args)
                 for uri in uri_list
             ]
 
         elif request_type == "POST":
             responses = [
-                async_session.post("{}/federation/search".format(uri),
+                async_session.post("{}".format(uri),
                                    json=self.args, headers=header)
                 for uri in uri_list
             ]

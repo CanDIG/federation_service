@@ -213,7 +213,7 @@ def test_basic_localresponse_get(mock_requests, client):
         }
         FR = FederationResponse('GET', args, "http://10.9.208.132:8890", "application/json", {})
 
-        FR.handle_local_request()
+        FR.query_service()
 
         RO = FR.get_response_object()
 
@@ -236,7 +236,7 @@ def test_invalid_url_localresponse_get(mock_requests, client):
         }
         FR = FederationResponse('GET', args, "http://io.com", "application/json", {})
 
-        FR.handle_local_request()
+        FR.query_service()
 
         RO = FR.get_response_object()
 
@@ -279,7 +279,7 @@ def test_valid_PeerRequest_one_peer_get(mock_requests, mock_session, client):
             "endpoint_payload": ""
         }
         FR = FederationResponse('GET', args, "http://10.9.208.132:8890", "application/json", {})
-        FR.handle_local_request()
+        FR.query_service()
         resp = FR.handle_peer_request()
         RO = FR.get_response_object()
 
@@ -337,7 +337,7 @@ def test_valid_PeerRequest_one_peer_post(mock_session, mock_requests,  client):
             "endpoint_payload": ""
         }
         FR = FederationResponse('POST', args, "http://10.9.208.132:8890", "application/json", {})
-        FR.handle_local_request()
+        FR.query_service()
         PR = FR.handle_peer_request()
         RO = FR.get_response_object()
 
@@ -352,7 +352,7 @@ def test_valid_PeerRequest_no_local_one_peer_post(mock_session,  client):
             "endpoint_payload": ""
         }
         FR = FederationResponse('POST', args, "http://10.9.208.132:8890", "application/json", {})
-        FR.handle_local_request()
+        FR.query_service()
         PR = FR.handle_peer_request()
         RO = FR.get_response_object()
 

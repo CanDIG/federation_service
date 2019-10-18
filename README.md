@@ -26,6 +26,10 @@ placed into the `federation_service/configs` directory. These files are
 a peers.json and a services.json file following the peers_ex.json 
 and services_ex.json examples provided in the configs folder
 
+#### Peers
+
+Peer nodes 
+
 ### Running
 
 The service can be started with:

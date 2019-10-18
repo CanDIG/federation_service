@@ -61,7 +61,7 @@ def generic_search(request_type, path, payload=None):
     federation_response = FederationResponse(request_type, args, APP.config["services"][service],
                                              'application/json', request_dictionary)
 
-    federation_response.handle_local_request()
+    federation_response.query_service()
 
     # This logic is dumb
 
@@ -69,6 +69,9 @@ def generic_search(request_type, path, payload=None):
             request_dictionary.headers.get('Federation') == 'true':
 
         federation_response.handle_peer_request()
+
+
+
 
     response_object = federation_response.get_response_object()
 

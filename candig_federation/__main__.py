@@ -25,13 +25,14 @@ def main(args=None):
 
     parser = argparse.ArgumentParser('Run federation service')
     parser.add_argument('--port', default=8890)
-    parser.add_argument('--host', default='10.9.208.132')
+    parser.add_argument('--host', default='ga4ghdev01.bcgsc.ca')
     parser.add_argument('--logfile', default="./log/federation.log")
     parser.add_argument('--loglevel', default='INFO',
                         choices=['DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'])
     parser.add_argument('--services', default="./configs/services.json")
     parser.add_argument('--peers', default="./configs/peers.json")
     parser.add_argument('--schemas', default="./configs/schemas.json")
+    parser.add_argument('--localnode', default="http://ga4ghdev01.bcgsc.ca:8008/federation2")
 
     # known args used to supply command line args to pytest without raising an error here
     args, _ = parser.parse_known_args()
@@ -50,6 +51,7 @@ def main(args=None):
     APP.app.config["peers"] = network.parse_configs("peers", args.peers,
                                                     args.schemas, APP.app.logger)
     APP.app.config["self"] = "http://{}:{}".format(args.host, args.port)
+    APP.app.config["local"] = args.localnode
 
     # Service Parse
     APP.app.config["services"] = network.parse_configs("services", args.services,

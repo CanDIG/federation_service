@@ -1,6 +1,6 @@
 {
   "peers": {
-    "p1": "http://10.9.208.132:8890",
-    "p2": "http://10.9.208.132:8891"
+    "p1": "http://ga4ghdev01.bcgsc.ca:8008/federation2",
+    "p2": "http://ga4ghdev01.bcgsc.ca:8008/federation3"
   }
 }
