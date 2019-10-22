@@ -20,7 +20,6 @@ def get_search(endpoint_path, endpoint_payload=None):
     """Wrapper for GET requests"""
 
     service = endpoint_path.split("/")[0]
-    print(endpoint_path, service)
     microservice = APP.config['services'][service]
     federation_response = FederationResponse(url=microservice,
                                              request='GET',

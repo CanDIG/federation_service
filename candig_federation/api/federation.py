@@ -6,9 +6,6 @@ Provides methods to handle both local and federated requests
 from collections import Counter
 
 import requests
-from requests.exceptions import Timeout
-import urllib3
-from socket import timeout
 from flask import current_app
 from requests_futures.sessions import FuturesSession
 
@@ -23,7 +20,8 @@ class FederationResponse:
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=too-many-arguments
 
-    def __init__(self, request, url, endpoint_path, endpoint_payload, request_dict, return_mimetype='application/json', timeout=5):
+    def __init__(self, request, url, endpoint_path, endpoint_payload, request_dict, return_mimetype='application/json',
+                 timeout=5):
         self.results = []
         self.status = []
         self.request = request
@@ -50,8 +48,6 @@ class FederationResponse:
         """
         try:
             request_handle = requests.Session()
-            print("WHat the hell is going on\n")
-            print(endpoint_path)
             full_path = "{}/{}".format(url, endpoint_path)
 
             print("Sending GET to: {}".format(full_path))
@@ -59,6 +55,7 @@ class FederationResponse:
             print(resp.json())
             self.status.append(resp.status_code)
             if resp.status_code == 200:
+                # Only take the 'data' portion of the Response
                 response = {key: value for key, value in resp.json().items() if key.lower()
                             not in ['headers', 'url']}
                 self.results.append(response)
@@ -66,9 +63,9 @@ class FederationResponse:
         except requests.exceptions.ConnectionError:
             self.status.append(404)
             return
-        except (urllib3.exceptions.ReadTimeoutError, timeout, Timeout):
+        except requests.exceptions.Timeout:
             self.status.append(408)
-            return 
+            return
 
     def federate_check(self):
         if 'Federation' not in self.request_dict.headers or \
@@ -90,12 +87,18 @@ class FederationResponse:
             self.status.append(resp.status_code)
             print(resp.json())
             if resp.status_code == 200:
+                # Only take the 'data' portion of the Response
                 response = {key: value for key, value in resp.json().items() if key.lower()
                             not in ['headers', 'url', 'args', 'json']}
                 self.results.append(response)
 
         except requests.exceptions.ConnectionError:
             self.status.append(404)
+            return
+
+        except requests.exceptions.Timeout:
+            self.status.append(408)
+            return
 
     def handle_peer_request(self, request, endpoint_path, endpoint_payload, header):
         """
@@ -115,7 +118,7 @@ class FederationResponse:
             if peer != APP.config["local"]:
                 uri_list.append("{}".format(peer))
 
-        print(uri_list)
+        print("Federating: {}".format(uri_list))
         for future_response in self.async_requests(uri_list=uri_list,
                                                    request_type=request,
                                                    header=header,
@@ -133,6 +136,12 @@ class FederationResponse:
             if response.status_code == 200:
                 try:
                     if request == "GET":
+                        """
+                        Each Response will be in the form on a ResponseObject
+                            {"status": [], "results": []}
+                        Gather the data within each "results" and append it to 
+                        the main one.
+                        """
                         self.results.append(response.json()["results"])
 
                     elif request == "POST":
@@ -183,21 +192,23 @@ class FederationResponse:
         """
         args = {"endpoint_path": endpoint_path, "endpoint_payload": endpoint_payload}
         async_session = FuturesSession(max_workers=10)  # capping max threads
-        if request_type == "GET":
-            responses = [
-                async_session.get("{}".format(uri),
-                                  headers=header, params=args, timeout=self.timeout)
-                for uri in uri_list
-            ]
+        responses = []
 
+        if request_type == "GET":
+            for uri in uri_list:
+                try:
+                    responses.append(async_session.get(uri,
+                                                       headers=header, params=args, timeout=self.timeout))
+                except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+                    responses.append(e)
         elif request_type == "POST":
-            responses = [
-                async_session.post("{}".format(uri),
-                                   json=args, headers=header)
-                for uri in uri_list
-            ]
-        else:
-            responses = []
+            for uri in uri_list:
+                try:
+                    responses.append(async_session.post(uri,
+                                                        json=args, headers=header, timeout=self.timeout))
+                except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+                    responses.append(e)
+
         return responses
 
     def get_response_object(self):
@@ -213,21 +224,23 @@ class FederationResponse:
             self.get_service(url=self.url,
                              endpoint_path=self.endpoint_path,
                              endpoint_payload=self.endpoint_payload)
-            print("starting fed check")
             if self.federate_check():
+                print("Federating GET")
                 self.handle_peer_request(request="GET",
                                          endpoint_path=self.endpoint_path,
                                          endpoint_payload=self.endpoint_payload,
                                          header=self.header)
-            print("done")
         else:
             self.post_service(url=self.url,
                               endpoint_path=self.endpoint_path,
                               endpoint_payload=self.endpoint_payload)
             if self.federate_check():
+                print("Federating POST")
                 self.handle_peer_request(request="POST",
                                          endpoint_path=self.endpoint_path,
                                          endpoint_payload=self.endpoint_payload,
                                          header=self.header)
-
+        print(self.results)
+        print("\n\n")
+        print(self.status)
         return {"status": self.status, "results": self.results}
