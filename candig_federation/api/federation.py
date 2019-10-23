@@ -3,9 +3,6 @@
 Provides methods to handle both local and federated requests
 """
 
-from collections import Counter
-from functools import reduce
-
 import requests
 from flask import current_app
 from requests_futures.sessions import FuturesSession
@@ -146,25 +143,14 @@ class FederationResponse:
 
             if response.status_code == 200:
                 try:
-                    if request == "GET":
-                        """
-                        Each Response will be in the form on a ResponseObject
-                            {"status": [], "results": []}
-                        Gather the data within each "results" and append it to 
-                        the main one.
-                        """
-                        self.results.append(response.json()["results"])
+                    """
+                    Each Response will be in the form on a ResponseObject
+                        {"status": [], "results": []}
+                    Gather the data within each "results" and append it to 
+                    the main one.
+                    """
+                    self.results.append(response.json()["results"])
 
-                    elif request == "POST":
-                        peer_response = response.json()
-                        print(peer_response)
-
-                        # if not self.results:
-                        #     self.results = peer_response
-                        # else:
-                        #
-                        #     self.results.append(peer_response)
-                        self.results.append(peer_response["results"])
                 except ValueError:
                     pass
 
@@ -245,7 +231,6 @@ class FederationResponse:
         if 404 in statuses:
             return 404
 
-
     def get_response_object(self):
         """
         1. Query service tied to the network (local)
@@ -275,6 +260,5 @@ class FederationResponse:
                                          endpoint_path=self.endpoint_path,
                                          endpoint_payload=self.endpoint_payload,
                                          header=self.header)
-        print(self.results)
-
+        # print(self.results)
         return {"status": self.merge_status(self.status), "results": self.results}
