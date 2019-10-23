@@ -39,6 +39,18 @@ class testHeader():
     def headers(self):
         return self.headers
 
+
+TWO = {
+    "p1": "http://10.9.208.132:6000",
+    "p2": "http://10.9.208.132:8000"
+}
+THREE = {
+    "p1": "http://10.9.208.132:6000",
+    "p2": "http://10.9.208.132:8000",
+    "p3": "http://10.9.208.132:9000"
+}
+
+
 exampleHeaders = testHeader({
         "Content-Type": "application/json",
         "Host": "ga4ghdev01.bcgsc.ca:8890",
@@ -65,21 +77,27 @@ TP = {
     "URI": "10.9.208.132",
     "PORT0": "8890",
     "PORT1": "8891",
+    "PORT2": "8892",
     "Headers": exampleHeaders,
     "Federate": fedHeader,
     "Tyk1": "10.9.208.132:6000",
     "Tyk2": "10.9.208.132:8000",
+    "Tyk3": "10.9.208.132:9000",
     "path": "rnaget/projects"
 }
 
 AP = {
     "s1": MockResponse({"projects": {"k1": "v1", "k2": "v2"}}, 200),
     "s2": MockResponse({"projects": {"key1": "value1"}}, 200),
+    "s3": MockResponse({"projects": {"keyA": "valueB"}}, 200),
     "i1": MockResponseInternal({"projects": {"k1": "v1", "k2": "v2"}}, 200),
     "i2": MockResponseInternal({"projects": {"key1": "value1"}}, 200),
+    "i3": MockResponseInternal({"projects": {"keyA": "valueB"}}, 200),
+    "timeout": MockResponseInternal({}, 408),
     "fail": MockResponse(None, 404),
     "v1": {"projects": {"k1": "v1", "k2": "v2"}},
     "v2": {"projects": {"key1": "value1"}},
+    "v3": {"projects": {"keyA": "valueB"}},
 }
 
 
@@ -130,11 +148,28 @@ PostListV2 = {
     ]
 }
 
+PostListV3 = {
+    "data": [
+        {
+            "id": "PLVE31",
+            "name": "mockV31",
+            "desc": "VARIANT SERVER"
+        },
+        {
+            "id": "PLVE32",
+            "name": "mockV32",
+            "desc": "VARIANT SERVER"
+        }
+    ]
+}
+
 PR = {
     "PLM1": MockResponse(PostListM1, 200),
     "PLV1": MockResponse(PostListV1, 200),
     "PLV2": MockResponse(PostListV2, 200),
     "iPLV1": MockResponseInternal(PostListV1, 200),
-    "iPLV2": MockResponseInternal(PostListV2, 200)
+    "iPLV2": MockResponseInternal(PostListV2, 200),
+    "PLV3": MockResponse(PostListV3, 200),
+    "iPLV3": MockResponseInternal(PostListV3, 200)
 }
 
