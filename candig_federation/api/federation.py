@@ -128,9 +128,19 @@ class FederationResponse:
             try:
                 response = future_response.result()
                 print(response.status_code)
-            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
-                self.status.append(503)
+            except AttributeError:
+                if isinstance(future_response, requests.exceptions.ConnectionError):
+                    self.status.append(404)
+                if isinstance(future_response, requests.exceptions.Timeout):
+                    self.status.append(408)
                 continue
+            except requests.exceptions.ConnectionError:
+                self.status.append(404)
+                continue
+            except requests.exceptions.Timeout:
+                self.status.append(408)
+                continue
+
             self.status.append(response.status_code)
             # If the call was successful append the results
 
@@ -164,29 +174,29 @@ class FederationResponse:
         # if self.results:
         #     self.merge_counts()
 
-    def merge_counts(self):
-        """
-        merge federated counts and set results for FederationResponse
-        TODO: Fully Implement this
-        """
-
-        table = list(set(self.results.keys()))
-        prepare_counts = {}
-
-        for record in self.results:
-            for key, value in record.items():
-                if key in prepare_counts:
-                    prepare_counts[key].append(Counter(value))
-                else:
-                    prepare_counts[key] = [Counter(value)]
-
-        merged_counts = {}
-        for field in prepare_counts:
-            count_total = Counter()
-            for count in prepare_counts[field]:
-                count_total = count_total + count
-            merged_counts[field] = dict(count_total)
-        self.results[table] = [merged_counts]
+    # def merge_counts(self):
+    #     """
+    #     merge federated counts and set results for FederationResponse
+    #     TODO: Fully Implement this
+    #     """
+    #
+    #     table = list(set(self.results.keys()))
+    #     prepare_counts = {}
+    #
+    #     for record in self.results:
+    #         for key, value in record.items():
+    #             if key in prepare_counts:
+    #                 prepare_counts[key].append(Counter(value))
+    #             else:
+    #                 prepare_counts[key] = [Counter(value)]
+    #
+    #     merged_counts = {}
+    #     for field in prepare_counts:
+    #         count_total = Counter()
+    #         for count in prepare_counts[field]:
+    #             count_total = count_total + count
+    #         merged_counts[field] = dict(count_total)
+    #     self.results[table] = [merged_counts]
 
     def async_requests(self, uri_list, request_type, endpoint_path, endpoint_payload, header):
         """
@@ -214,16 +224,27 @@ class FederationResponse:
 
         return responses
 
-    def merge_response_objects(self, responseObjects):
+    def merge_status(self, statuses):
         """
-        Take a list of Response Objects and merge them down one level into a single RO
+        Design discussion has converged towards returning a single status
 
+        Priority List:
+        1. Return 200 if one exists within the list
+        2. 5xx > 408 > 404
         """
-        r1 = list(map(lambda x: x["results"], responseObjects))
-        print(r1)
-        print(list(map(lambda x: x["results"], r1)))
-        results = reduce(lambda x, y: x.append(y), list(map(lambda x: x["results"], responseObjects)))
-        print(results)
+
+        if 200 in statuses:
+            return 200
+
+        if 500 in statuses:
+            return 500
+
+        if 408 in statuses:
+            return 408
+
+        if 404 in statuses:
+            return 404
+
 
     def get_response_object(self):
         """
@@ -255,7 +276,5 @@ class FederationResponse:
                                          endpoint_payload=self.endpoint_payload,
                                          header=self.header)
         print(self.results)
-        print("\n\n")
-        #self.merge_response_objects(self.results)
 
-        return {"status": self.status, "results": self.results}
+        return {"status": self.merge_status(self.status), "results": self.results}
