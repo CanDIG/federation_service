@@ -100,8 +100,40 @@ PostListM1 = {
     "status": 200
 }
 
+# PostListV1 = {
+#     "results": [
+#         {
+#             "id": "PLVE11",
+#             "name": "mockV11",
+#             "desc": "VARIANT SERVER"
+#         },
+#         {
+#             "id": "PLVE12",
+#             "name": "mockV12",
+#             "desc": "VARIANT SERVER"
+#         }
+#     ],
+#     "status": 200
+# }
+
+# PostListV2 = {
+#     "results": [
+#         {
+#             "id": "PLVE21",
+#             "name": "mockV21",
+#             "desc": "VARIANT SERVER"
+#         },
+#         {
+#             "id": "PLVE22",
+#             "name": "mockV22",
+#             "desc": "VARIANT SERVER"
+#         }
+#     ],
+#     "status": 200
+# }
+#
 PostListV1 = {
-    "results": [
+    "data": [
         {
             "id": "PLVE11",
             "name": "mockV11",
@@ -112,12 +144,11 @@ PostListV1 = {
             "name": "mockV12",
             "desc": "VARIANT SERVER"
         }
-    ],
-    "status": 200
+    ]
 }
 
 PostListV2 = {
-    "results": [
+    "data": [
         {
             "id": "PLVE21",
             "name": "mockV21",
@@ -128,13 +159,14 @@ PostListV2 = {
             "name": "mockV22",
             "desc": "VARIANT SERVER"
         }
-    ],
-    "status": 200
+    ]
 }
 
 PR = {
     "PLM1": MockResponse(PostListM1, 200),
     "PLV1": MockResponse(PostListV1, 200),
-    "PLV2": MockResponse(PostListV2, 200)
+    "PLV2": MockResponse(PostListV2, 200),
+    "iPLV1": MockResponseInternal(PostListV1, 200),
+    "iPLV2": MockResponseInternal(PostListV2, 200)
 }
 

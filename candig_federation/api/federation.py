@@ -4,6 +4,7 @@ Provides methods to handle both local and federated requests
 """
 
 from collections import Counter
+from functools import reduce
 
 import requests
 from flask import current_app
@@ -146,12 +147,14 @@ class FederationResponse:
 
                     elif request == "POST":
                         peer_response = response.json()
+                        print(peer_response)
 
-                        if not self.results:
-                            self.results = peer_response
-                        else:
-
-                            self.results.append(peer_response)
+                        # if not self.results:
+                        #     self.results = peer_response
+                        # else:
+                        #
+                        #     self.results.append(peer_response)
+                        self.results.append(peer_response["results"])
                 except ValueError:
                     pass
 
@@ -211,6 +214,17 @@ class FederationResponse:
 
         return responses
 
+    def merge_response_objects(self, responseObjects):
+        """
+        Take a list of Response Objects and merge them down one level into a single RO
+
+        """
+        r1 = list(map(lambda x: x["results"], responseObjects))
+        print(r1)
+        print(list(map(lambda x: x["results"], r1)))
+        results = reduce(lambda x, y: x.append(y), list(map(lambda x: x["results"], responseObjects)))
+        print(results)
+
     def get_response_object(self):
         """
         1. Query service tied to the network (local)
@@ -242,5 +256,6 @@ class FederationResponse:
                                          header=self.header)
         print(self.results)
         print("\n\n")
-        print(self.status)
+        #self.merge_response_objects(self.results)
+
         return {"status": self.status, "results": self.results}

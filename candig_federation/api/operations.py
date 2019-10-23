@@ -34,6 +34,7 @@ def get_search(endpoint_path, endpoint_payload=None):
 @apilog
 def post_search():
     """Wrapper for POST requests"""
+    print(flask.request.data)
     data = json.loads(flask.request.data)
     endpoint_path = data["endpoint_path"]
     endpoint_payload = data["endpoint_payload"]

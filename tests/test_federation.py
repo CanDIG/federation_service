@@ -3,6 +3,7 @@ from unittest.mock import Mock, patch
 from werkzeug.datastructures import Headers
 import sys
 import os
+import json
 from functools import reduce
 
 import pytest
@@ -14,11 +15,17 @@ sys.path.append(os.getcwd())
 
 from candig_federation.__main__ import APP
 from candig_federation.api.federation import FederationResponse
+from candig_federation.api import operations
 from tests.test_data.test_structs import *
 
-
 APP.app.config["peers"] = {"p1": "http://10.9.208.132:6000", "p2": "http://10.9.208.132:8000"}
+APP.app.config["services"] = {
+    "rnaget": 'http://{}:{}'.format(TP["URI"], TP["PORT0"]),
+    "datasets": "http://10.9.208.132:19712",
+    "datasetsP": "https://ff345ede-96fd-4357-bc44-80ba503591b3.mock.pstmn.io"
+}
 APP.app.config["local"] = "http://10.9.208.132:6000"
+
 
 @pytest.fixture()
 def client():
@@ -46,6 +53,8 @@ def mocked_service_post(*args, **kwargs):
     return AP["fail"]
 
 
+# The returns from async requests need to be futures, so a second class is used to represent that
+
 def mocked_async_requests_get(*args, **kwargs):
     if args[0] == 'http://{}'.format(TP["Tyk1"]):
         return AP["i1"]
@@ -54,25 +63,16 @@ def mocked_async_requests_get(*args, **kwargs):
 
     return AP["fail"]
 
+
 def mocked_async_requests_post(*args, **kwargs):
     if args[0] == 'http://{}'.format(TP["Tyk1"]):
-        return PR["PLV1"]
+        return PR["iPLV1"]
     elif args[0] == 'http://{}'.format(TP["Tyk2"]):
-        return PR["PLV2"]
+        return PR["iPLV2"]
 
     return AP["fail"]
 
 
-
-def mocked_peer_requests_post(*args, **kwargs):
-    if args[0] == 'http://{}:{}/federation/search'.format(TP["URI"], TP["PORT0"]):
-        return MockResponse(
-            PR["PLV1"], 200)
-    elif args[0] == 'http://{}:{}/federation/search'.format(TP["URI"], TP["PORT1"]):
-        return MockResponse(
-            PR["PLV2"], 200)
-
-    return AP["fail"]
 
 ###################
 # Testing Portion #
@@ -82,7 +82,6 @@ def mocked_peer_requests_post(*args, **kwargs):
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
 def test_valid_noFed_get(mock_requests, client):
     with client:
-
         url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
         FR = FederationResponse(url=url,
                                 request="GET",
@@ -98,7 +97,6 @@ def test_valid_noFed_get(mock_requests, client):
 @patch('candig_federation.api.federation.requests.Session.post', side_effect=mocked_service_post)
 def test_valid_noFed_post(mock_requests, client):
     with client:
-
         url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
         FR = FederationResponse(url=url,
                                 request="POST",
@@ -109,6 +107,7 @@ def test_valid_noFed_post(mock_requests, client):
         RO = FR.get_response_object()
         assert RO["status"] == [200]
         assert RO["results"] == [PostListV1]
+
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=exceptions.ConnectionError)
 def test_invalid_noFed_get(mock_requests, client):
@@ -124,10 +123,10 @@ def test_invalid_noFed_get(mock_requests, client):
         assert RO["status"] == [404]
         assert RO["results"] == []
 
+
 @patch('candig_federation.api.federation.requests.Session.post', side_effect=exceptions.ConnectionError)
 def test_invalid_noFed_post(mock_requests, client):
     with client:
-
         url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
         FR = FederationResponse(url=url,
                                 request="POST",
@@ -138,6 +137,7 @@ def test_invalid_noFed_post(mock_requests, client):
         RO = FR.get_response_object()
         assert RO["status"] == [404]
         assert RO["results"] == []
+
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=exceptions.Timeout)
 def test_timeout_noFed_get(mock_requests, client):
@@ -157,7 +157,6 @@ def test_timeout_noFed_get(mock_requests, client):
 @patch('candig_federation.api.federation.requests.Session.post', side_effect=exceptions.Timeout)
 def test_timeout_noFed_post(mock_requests, client):
     with client:
-
         url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
         FR = FederationResponse(url=url,
                                 request="POST",
@@ -215,6 +214,7 @@ def test_valid_asyncRequests_two_peers_post(mock_requests, client):
         assert len(resp) == 2
         assert len(Success) == 2
 
+
 @patch('candig_federation.api.federation.FuturesSession.get', side_effect=exceptions.ConnectionError)
 def test_invalid_asyncRequests_two_peers_get(mock_requests, client):
     with client:
@@ -234,10 +234,11 @@ def test_invalid_asyncRequests_two_peers_get(mock_requests, client):
 
         ConnErrs = list(map(lambda a: a == exceptions.ConnectionError, resp))
 
-        #Error should just be propagated through since handle_peer_request will address it
+        # Error should just be propagated through since handle_peer_request will address it
 
         assert len(resp) == 2
         assert len(ConnErrs) == 2
+
 
 @patch('candig_federation.api.federation.FuturesSession.post', side_effect=exceptions.ConnectionError)
 def test_invalid_asyncRequests_two_peers_post(mock_requests, client):
@@ -304,7 +305,7 @@ def test_timeout_asyncRequests_two_peers_get(mock_requests, client):
 
         TimeoutErrs = list(map(lambda a: a == exceptions.Timeout, resp))
 
-        #Error should just be propagated through since handle_peer_request will address it
+        # Error should just be propagated through since handle_peer_request will address it
 
         assert len(resp) == 2
         assert len(TimeoutErrs) == 2
@@ -331,71 +332,100 @@ def test_valid_PeerRequest_one_peer_get(mock_requests, mock_session, client):
 
         assert RO["results"] == [AP["v1"], AP["v2"]]
 
-#
-# """
-# This test will focus on the operations.get_search() function. A valid GET query will be sent to be federated. Both
-# FederationResponse.handleLocalRequest() and FederationResponse.handle_peer_request() will be rerouted to mocked services
-# to retrieve data
-# """
-#
-#
-# @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-# @patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_peer_requests_get)
-# def test_valid_federated_query_one_peer_get(mock_requests, mock_session, client):
-#
-#     headerObj = Headers()
-#
-#     headerObj.add('content-type', 'application/json')
-#     headerObj.add('accept', 'application/json')
-#     headerObj.add('federation', "True")
-#
-#     with client:
-#         with APP.app.test_request_context(
-#             data={}, headers=headerObj
-#         ):
-#             args = {
-#                 "endpoint_path": "rnaget/projects",
-#                 "endpoint_payload": ""
-#             }
-#             RO = operations.get_search(args["endpoint_path"], args["endpoint_payload"])
-#
-#             assert RO["results"] == [{
-#                 "projects": {
-#                     "Umbrella": "Biochemical",
-#                     "Parasol": "Microbial",
-#                     "Umbra": "Chemical"
-#                 }},
-#                 {"key2": "value2"}]
-#
-#
-# @patch('candig_federation.api.federation.requests.Session.post', side_effect=mocked_service_post)
-# @patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_peer_requests_post)
-# def test_valid_PeerRequest_one_peer_post(mock_session, mock_requests,  client):
-#     with client:
-#         args = {
-#             "endpoint_path": "variants/all",
-#             "endpoint_payload": ""
-#         }
-#         FR = FederationResponse('POST', args, "http://10.9.208.132:8890", "application/json", TESTING_PARAMS["Headers"])
-#         FR.query_service()
-#         PR = FR.handle_peer_request()
-#         RO = FR.get_response_object()
-#
-#         assert RO["results"] == [POST_RESPONSES["PLV1"], POST_RESPONSES["PLV2"]]
-#
-#
-# @patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_peer_requests_post)
-# def test_valid_PeerRequest_no_local_one_peer_post(mock_session,  client):
-#     with client:
-#         args = {
-#             "endpoint_path": "variants/all",
-#             "endpoint_payload": ""
-#         }
-#         FR = FederationResponse('POST', args, "http://10.9.208.132:8890", "application/json", TESTING_PARAMS["Headers"])
-#         FR.query_service()
-#         PR = FR.handle_peer_request()
-#         RO = FR.get_response_object()
-#
-#
-#
-#         assert RO["results"] == POST_RESPONSES["PLV2"]
+
+"""
+This test will focus on the operations.get_search() function. A valid GET query will be sent to be federated. Both
+FederationResponse.handleLocalRequest() and FederationResponse.handle_peer_request() will be rerouted to mocked services
+to retrieve data
+"""
+
+
+@patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
+@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_requests_get)
+def test_valid_federated_query_one_peer_get(mock_requests, mock_session, client):
+    with client:
+        with APP.app.test_request_context(
+                data={}, headers=Headers(fedHeader.headers)
+        ):
+            RO = operations.get_search(TP["path"], "")
+            assert RO["results"] == [AP["v1"], AP["v2"]]
+
+
+@patch('candig_federation.api.federation.requests.Session.post', side_effect=mocked_service_post)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_post)
+def test_valid_PeerRequest_one_peer_post(mock_session, mock_requests, client):
+    with client:
+        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
+        FR = FederationResponse(url=url,
+                                request="POST",
+                                endpoint_payload="",
+                                endpoint_path=TP["path"],
+                                request_dict=TP["Federate"])
+
+        RO = FR.get_response_object()
+
+        assert RO["results"] == [PostListV1, PostListV2]
+
+
+@patch('candig_federation.api.federation.requests.Session.post', side_effect=mocked_service_post)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_post)
+def test_valid_federated_query_one_peer_post(mock_requests, mock_session, client):
+    with client:
+        with APP.app.test_request_context(
+                data=json.dumps({"endpoint_path": TP["path"],
+                                 "endpoint_payload": ""}),
+                headers=Headers(fedHeader.headers)
+        ):
+            RO = operations.post_search()
+            assert RO["results"] == [PostListV1, PostListV2]
+
+
+@patch('candig_federation.api.federation.requests.Session.post', side_effect=exceptions.ConnectionError)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_post)
+def test_valid_federated_local_ConnErr_one_peer_post(mock_session,  client):
+    with client:
+        with APP.app.test_request_context(
+                data=json.dumps({"endpoint_path": TP["path"],
+                                 "endpoint_payload": ""}),
+                headers=Headers(fedHeader.headers)
+        ):
+            RO = operations.post_search()
+            assert RO["status"] == [404, 200]
+            assert RO["results"] == [PostListV2]
+
+@patch('candig_federation.api.federation.requests.Session.post', side_effect=exceptions.Timeout)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_post)
+def test_valid_federated_local_TimeOut_one_peer_post(mock_session,  client):
+    with client:
+        with APP.app.test_request_context(
+                data=json.dumps({"endpoint_path": TP["path"],
+                                 "endpoint_payload": ""}),
+                headers=Headers(fedHeader.headers)
+        ):
+            RO = operations.post_search()
+            assert RO["status"] == [408, 200]
+            assert RO["results"] == [PostListV2]
+
+
+@patch('candig_federation.api.federation.requests.Session.get', side_effect=exceptions.ConnectionError)
+@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_requests_get)
+def test_valid_federated_query_one_peer_get(mock_requests, mock_session, client):
+    with client:
+        with APP.app.test_request_context(
+                data={}, headers=Headers(fedHeader.headers)
+        ):
+            RO = operations.get_search(TP["path"], "")
+            assert RO["status"] == [404, 200]
+            assert RO["results"] == [AP["v2"]]
+
+
+@patch('candig_federation.api.federation.requests.Session.get', side_effect=exceptions.Timeout)
+@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_requests_get)
+def test_valid_federated_query_one_peer_get(mock_requests, mock_session, client):
+    with client:
+        with APP.app.test_request_context(
+                data={}, headers=Headers(fedHeader.headers)
+        ):
+            RO = operations.get_search(TP["path"], "")
+            assert RO["status"] == [408, 200]
+            assert RO["results"] == [AP["v2"]]
