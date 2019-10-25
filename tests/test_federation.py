@@ -711,6 +711,7 @@ def test_one_TimeOut_federated_local_TimeOut_two_peer_get(mock_requests, mock_se
             assert RO["status"] == 200
             assert RO["results"] == [AP["v3"]]
 
+
 # Test Federation with two nodes (One timeout) and local valid -----------------------------------------------------
 
 @patch('candig_federation.api.federation.requests.Session.post', side_effect=mocked_service_post)
