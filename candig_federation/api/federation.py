@@ -68,6 +68,8 @@ class FederationResponse:
     def federate_check(self):
         if 'Federation' in self.request_dict.headers and \
                 self.request_dict.headers.get('Federation') == 'false':
+            return False
+        else:
             return True
 
     def post_service(self, url, endpoint_path, endpoint_payload):
@@ -110,7 +112,7 @@ class FederationResponse:
         just append everything instead of attempting to aggregate internal structs.
         """
 
-        # generate peer uri - This will still fail atm with Tyk as peers
+
         uri_list = []
 
         # Old logic when using "local" peers vs uniform handling
@@ -249,7 +251,7 @@ class FederationResponse:
 
         if self.request == "GET":
 
-            if not self.federate_check():
+            if self.federate_check():
                 print("Federating GET")
                 self.handle_peer_request(request="GET",
                                          endpoint_path=self.endpoint_path,
@@ -262,7 +264,7 @@ class FederationResponse:
                                  endpoint_payload=self.endpoint_payload)
         else:
 
-            if not self.federate_check():
+            if self.federate_check():
                 print("Federating POST")
                 self.handle_peer_request(request="POST",
                                          endpoint_path=self.endpoint_path,
