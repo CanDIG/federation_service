@@ -66,8 +66,8 @@ class FederationResponse:
             return
 
     def federate_check(self):
-        if 'Federation' not in self.request_dict.headers or \
-                self.request_dict.headers.get('Federation') == 'true':
+        if 'Federation' in self.request_dict.headers and \
+                self.request_dict.headers.get('Federation') == 'false':
             return True
 
     def post_service(self, url, endpoint_path, endpoint_payload):
@@ -249,7 +249,7 @@ class FederationResponse:
 
         if self.request == "GET":
 
-            if self.federate_check():
+            if not self.federate_check():
                 print("Federating GET")
                 self.handle_peer_request(request="GET",
                                          endpoint_path=self.endpoint_path,
@@ -262,7 +262,7 @@ class FederationResponse:
                                  endpoint_payload=self.endpoint_payload)
         else:
 
-            if self.federate_check():
+            if not self.federate_check():
                 print("Federating POST")
                 self.handle_peer_request(request="POST",
                                          endpoint_path=self.endpoint_path,
