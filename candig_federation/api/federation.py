@@ -112,8 +112,14 @@ class FederationResponse:
 
         # generate peer uri - This will still fail atm with Tyk as peers
         uri_list = []
+
+        # Old logic when using "local" peers vs uniform handling
+
+        # for peer in APP.config["peers"].values():
+        #     if peer != APP.config["local"]:
+        #         uri_list.append("{}".format(peer))
+
         for peer in APP.config["peers"].values():
-            if peer != APP.config["local"]:
                 uri_list.append("{}".format(peer))
 
         print("Federating: {}".format(uri_list))
@@ -216,7 +222,7 @@ class FederationResponse:
 
         Priority List:
         1. Return 200 if one exists within the list
-        2. 5xx > 408 > 404
+        2. 500 > 408 > 404
         """
 
         if 200 in statuses:
@@ -233,32 +239,38 @@ class FederationResponse:
 
     def get_response_object(self):
         """
-        1. Query service tied to the network (local)
-        2. Check if the request needs to be federated and broadcast if so
+        1. Check if federation is needed
+         1a. Broadcast if needed
+        2. If no federation is required, passed endpoint to service
         3. Aggregate and return all the responses.
 
         :return: formatted dict that can be returned as application/json response
         """
 
         if self.request == "GET":
-            self.get_service(url=self.url,
-                             endpoint_path=self.endpoint_path,
-                             endpoint_payload=self.endpoint_payload)
+
             if self.federate_check():
                 print("Federating GET")
                 self.handle_peer_request(request="GET",
                                          endpoint_path=self.endpoint_path,
                                          endpoint_payload=self.endpoint_payload,
                                          header=self.header)
+
+            else:
+                self.get_service(url=self.url,
+                                 endpoint_path=self.endpoint_path,
+                                 endpoint_payload=self.endpoint_payload)
         else:
-            self.post_service(url=self.url,
-                              endpoint_path=self.endpoint_path,
-                              endpoint_payload=self.endpoint_payload)
+
             if self.federate_check():
                 print("Federating POST")
                 self.handle_peer_request(request="POST",
                                          endpoint_path=self.endpoint_path,
                                          endpoint_payload=self.endpoint_payload,
                                          header=self.header)
+            else:
+                self.post_service(url=self.url,
+                                  endpoint_path=self.endpoint_path,
+                                  endpoint_payload=self.endpoint_payload)
         # print(self.results)
         return {"status": self.merge_status(self.status), "results": self.results}
