@@ -89,5 +89,5 @@ APPLICATION, PORT = main()
 application = APPLICATION.app
 
 if __name__ == '__main__':
-    print("federation_service running at {}".format(APPLICATION.app.config["self"]))
+    APPLICATION.app.logger.info("federation_service running at {}".format(APPLICATION.app.config["self"]))
     APPLICATION.run(port=PORT)

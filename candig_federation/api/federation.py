@@ -30,6 +30,8 @@ class FederationResponse:
         self.request_dict = request_dict
         self.token = self.request_dict.headers['Authorization']
 
+        self.logger = APP.logger
+
         self.header = {
             'Content-Type': self.return_mimetype,
             'Accept': self.return_mimetype,
@@ -48,9 +50,9 @@ class FederationResponse:
             request_handle = requests.Session()
             full_path = "{}/{}".format(url, endpoint_path)
 
-            print("Sending GET to: {}".format(full_path))
+            self.logger.info("Sending GET to: {}".format(full_path))
             resp = request_handle.get(full_path, headers=self.header, params=endpoint_payload, timeout=self.timeout)
-            print(resp.json())
+            self.logger.info(resp.json())
             self.status.append(resp.status_code)
             if resp.status_code == 200:
                 # Only take the 'data' portion of the Response
@@ -81,11 +83,11 @@ class FederationResponse:
             request_handle = requests.Session()
             full_path = "{}/{}".format(url, endpoint_path)
 
-            print("Sending POST to: {}".format(full_path))
+            self.logger.info("Sending POST to: {}".format(full_path))
 
             resp = request_handle.post(full_path, headers=self.header, json=endpoint_payload)
             self.status.append(resp.status_code)
-            print(resp.json())
+            self.logger.info(resp.json())
             if resp.status_code == 200:
                 # Only take the 'data' portion of the Response
                 response = {key: value for key, value in resp.json().items() if key.lower()
@@ -124,7 +126,7 @@ class FederationResponse:
         for peer in APP.config["peers"].values():
                 uri_list.append("{}".format(peer))
 
-        print("Federating: {}".format(uri_list))
+        self.logger.info("Federating: {}".format(uri_list))
         for future_response in self.async_requests(uri_list=uri_list,
                                                    request_type=request,
                                                    header=header,
@@ -132,7 +134,7 @@ class FederationResponse:
                                                    endpoint_path=endpoint_path):
             try:
                 response = future_response.result()
-                print(response.status_code)
+                self.logger.info(response.status_code)
             except AttributeError:
                 if isinstance(future_response, requests.exceptions.ConnectionError):
                     self.status.append(404)
@@ -252,7 +254,7 @@ class FederationResponse:
         if self.request == "GET":
 
             if self.federate_check():
-                print("Federating GET")
+                self.logger.info("Federating GET")
                 self.handle_peer_request(request="GET",
                                          endpoint_path=self.endpoint_path,
                                          endpoint_payload=self.endpoint_payload,
@@ -265,7 +267,7 @@ class FederationResponse:
         else:
 
             if self.federate_check():
-                print("Federating POST")
+                self.logger.info("Federating POST")
                 self.handle_peer_request(request="POST",
                                          endpoint_path=self.endpoint_path,
                                          endpoint_payload=self.endpoint_payload,
