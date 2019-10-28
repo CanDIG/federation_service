@@ -4,6 +4,7 @@ Provides methods to handle both local and federated requests
 """
 
 import requests
+import json
 from flask import current_app
 from requests_futures.sessions import FuturesSession
 
@@ -148,7 +149,7 @@ class FederationResponse:
                 self.status.append(408)
                 continue
 
-            self.status.append(response.status_code)
+
             # If the call was successful append the results
 
             if response.status_code == 200:
@@ -160,9 +161,24 @@ class FederationResponse:
                     the main one.
                     """
                     self.results.append(response.json()["results"])
+                    self.status.append(response.status_code)
+
+                except KeyError:
+                    # No "results"
+                    self.logger.warn(KeyError)
+                    self.status.append(500)
+                    self.results.append(
+                        {"Error": "Malformed Response Object: No 'results'"})
+                    pass
 
                 except ValueError:
+                    # JSON decoding failure
+                    self.logger.warn(ValueError)
+                    self.status.append(500)
+                    self.results.append(
+                        {"Error": "Malformed Response Object: No JSON data"})
                     pass
+
 
         # Return is used for testing individual methods
         return self.results
