@@ -70,7 +70,7 @@ class FederationResponse:
 
     def federate_check(self):
         if 'Federation' in self.request_dict.headers and \
-                self.request_dict.headers.get('Federation') == 'false':
+                self.request_dict.headers.get('Federation').lower() == 'false':
             return False
         else:
             return True
