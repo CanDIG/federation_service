@@ -1,0 +1,6 @@
+{
+  "peers": {
+    "p1": "http://peer1.com",
+    "p2": "http://peer2.com"
+  }
+}

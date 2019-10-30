@@ -1,86 +1,83 @@
+"""
+Methods to handle incoming requests passed from Tyk
+
+"""
+
 import json
-import datetime
-
 import flask
-
-from candig_federation.api.logging import apilog, logger
-from candig_federation.api.logging import structured_log as struct_log
-from candig_federation.api.models import Error, BASEPATH
+from candig_federation.api.logging import apilog
 from candig_federation.api.federation import FederationResponse
 
-app = flask.current_app
+APP = flask.current_app
 
-url = "https://ff345ede-96fd-4357-bc44-80ba503591b3.mock.pstmn.io"
 
 @apilog
-def get_search(path, payload=None):
+def get_search(endpoint_path, endpoint_payload=None):
     """
-
-    Federate GET queries by forwarding request to other nodes
-    and aggregating the result
-
     Parameters:
     ===========
+
     path: Path to microservice endpoint - Assumed to be on the same domain
     payload: Parameters to be passed on to the endpoint
 
     Returns:
     ========
-    responseObject: json string
-        Merged responses from the federation nodes. responseObject structure:
+    response_object: json string
+        Merged responses from the federation nodes. response_object structure:
+
+    ** This still needs to be finalized **
 
     {
-    "status": {
-        "Successful communications": <number>,
-        "Known peers": <number>,
-        "Valid response": <true|false>,
-        "Queried peers": <number>
-        },
-    "results": {
-            "total": N
-            "datasets": [
-                    {record1},
-                    {record2},
-                    ...
-                    {recordN},
-                ]
-            }
-        ]
+    "status": [Status Codes],
+    "results": Responses
     }
 
     """
 
-    request_dictionary = flask.request
-    federationResponse = FederationResponse('GET', path, url, "Blank",
-                                            'application/json', request_dictionary)
+    service = endpoint_path.split("/")[0]
+    microservice = APP.config['services'][service]
+    federation_response = FederationResponse(url=microservice,
+                                             request='GET',
+                                             endpoint_path=endpoint_path,
+                                             endpoint_payload=endpoint_payload,
+                                             request_dict=flask.request)
+    response = federation_response.get_response_object()
 
-    federationResponse.handleLocalRequest()
+    return response
 
-    if 'federation' not in request_dictionary.headers or request_dictionary.headers.get('federation') == 'True':
-
-        """Need to federate query"""
-
-
-
-        # send to federation node
-
-        # send to service
-
-        # Send results to aggregate script
-
-        federationResponse.handlePeerRequest('GET')
-
-    print(federationResponse.getResponseObject())
-
-
-
+  
+@apilog
 def post_search():
-    return "POST SEARCH RETURN"
+    """
+    Parameters:
+    ===========
 
-@apilog
-def announce():
-    return "ANNOUNCE"
+    path: Path to microservice endpoint - Assumed to be on the same domain
+    payload: Parameters to be passed on to the endpoint
 
-@apilog
-def heartbeat():
-    return "HEARTBEAT"
+    Returns:
+    ========
+    response_object: json string
+        Merged responses from the federation nodes. response_object structure:
+
+    ** This still needs to be finalized **
+
+    {
+    "status": [Status Codes],
+    "results": Responses
+    }
+
+    """
+    
+    data = json.loads(flask.request.data)
+    endpoint_path = data["endpoint_path"]
+    endpoint_payload = data["endpoint_payload"]
+    service = endpoint_path.split("/")[0]
+    microservice = APP.config['services'][service]
+    federation_response = FederationResponse(url=microservice,
+                                             request='POST',
+                                             endpoint_path=endpoint_path,
+                                             endpoint_payload=endpoint_payload,
+                                             request_dict=flask.request)
+    response = federation_response.get_response_object()
+    return response
