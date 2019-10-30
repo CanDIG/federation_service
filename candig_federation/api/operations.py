@@ -45,7 +45,7 @@ def get_search(endpoint_path, endpoint_payload=None):
 
     return response
 
-
+  
 @apilog
 def post_search():
     """
@@ -68,8 +68,7 @@ def post_search():
     }
 
     """
-
-    # print(flask.request.data)
+    
     data = json.loads(flask.request.data)
     endpoint_path = data["endpoint_path"]
     endpoint_payload = data["endpoint_payload"]

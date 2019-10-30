@@ -142,6 +142,7 @@ class FederationResponse:
             except requests.exceptions.ConnectionError:
                 self.status.append(404)
                 continue
+
             except requests.exceptions.Timeout:
                 self.status.append(408)
                 continue
@@ -174,6 +175,7 @@ class FederationResponse:
                     self.results.append(
                         {"Error": "Malformed Response Object: No JSON data"})
                     pass
+
 
         # Return is used for testing individual methods
         return self.results
