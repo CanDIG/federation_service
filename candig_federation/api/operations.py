@@ -5,7 +5,6 @@ Methods to handle incoming requests passed from Tyk
 
 import json
 import flask
-
 from candig_federation.api.logging import apilog
 from candig_federation.api.federation import FederationResponse
 
@@ -14,26 +13,10 @@ APP = flask.current_app
 
 @apilog
 def get_search(endpoint_path, endpoint_payload=None):
-    """Wrapper for GET requests"""
-    return generic_search('GET', endpoint_path, endpoint_payload)
-
-
-@apilog
-def post_search():
-    """Wrapper for POST requests"""
-    data = json.loads(flask.request.data)
-    return generic_search('POST', data["endpoint_path"], data["endpoint_payload"])
-
-
-def generic_search(request_type, path, payload=None):
     """
-
-    Federate queries by forwarding request to other nodes
-    and aggregating the results
-
     Parameters:
     ===========
-    requestType: GET or POST
+
     path: Path to microservice endpoint - Assumed to be on the same domain
     payload: Parameters to be passed on to the endpoint
 
@@ -46,24 +29,56 @@ def generic_search(request_type, path, payload=None):
 
     {
     "status": [Status Codes],
-    "results": [Responses]
+    "results": Responses
     }
 
     """
-    args = {"endpoint_path": path, "endpoint_payload": payload}
-    request_dictionary = flask.request
-    service = path.split("/")[0]
 
-    federation_response = FederationResponse(request_type, args, APP.config["services"][service],
-                                             'application/json', request_dictionary)
+    service = endpoint_path.split("/")[0]
+    microservice = APP.config['services'][service]
+    federation_response = FederationResponse(url=microservice,
+                                             request='GET',
+                                             endpoint_path=endpoint_path,
+                                             endpoint_payload=endpoint_payload,
+                                             request_dict=flask.request)
+    response = federation_response.get_response_object()
 
-    federation_response.handle_local_request()
+    return response
 
-    if 'Federation' not in request_dictionary.headers or \
-            request_dictionary.headers.get('Federation') == 'True':
 
-        federation_response.handle_peer_request()
+@apilog
+def post_search():
+    """
+    Parameters:
+    ===========
 
-    response_object = federation_response.get_response_object()
+    path: Path to microservice endpoint - Assumed to be on the same domain
+    payload: Parameters to be passed on to the endpoint
 
-    return response_object
+    Returns:
+    ========
+    response_object: json string
+        Merged responses from the federation nodes. response_object structure:
+
+    ** This still needs to be finalized **
+
+    {
+    "status": [Status Codes],
+    "results": Responses
+    }
+
+    """
+
+    # print(flask.request.data)
+    data = json.loads(flask.request.data)
+    endpoint_path = data["endpoint_path"]
+    endpoint_payload = data["endpoint_payload"]
+    service = endpoint_path.split("/")[0]
+    microservice = APP.config['services'][service]
+    federation_response = FederationResponse(url=microservice,
+                                             request='POST',
+                                             endpoint_path=endpoint_path,
+                                             endpoint_payload=endpoint_payload,
+                                             request_dict=flask.request)
+    response = federation_response.get_response_object()
+    return response
