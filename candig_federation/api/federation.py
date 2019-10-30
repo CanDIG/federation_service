@@ -4,7 +4,6 @@ Provides methods to handle both local and federated requests
 """
 
 import requests
-import json
 from flask import current_app
 from requests_futures.sessions import FuturesSession
 
@@ -77,7 +76,6 @@ class FederationResponse:
 
     def post_service(self, url, endpoint_path, endpoint_payload):
         """
-
         make local data request and set the results and status for a FederationResponse
         """
         try:
@@ -115,7 +113,6 @@ class FederationResponse:
         just append everything instead of attempting to aggregate internal structs.
         """
 
-
         uri_list = []
 
         # Old logic when using "local" peers vs uniform handling
@@ -145,10 +142,10 @@ class FederationResponse:
             except requests.exceptions.ConnectionError:
                 self.status.append(404)
                 continue
+
             except requests.exceptions.Timeout:
                 self.status.append(408)
                 continue
-
 
             # If the call was successful append the results
 
@@ -294,3 +291,4 @@ class FederationResponse:
                                   endpoint_payload=self.endpoint_payload)
         # print(self.results)
         return {"status": self.merge_status(self.status), "results": self.results}
+
