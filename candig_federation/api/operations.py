@@ -43,7 +43,7 @@ def get_search(endpoint_path, endpoint_payload=None):
                                              request_dict=flask.request)
     response = federation_response.get_response_object()
 
-    return response
+    return response, response["status"]
 
 
 @apilog
@@ -81,4 +81,4 @@ def post_search():
                                              endpoint_payload=endpoint_payload,
                                              request_dict=flask.request)
     response = federation_response.get_response_object()
-    return response
+    return response, response["status"]

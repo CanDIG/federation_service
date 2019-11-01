@@ -498,7 +498,7 @@ def test_valid_federated_query_one_peer_get(mock_requests, mock_session, client)
         with APP.app.test_request_context(
                 data={}, headers=Headers(fedHeader.headers)
         ):
-            RO = operations.get_search(TP["path"], "")
+            RO = operations.get_search(TP["path"], "")[0]
 
             assert RO["status"] == 200
             assert RO["results"] == [AP["v1"], AP["v2"]]
@@ -532,7 +532,7 @@ def test_valid_federated_query_one_peer_post(mock_requests, mock_session, client
                                  "endpoint_payload": ""}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()
+            RO = operations.post_search()[0]
 
             assert RO["status"] == 200
             assert RO["results"] == [PostListV1, PostListV2]
@@ -549,7 +549,7 @@ def test_valid_federated_local_ConnErr_one_peer_post(mock_session,  client):
                                  "endpoint_payload": ""}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()
+            RO = operations.post_search()[0]
             assert RO["status"] == 200
             assert RO["results"] == [PostListV2]
 
@@ -564,7 +564,7 @@ def test_valid_federated_local_TimeOut_one_peer_post(mock_session,  client):
                                  "endpoint_payload": ""}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()
+            RO = operations.post_search()[0]
             assert RO["status"] == 200
             assert RO["results"] == [PostListV2]
 
@@ -577,7 +577,7 @@ def test_valid_federated_local_TimeOut_one_peer_get(mock_requests, mock_session,
         with APP.app.test_request_context(
                 data={}, headers=Headers(fedHeader.headers)
         ):
-            RO = operations.get_search(TP["path"], "")
+            RO = operations.get_search(TP["path"], "")[0]
             assert RO["status"] == 200
             assert RO["results"] == [AP["v2"]]
 
@@ -590,7 +590,7 @@ def test_valid_federated_local_ConnErr_one_peer_get(mock_requests, mock_session,
         with APP.app.test_request_context(
                 data={}, headers=Headers(fedHeader.headers)
         ):
-            RO = operations.get_search(TP["path"], "")
+            RO = operations.get_search(TP["path"], "")[0]
             assert RO["status"] == 200
             assert RO["results"] == [AP["v2"]]
 
@@ -607,7 +607,7 @@ def test_ConnErr_federated_valid_local_one_peer_post(mock_session,  client):
                                  "endpoint_payload": ""}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()
+            RO = operations.post_search()[0]
             assert RO["status"] == 200
             assert RO["results"] == [PostListV1]
 
@@ -622,7 +622,7 @@ def test_TimeOut_federated_valid_local_one_peer_post(mock_session,  client):
                                  "endpoint_payload": ""}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()
+            RO = operations.post_search()[0]
             assert RO["status"] == 200
             assert RO["results"] == [PostListV1]
 
@@ -635,7 +635,7 @@ def test_ConnErr_federated_valid_local_one_peer_get(mock_requests, mock_session,
         with APP.app.test_request_context(
                 data={}, headers=Headers(fedHeader.headers)
         ):
-            RO = operations.get_search(TP["path"], "")
+            RO = operations.get_search(TP["path"], "")[0]
             assert RO["status"] == 200
             assert RO["results"] == [AP["v1"]]
 
@@ -648,7 +648,7 @@ def test_TimeOut_federated_valid_local_one_peer_get(mock_requests, mock_session,
         with APP.app.test_request_context(
                 data={}, headers=Headers(fedHeader.headers)
         ):
-            RO = operations.get_search(TP["path"], "")
+            RO = operations.get_search(TP["path"], "")[0]
             assert RO["status"] == 200
             assert RO["results"] == [AP["v1"]]
 
@@ -681,7 +681,7 @@ def test_valid_federated_query_two_peer_get(mock_requests, mock_session, client)
         with APP.app.test_request_context(
                 data={}, headers=Headers(fedHeader.headers)
         ):
-            RO = operations.get_search(TP["path"], "")
+            RO = operations.get_search(TP["path"], "")[0]
 
             assert RO["status"] == 200
             assert RO["results"] == [AP["v1"], AP["v2"], AP["v3"]]
@@ -715,7 +715,7 @@ def test_valid_federated_query_two_peer_post(mock_requests, mock_session, client
                                  "endpoint_payload": ""}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()
+            RO = operations.post_search()[0]
 
             assert RO["status"] == 200
             assert RO["results"] == [PostListV1, PostListV2, PostListV3]
@@ -732,7 +732,7 @@ def test_valid_federated_local_ConnErr_two_peer_post(mock_session,  client):
                                  "endpoint_payload": ""}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()
+            RO = operations.post_search()[0]
             assert RO["status"] == 200
             assert RO["results"] == [PostListV2, PostListV3]
 
@@ -747,7 +747,7 @@ def test_valid_federated_local_TimeOut_two_peer_post(mock_session,  client):
                                  "endpoint_payload": ""}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()
+            RO = operations.post_search()[0]
             assert RO["status"] == 200
             assert RO["results"] == [PostListV2, PostListV3]
 
@@ -760,7 +760,7 @@ def test_valid_federated_local_ConnErr_two_peer_get(mock_requests, mock_session,
         with APP.app.test_request_context(
                 data={}, headers=Headers(fedHeader.headers)
         ):
-            RO = operations.get_search(TP["path"], "")
+            RO = operations.get_search(TP["path"], "")[0]
             assert RO["status"] == 200
             assert RO["results"] == [AP["v2"], AP["v3"]]
 
@@ -773,7 +773,7 @@ def test_valid_federated_local_TimeOut_two_peer_get(mock_requests, mock_session,
         with APP.app.test_request_context(
                 data={}, headers=Headers(fedHeader.headers)
         ):
-            RO = operations.get_search(TP["path"], "")
+            RO = operations.get_search(TP["path"], "")[0]
             assert RO["status"] == 200
             assert RO["results"] == [AP["v2"], AP["v3"]]
 
@@ -790,7 +790,7 @@ def test_one_TimeOut_federated_local_ConnErr_two_peer_post(mock_session,  client
                                  "endpoint_payload": ""}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()
+            RO = operations.post_search()[0]
             assert RO["status"] == 200
             assert RO["results"] == [PostListV3]
 
@@ -805,7 +805,7 @@ def test_one_TimeOut_federated_local_TimeOut_two_peer_post(mock_session,  client
                                  "endpoint_payload": ""}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()
+            RO = operations.post_search()[0]
             assert RO["status"] == 200
             assert RO["results"] == [PostListV3]
 
@@ -818,7 +818,7 @@ def test_one_TimeOut_federated_local_ConnErr_two_peer_get(mock_requests, mock_se
         with APP.app.test_request_context(
                 data={}, headers=Headers(fedHeader.headers)
         ):
-            RO = operations.get_search(TP["path"], "")
+            RO = operations.get_search(TP["path"], "")[0]
             assert RO["status"] == 200
             assert RO["results"] == [AP["v3"]]
 
@@ -831,7 +831,7 @@ def test_one_TimeOut_federated_local_TimeOut_two_peer_get(mock_requests, mock_se
         with APP.app.test_request_context(
                 data={}, headers=Headers(fedHeader.headers)
         ):
-            RO = operations.get_search(TP["path"], "")
+            RO = operations.get_search(TP["path"], "")[0]
             assert RO["status"] == 200
             assert RO["results"] == [AP["v3"]]
 
@@ -848,7 +848,7 @@ def test_one_TimeOut_federated_valid_two_peer_post(mock_session,  client):
                                  "endpoint_payload": ""}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()
+            RO = operations.post_search()[0]
             assert RO["status"] == 200
             assert RO["results"] == [PostListV1, PostListV3]
 
@@ -863,7 +863,7 @@ def test_one_TimeOut_federated_local_valid_two_peer_post(mock_session,  client):
                                  "endpoint_payload": ""}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()
+            RO = operations.post_search()[0]
             assert RO["status"] == 200
             assert RO["results"] == [PostListV1, PostListV3]
 
@@ -876,7 +876,7 @@ def test_one_TimeOut_federated_local_valid_two_peer_get(mock_requests, mock_sess
         with APP.app.test_request_context(
                 data={}, headers=Headers(fedHeader.headers)
         ):
-            RO = operations.get_search(TP["path"], "")
+            RO = operations.get_search(TP["path"], "")[0]
             assert RO["status"] == 200
             assert RO["results"] == [AP["v1"], AP["v3"]]
 
@@ -889,6 +889,6 @@ def test_one_TimeOut_federated_local_valid_two_peer_get(mock_requests, mock_sess
         with APP.app.test_request_context(
                 data={}, headers=Headers(fedHeader.headers)
         ):
-            RO = operations.get_search(TP["path"], "")
+            RO = operations.get_search(TP["path"], "")[0]
             assert RO["status"] == 200
             assert RO["results"] == [AP["v1"], AP["v3"]]
