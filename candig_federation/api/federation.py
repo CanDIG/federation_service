@@ -32,6 +32,7 @@ class FederationResponse:
 
         self.logger = APP.logger
 
+
         self.header = {
             'Content-Type': self.return_mimetype,
             'Accept': self.return_mimetype,
@@ -54,11 +55,11 @@ class FederationResponse:
             resp = request_handle.get(full_path, headers=self.header, params=endpoint_payload, timeout=self.timeout)
             self.logger.info(resp.json())
             self.status.append(resp.status_code)
-            if resp.status_code == 200:
-                # Only take the 'data' portion of the Response
-                response = {key: value for key, value in resp.json().items() if key.lower()
-                            not in ['headers', 'url']}
-                self.results.append(response)
+
+            # Only take the 'data' portion of the Response
+            response = {key: value for key, value in resp.json().items() if key.lower()
+                        not in ['headers', 'url']}
+            self.results.append(response)
 
         except requests.exceptions.ConnectionError:
             self.status.append(404)
@@ -87,11 +88,11 @@ class FederationResponse:
             resp = request_handle.post(full_path, headers=self.header, json=endpoint_payload)
             self.status.append(resp.status_code)
             self.logger.info(resp.json())
-            if resp.status_code == 200:
-                # Only take the 'data' portion of the Response
-                response = {key: value for key, value in resp.json().items() if key.lower()
-                            not in ['headers', 'url', 'args', 'json']}
-                self.results.append(response)
+
+            # Only take the 'data' portion of the Response
+            response = {key: value for key, value in resp.json().items() if key.lower()
+                        not in ['headers', 'url', 'args', 'json']}
+            self.results.append(response)
 
         except requests.exceptions.ConnectionError:
             self.status.append(404)
@@ -242,6 +243,9 @@ class FederationResponse:
 
         if 200 in statuses:
             return 200
+
+        if 201 in statuses:
+            return 201
 
         if 500 in statuses:
             return 500
