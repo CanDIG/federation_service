@@ -56,10 +56,14 @@ class FederationResponse:
             self.logger.info(resp.json())
             self.status.append(resp.status_code)
 
-            # Only take the 'data' portion of the Response
-            response = {key: value for key, value in resp.json().items() if key.lower()
-                        not in ['headers', 'url']}
-            self.results.append(response)
+            if isinstance(resp.json(), list):
+                self.results.append(resp.json())
+
+            else:
+                # Only take the 'data' portion of the Response
+                response = {key: value for key, value in resp.json().items() if key.lower()
+                            not in ['headers', 'url']}
+                self.results.append(response)
 
         except requests.exceptions.ConnectionError:
             self.status.append(404)
@@ -89,10 +93,14 @@ class FederationResponse:
             self.status.append(resp.status_code)
             self.logger.info(resp.json())
 
-            # Only take the 'data' portion of the Response
-            response = {key: value for key, value in resp.json().items() if key.lower()
-                        not in ['headers', 'url', 'args', 'json']}
-            self.results.append(response)
+            if isinstance(resp.json(), list):
+                self.results.append(resp.json())
+
+            else:
+                # Only take the 'data' portion of the Response
+                response = {key: value for key, value in resp.json().items() if key.lower()
+                            not in ['headers', 'url', 'args', 'json']}
+                self.results.append(response)
 
         except requests.exceptions.ConnectionError:
             self.status.append(404)
@@ -241,6 +249,9 @@ class FederationResponse:
         2. 500 > 408 > 404
         """
 
+        if len(statuses) == 1:
+            return statuses[0]
+
         if 200 in statuses:
             return 200
 
@@ -249,6 +260,9 @@ class FederationResponse:
 
         if 500 in statuses:
             return 500
+
+        if 408 in statuses:
+            return 408
 
         if 408 in statuses:
             return 408
