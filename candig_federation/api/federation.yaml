@@ -112,8 +112,7 @@ definitions:
         example: /v2/get
       endpoint_payload:
         type: object
-        additionalProperties:
-          type: string
+
 
   Error:
     type: object

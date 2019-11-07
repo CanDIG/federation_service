@@ -50,8 +50,7 @@ class FederationResponse:
         try:
             request_handle = requests.Session()
             full_path = "{}/{}".format(url, endpoint_path)
-
-            self.logger.info("Sending GET to: {}".format(full_path))
+            self.logger.info("Sending GET to: {}, Args: {}".format(full_path, endpoint_payload))
             resp = request_handle.get(full_path, headers=self.header, params=endpoint_payload, timeout=self.timeout)
             self.logger.info(resp.json())
             self.status.append(resp.status_code)
