@@ -56,13 +56,18 @@ class FederationResponse:
             self.status.append(resp.status_code)
 
             if isinstance(resp.json(), list):
-                self.results.append(resp.json())
+
+                self.results.extend(resp.json())
+
 
             else:
                 # Only take the 'data' portion of the Response
-                response = {key: value for key, value in resp.json().items() if key.lower()
-                            not in ['headers', 'url']}
-                self.results.append(response)
+
+
+                response = [{key: value for key, value in resp.json().items() if key.lower()
+                            not in ['headers', 'url']}]
+
+                self.results.extend(response)
 
         except requests.exceptions.ConnectionError:
             self.status.append(404)
@@ -93,13 +98,13 @@ class FederationResponse:
             self.logger.info(resp.json())
 
             if isinstance(resp.json(), list):
-                self.results.append(resp.json())
+                self.results.extend(resp.json())
 
             else:
                 # Only take the 'data' portion of the Response
-                response = {key: value for key, value in resp.json().items() if key.lower()
-                            not in ['headers', 'url', 'args', 'json']}
-                self.results.append(response)
+                response = [{key: value for key, value in resp.json().items() if key.lower()
+                            not in ['headers', 'url', 'args', 'json']}]
+                self.results.extend(response)
 
         except requests.exceptions.ConnectionError:
             self.status.append(404)
@@ -156,7 +161,7 @@ class FederationResponse:
 
             # If the call was successful append the results
 
-            if response.status_code == 200:
+            if response.status_code in [200, 201]:
                 try:
                     """
                     Each Response will be in the form on a ResponseObject
@@ -164,7 +169,9 @@ class FederationResponse:
                     Gather the data within each "results" and append it to 
                     the main one.
                     """
-                    self.results.append(response.json()["results"])
+                    print(self.results)
+                    self.results.extend(response.json()["results"])
+                    print(self.results)
                     self.status.append(response.status_code)
 
                 except KeyError:
@@ -304,6 +311,9 @@ class FederationResponse:
                 self.post_service(url=self.url,
                                   endpoint_path=self.endpoint_path,
                                   endpoint_payload=self.endpoint_payload)
-        # print(self.results)
-        return {"status": self.merge_status(self.status), "results": self.results}
-
+        print(self.results)
+        try:
+            return {"status": self.merge_status(self.status), "results": sorted(list(set(self.results)))}
+        except TypeError:
+            # Dealing with dicts objects
+            return {"status": self.merge_status(self.status), "results": self.results}

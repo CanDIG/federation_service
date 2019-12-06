@@ -69,7 +69,7 @@ def configure_app():
     App pulled out as global variable to allow import into
     testing files to access application context
     """
-    app = connexion.FlaskApp(__name__, server='tornado')
+    app = connexion.FlaskApp(__name__, server='tornado', options={"swagger_url": "/"})
 
     # api_def = pkg_resources.resource_filename('candig_federation', 'api/federation.yaml')
 

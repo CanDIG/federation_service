@@ -87,12 +87,12 @@ TP = {
 }
 
 AP = {
-    "s1": MockResponse({"projects": {"k1": "v1", "k2": "v2"}}, 200),
-    "s2": MockResponse({"projects": {"key1": "value1"}}, 200),
-    "s3": MockResponse({"projects": {"keyA": "valueB"}}, 200),
-    "i1": MockResponseInternal({"projects": {"k1": "v1", "k2": "v2"}}, 200),
-    "i2": MockResponseInternal({"projects": {"key1": "value1"}}, 200),
-    "i3": MockResponseInternal({"projects": {"keyA": "valueB"}}, 200),
+    "s1": MockResponse([{"projects": {"k1": "v1", "k2": "v2"}}], 200),
+    "s2": MockResponse([{"projects": {"key1": "value1"}}], 200),
+    "s3": MockResponse([{"projects": {"keyA": "valueB"}}], 200),
+    "i1": MockResponseInternal([{"projects": {"k1": "v1", "k2": "v2"}}], 200),
+    "i2": MockResponseInternal([{"projects": {"key1": "value1"}}], 200),
+    "i3": MockResponseInternal([{"projects": {"keyA": "valueB"}}], 200),
     "timeout": MockResponseInternal({}, 408),
     "fail": MockResponse(None, 404),
     "v1": {"projects": {"k1": "v1", "k2": "v2"}},
@@ -164,12 +164,12 @@ PostListV3 = {
 }
 
 PR = {
-    "PLM1": MockResponse(PostListM1, 200),
-    "PLV1": MockResponse(PostListV1, 200),
-    "PLV2": MockResponse(PostListV2, 200),
-    "iPLV1": MockResponseInternal(PostListV1, 200),
-    "iPLV2": MockResponseInternal(PostListV2, 200),
-    "PLV3": MockResponse(PostListV3, 200),
-    "iPLV3": MockResponseInternal(PostListV3, 200)
+    "PLM1": MockResponse([PostListM1], 200),
+    "PLV1": MockResponse([PostListV1], 200),
+    "PLV2": MockResponse([PostListV2], 200),
+    "iPLV1": MockResponseInternal([PostListV1], 200),
+    "iPLV2": MockResponseInternal([PostListV2], 200),
+    "PLV3": MockResponse([PostListV3], 200),
+    "iPLV3": MockResponseInternal([PostListV3], 200)
 }
 
