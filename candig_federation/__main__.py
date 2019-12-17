@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/home/dashaylan/Documents/GSC/ENV/fed/bin python3
 
 """
 Driver program for service
@@ -24,8 +24,8 @@ def main(args=None):
         args = sys.argv[1:]
 
     parser = argparse.ArgumentParser('Run federation service')
-    parser.add_argument('--port', default=8890)
-    parser.add_argument('--host', default='ga4ghdev01.bcgsc.ca')
+    parser.add_argument('--port', default=8880)
+    parser.add_argument('--host', default='10.9.233.204')
     parser.add_argument('--logfile', default="./log/federation.log")
     parser.add_argument('--loglevel', default='INFO',
                         choices=['DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'])
