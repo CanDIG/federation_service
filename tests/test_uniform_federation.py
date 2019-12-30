@@ -236,7 +236,7 @@ def test_valid_noFed_get(mock_requests, client):
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Headers"])
 
-        RO = FR.get_response_object()
+        RO, Header = FR.get_response_object()
         assert RO["status"] == 200
         assert RO["results"] == [AP["v1"]]
 
@@ -252,7 +252,7 @@ def test_valid_noFed_post(mock_requests, client):
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Headers"])
 
-        RO = FR.get_response_object()
+        RO, Header = FR.get_response_object()
         assert RO["status"] == 200
         assert RO["results"] == [PostListV1]
 
@@ -269,7 +269,7 @@ def test_invalid_noFed_get(mock_requests, client):
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Headers"])
 
-        RO = FR.get_response_object()
+        RO, Header = FR.get_response_object()
         assert RO["status"] == 404
         assert RO["results"] == []
 
@@ -285,7 +285,7 @@ def test_invalid_noFed_post(mock_requests, client):
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Headers"])
 
-        RO = FR.get_response_object()
+        RO, Header = FR.get_response_object()
         assert RO["status"] == 404
         assert RO["results"] == []
 
@@ -301,8 +301,8 @@ def test_timeout_noFed_get(mock_requests, client):
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Headers"])
 
-        RO = FR.get_response_object()
-        assert RO["status"] == 408
+        RO, Header = FR.get_response_object()
+        assert RO["status"] == 504
         assert RO["results"] == []
 
 
@@ -317,7 +317,7 @@ def test_timeout_noFed_post(mock_requests, client):
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Headers"])
 
-        RO = FR.get_response_object()
+        RO, Header = FR.get_response_object()
         assert RO["status"] == 408
         assert RO["results"] == []
 
@@ -484,7 +484,7 @@ def test_valid_PeerRequest_one_peer_get(mock_requests, mock_session, client):
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Federate"])
 
-        RO = FR.get_response_object()
+        RO, Header = FR.get_response_object()
 
         assert RO["status"] == 200
         assert RO["results"] == [AP["v1"], AP["v2"]]
@@ -516,7 +516,7 @@ def test_valid_PeerRequest_one_peer_post(mock_session, mock_requests, client):
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Federate"])
 
-        RO = FR.get_response_object()
+        RO, Header = FR.get_response_object()
 
         assert RO["status"] == 200
         assert RO["results"] == [PostListV1, PostListV2]
@@ -667,7 +667,7 @@ def test_valid_PeerRequest_two_peer_get(mock_requests, mock_session, client):
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Federate"])
 
-        RO = FR.get_response_object()
+        RO, Header = FR.get_response_object()
 
         assert RO["status"] == 200
         assert RO["results"] == [AP["v1"], AP["v2"], AP["v3"]]
@@ -699,7 +699,7 @@ def test_valid_PeerRequest_two_peer_post(mock_session, mock_requests, client):
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Federate"])
 
-        RO = FR.get_response_object()
+        RO, Header = FR.get_response_object()
 
         assert RO["status"] == 200
         assert RO["results"] == [PostListV1, PostListV2, PostListV3]
@@ -881,14 +881,14 @@ def test_one_TimeOut_federated_local_valid_two_peer_get(mock_requests, mock_sess
             assert RO["results"] == [AP["v1"], AP["v3"]]
 
 
-@patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_p1_timeout_requests_get)
-def test_one_TimeOut_federated_local_valid_two_peer_get(mock_requests, mock_session, client):
-    APP.app.config["peers"] = THREE
-    with client:
-        with APP.app.test_request_context(
-                data={}, headers=Headers(fedHeader.headers)
-        ):
-            RO = operations.get_search(TP["path"], "")[0]
-            assert RO["status"] == 200
-            assert RO["results"] == [AP["v1"], AP["v3"]]
+# @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
+# @patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_p1_timeout_requests_get)
+# def test_one_TimeOut_federated_local_valid_two_peer_get(mock_requests, mock_session, client):
+#     APP.app.config["peers"] = THREE
+#     with client:
+#         with APP.app.test_request_context(
+#                 data={}, headers=Headers(fedHeader.headers)
+#         ):
+#             RO = operations.get_search(TP["path"], "")[0]
+#             assert RO["status"] == 200
+#             assert RO["results"] == [AP["v1"], AP["v3"]]

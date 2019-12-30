@@ -41,9 +41,9 @@ def get_search(endpoint_path, endpoint_payload=None):
                                              endpoint_path=endpoint_path,
                                              endpoint_payload=endpoint_payload,
                                              request_dict=flask.request)
-    response = federation_response.get_response_object()
+    response, headers = federation_response.get_response_object()
 
-    return response, response["status"]
+    return response, response["status"], headers
 
 
 @apilog
@@ -80,5 +80,5 @@ def post_search():
                                              endpoint_path=endpoint_path,
                                              endpoint_payload=endpoint_payload,
                                              request_dict=flask.request)
-    response = federation_response.get_response_object()
-    return response, response["status"]
+    response, headers = federation_response.get_response_object()
+    return response, response["status"], headers

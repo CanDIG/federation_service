@@ -6,9 +6,10 @@ MockResponseInternal: Responses which are accessed in within handle_peer_request
 
 
 class MockResponse:
-    def __init__(self, json_data, status_code):
+    def __init__(self, json_data, status_code, headers={}):
         self.json_data = json_data
         self.status_code = status_code
+        self.headers = {'X-Source': '2222'}
 
     def json(self):
         return self.json_data
@@ -16,17 +17,24 @@ class MockResponse:
     def status_code(self):
         return self.status_code
 
+    def headers(self):
+        return self.headers
 
 # Internal Response needs a result() function since it's supposed to be a Future response
 
 class MockResponseInternal:
-    def __init__(self, json_data, status_code):
+    def __init__(self, json_data, status_code, headers={}):
         self.json_data = json_data
         self.status_code = status_code
+        self.headers = {'X-Source': '2222'}
+
 
     def json(self):
         return {"results": self.json_data,
                 "status": self.status_code}
+    
+    def headers(self):
+        return self.headers
 
     def result(self):
         return MockResponseInternal(self.json_data, self.status_code)

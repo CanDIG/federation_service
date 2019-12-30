@@ -40,11 +40,18 @@ class FederationResponse:
             'Authorization': self.token,
         }
 
+        self.service_headers = {}
+
         self.timeout = timeout
     
-    def announce_federation(self, request_type, destination, path, args):
+    def announce_fed_out(self, request_type, destination, path, args):
         self.logger.info("Federation Service: {} -> {}/{}. Args: {}".format(
             request_type, destination, path, args
+        ))
+    
+    def announce_fed_in(self, source, code, response):
+        self.logger.info("Received {} From {}@{}. Data: {}".format(
+            code, self.service_headers['X-Source'], source, response
         ))
 
 
@@ -56,30 +63,26 @@ class FederationResponse:
         try:
             request_handle = requests.Session()
             full_path = "{}/{}".format(url, endpoint_path)
-            self.announce_federation("GET", url, endpoint_path, endpoint_payload)
+            self.announce_fed_out("GET", url, endpoint_path, endpoint_payload)
             resp = request_handle.get(full_path, headers=self.header, params=endpoint_payload, timeout=self.timeout)
-            # self.logger.info(resp.json())
+            self.service_headers['X-Source'] = resp.headers['X-Source']
             self.status.append(resp.status_code)
 
             if isinstance(resp.json(), list):
-
                 self.results.extend(resp.json())
-
-
+                self.announce_fed_in(full_path, resp.status_code, resp.json())
             else:
                 # Only take the 'data' portion of the Response
-
-
                 response = [{key: value for key, value in resp.json().items() if key.lower()
                             not in ['headers', 'url']}]
-
+                self.announce_fed_in(full_path, resp.status_code, response)
                 self.results.extend(response)
 
         except requests.exceptions.ConnectionError:
             self.status.append(404)
             return
         except requests.exceptions.Timeout:
-            self.status.append(408)
+            self.status.append(504)
             return
 
     def federate_check(self):
@@ -96,20 +99,23 @@ class FederationResponse:
         try:
             request_handle = requests.Session()
             full_path = "{}/{}".format(url, endpoint_path)
-            
-            self.announce_federation("POST", url, endpoint_path, endpoint_payload)
-
+            self.announce_fed_out("POST", url, endpoint_path, endpoint_payload)
             resp = request_handle.post(full_path, headers=self.header, json=endpoint_payload)
+            print("\n\n\n\n\n")
+            print(resp.headers)
+            self.service_headers['X-Source'] = resp.headers['X-Source']
             self.status.append(resp.status_code)
-            # self.logger.info(resp.json())
 
             if isinstance(resp.json(), list):
                 self.results.extend(resp.json())
+                self.announce_fed_in(full_path, resp.status_code, resp.json())
+
 
             else:
                 # Only take the 'data' portion of the Response
                 response = [{key: value for key, value in resp.json().items() if key.lower()
                             not in ['headers', 'url', 'args', 'json']}]
+                self.announce_fed_in(full_path, resp.status_code, resp.json())
                 self.results.extend(response)
 
         except requests.exceptions.ConnectionError:
@@ -151,23 +157,22 @@ class FederationResponse:
                                                    endpoint_path=endpoint_path):
             try:
                 response = future_response.result()
-                # self.logger.info(response.status_code)
             except AttributeError:
                 if isinstance(future_response, requests.exceptions.ConnectionError):
                     self.status.append(404)
                 if isinstance(future_response, requests.exceptions.Timeout):
-                    self.status.append(408)
+                    self.status.append(504)
                 continue
             except requests.exceptions.ConnectionError:
                 self.status.append(404)
                 continue
             except requests.exceptions.Timeout:
-                self.status.append(408)
+                self.status.append(504)
                 continue
 
             # If the call was successful append the results
 
-            if response.status_code in [200, 201]:
+            if response.status_code in [200, 201, 405]:
                 try:
                     """
                     Each Response will be in the form on a ResponseObject
@@ -175,10 +180,9 @@ class FederationResponse:
                     Gather the data within each "results" and append it to 
                     the main one.
                     """
-                    # print(self.results)
                     self.results.extend(response.json()["results"])
-                    # print(self.results)
                     self.status.append(response.status_code)
+
 
                 except KeyError:
                     # No "results"
@@ -239,6 +243,7 @@ class FederationResponse:
             for uri in uri_list:
 
                 try:
+                    self.announce_fed_out(request_type, uri, endpoint_path, endpoint_payload)
                     responses.append(async_session.get(uri,
                                                        headers=header, params=args, timeout=self.timeout))
                 except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
@@ -246,6 +251,7 @@ class FederationResponse:
         elif request_type == "POST":
             for uri in uri_list:
                 try:
+                    self.announce_fed_out(request_type, uri, endpoint_path, endpoint_payload)
                     responses.append(async_session.post(uri,
                                                         json=args, headers=header, timeout=self.timeout))
                 except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
@@ -262,6 +268,8 @@ class FederationResponse:
         2. 500 > 408 > 404
         """
 
+        print(statuses)
+
         if len(statuses) == 1:
             return statuses[0]
 
@@ -270,15 +278,15 @@ class FederationResponse:
 
         if 201 in statuses:
             return 201
+        
+        if 405 in statuses:
+            return 405
 
         if 500 in statuses:
             return 500
 
-        if 408 in statuses:
-            return 408
-
-        if 408 in statuses:
-            return 408
+        if 504 in statuses:
+            return 504
 
         if 404 in statuses:
             return 404
@@ -323,7 +331,9 @@ class FederationResponse:
 
         except TypeError:
             # Dealing with dicts objects
+            print("TE IN MERGING")
+            print(self.results)
             response = {"status": self.merge_status(self.status), "results": self.results}
         
         self.logger.info(response)
-        return response
+        return response, self.service_headers
