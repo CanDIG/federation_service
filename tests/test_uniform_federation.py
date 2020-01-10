@@ -318,7 +318,7 @@ def test_timeout_noFed_post(mock_requests, client):
                                 request_dict=TP["Headers"])
 
         RO, Header = FR.get_response_object()
-        assert RO["status"] == 408
+        assert RO["status"] == 504
         assert RO["results"] == []
 
 # Test the async request function --------------------------------------------------------------------

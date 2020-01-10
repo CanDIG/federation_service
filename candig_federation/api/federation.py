@@ -29,35 +29,29 @@ class FederationResponse:
         self.return_mimetype = return_mimetype
         self.request_dict = request_dict
         self.token = self.request_dict.headers['Authorization']
-
         self.logger = APP.logger
-
-
         self.header = {
             'Content-Type': self.return_mimetype,
             'Accept': self.return_mimetype,
             'Federation': 'false',
             'Authorization': self.token,
         }
-
         self.service_headers = {}
-
         self.timeout = timeout
-    
+
+
     def announce_fed_out(self, request_type, destination, path, args):
         self.logger.info("Federation Service: {} -> {}/{}. Args: {}".format(
             request_type, destination, path, args
         ))
-    
-    def announce_fed_in(self, source, code, response):
-        self.logger.info("Received {} From {}@{}. Data: {}".format(
-            code, self.service_headers['X-Source'], source, response
-        ))
 
+    def announce_fed_in(self, source, code, response):
+        self.logger.info("Received {} From {}. Data: {}".format(
+            code, source, response
+        ))
 
     def get_service(self, url, endpoint_path, endpoint_payload):
         """
-
         make local data request and set the results and status for a FederationResponse
         """
         try:
@@ -65,7 +59,6 @@ class FederationResponse:
             full_path = "{}/{}".format(url, endpoint_path)
             self.announce_fed_out("GET", url, endpoint_path, endpoint_payload)
             resp = request_handle.get(full_path, headers=self.header, params=endpoint_payload, timeout=self.timeout)
-            self.service_headers['X-Source'] = resp.headers['X-Source']
             self.status.append(resp.status_code)
 
             if isinstance(resp.json(), list):
@@ -74,7 +67,7 @@ class FederationResponse:
             else:
                 # Only take the 'data' portion of the Response
                 response = [{key: value for key, value in resp.json().items() if key.lower()
-                            not in ['headers', 'url']}]
+                             not in ['headers', 'url']}]
                 self.announce_fed_in(full_path, resp.status_code, response)
                 self.results.extend(response)
 
@@ -92,6 +85,7 @@ class FederationResponse:
         else:
             return True
 
+
     def post_service(self, url, endpoint_path, endpoint_payload):
         """
         make local data request and set the results and status for a FederationResponse
@@ -101,9 +95,7 @@ class FederationResponse:
             full_path = "{}/{}".format(url, endpoint_path)
             self.announce_fed_out("POST", url, endpoint_path, endpoint_payload)
             resp = request_handle.post(full_path, headers=self.header, json=endpoint_payload)
-            print("\n\n\n\n\n")
-            print(resp.headers)
-            self.service_headers['X-Source'] = resp.headers['X-Source']
+            # self.service_headers['X-Source'] = resp.headers['X-Source']
             self.status.append(resp.status_code)
 
             if isinstance(resp.json(), list):
@@ -114,7 +106,7 @@ class FederationResponse:
             else:
                 # Only take the 'data' portion of the Response
                 response = [{key: value for key, value in resp.json().items() if key.lower()
-                            not in ['headers', 'url', 'args', 'json']}]
+                             not in ['headers', 'url', 'args', 'json']}]
                 self.announce_fed_in(full_path, resp.status_code, resp.json())
                 self.results.extend(response)
 
@@ -123,7 +115,7 @@ class FederationResponse:
             return
 
         except requests.exceptions.Timeout:
-            self.status.append(408)
+            self.status.append(504)
             return
 
     def handle_peer_request(self, request, endpoint_path, endpoint_payload, header):
@@ -147,7 +139,7 @@ class FederationResponse:
         #         uri_list.append("{}".format(peer))
 
         for peer in APP.config["peers"].values():
-                uri_list.append("{}".format(peer))
+            uri_list.append("{}".format(peer))
 
         # self.logger.info("Federating: {}".format(uri_list))
         for future_response in self.async_requests(uri_list=uri_list,
@@ -177,7 +169,7 @@ class FederationResponse:
                     """
                     Each Response will be in the form on a ResponseObject
                         {"status": [], "results": []}
-                    Gather the data within each "results" and append it to 
+                    Gather the data within each "results" and append it to
                     the main one.
                     """
                     self.results.extend(response.json()["results"])
@@ -202,33 +194,6 @@ class FederationResponse:
 
         # Return is used for testing individual methods
         return self.results
-
-        # if self.results:
-        #     self.merge_counts()
-
-    # def merge_counts(self):
-    #     """
-    #     merge federated counts and set results for FederationResponse
-    #     TODO: Fully Implement this
-    #     """
-    #
-    #     table = list(set(self.results.keys()))
-    #     prepare_counts = {}
-    #
-    #     for record in self.results:
-    #         for key, value in record.items():
-    #             if key in prepare_counts:
-    #                 prepare_counts[key].append(Counter(value))
-    #             else:
-    #                 prepare_counts[key] = [Counter(value)]
-    #
-    #     merged_counts = {}
-    #     for field in prepare_counts:
-    #         count_total = Counter()
-    #         for count in prepare_counts[field]:
-    #             count_total = count_total + count
-    #         merged_counts[field] = dict(count_total)
-    #     self.results[table] = [merged_counts]
 
     def async_requests(self, uri_list, request_type, endpoint_path, endpoint_payload, header):
         """
@@ -268,28 +233,29 @@ class FederationResponse:
         2. 500 > 408 > 404
         """
 
-        print(statuses)
-
         if len(statuses) == 1:
             return statuses[0]
 
-        if 200 in statuses:
+        elif 200 in statuses:
             return 200
 
-        if 201 in statuses:
+        elif 201 in statuses:
             return 201
-        
-        if 405 in statuses:
+
+        elif 405 in statuses:
             return 405
 
-        if 500 in statuses:
+        elif 500 in statuses:
             return 500
 
-        if 504 in statuses:
+        elif 504 in statuses:
             return 504
 
-        if 404 in statuses:
+        elif 404 in statuses:
             return 404
+
+        else:
+            return 500
 
     def get_response_object(self):
         """
