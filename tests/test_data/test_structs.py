@@ -4,6 +4,7 @@ MockResponseInternal: Responses which are accessed in within handle_peer_request
     have already been modified by the time they are received.
 """
 
+import json
 
 class MockResponse:
     def __init__(self, json_data, status_code, headers={}):

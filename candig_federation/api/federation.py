@@ -3,6 +3,7 @@
 Provides methods to handle both local and federated requests
 """
 
+import json
 import requests
 from flask import current_app
 from requests_futures.sessions import FuturesSession
@@ -12,13 +13,22 @@ APP = current_app
 
 class FederationResponse:
     """
-    Class based methods utilized to store requests within instance variables
+    This is a collection of methods to facilitate federated queries across the CanDIG network
+
+    :param request: The type of HTTP request to federate, either GET or POST. PUT TBD
+    :type request: str
+    :param url: URL of the CanDIG service to be queried
+    :type url: str
+    :param endpoint_path: Specific API endpoint of CanDIG service to be queried, may contain query string if GET
+    :type endpoint_path: str
+    :param endpoint_payload: Query string or data needed by endpoint specified in endpoint_path
+    :type endpoint_payload: object, {param0=value0, paramN=valueN} for GET, JSON struct dependent on service endpoint for POST
     """
 
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=too-many-arguments
 
-    def __init__(self, request, url, endpoint_path, endpoint_payload, request_dict, return_mimetype='application/json',
+    def __init__(self, request, url, endpoint_path, endpoint_payload, request_dict, service, return_mimetype='application/json',
                  timeout=5):
         self.results = []
         self.status = []
@@ -26,6 +36,7 @@ class FederationResponse:
         self.url = url
         self.endpoint_path = endpoint_path
         self.endpoint_payload = endpoint_payload
+        self.service = service
         self.return_mimetype = return_mimetype
         self.request_dict = request_dict
         self.token = self.request_dict.headers['Authorization']
@@ -39,16 +50,15 @@ class FederationResponse:
         self.service_headers = {}
         self.timeout = timeout
 
-
     def announce_fed_out(self, request_type, destination, path, args):
-        self.logger.info("Federation Service: {} -> {}/{}. Args: {}".format(
+        self.logger.info(json.dumps({"Sending": "{} -> {}/{}. Args: {}".format(
             request_type, destination, path, args
-        ))
+        )}))
 
     def announce_fed_in(self, source, code, response):
-        self.logger.info("Received {} From {}. Data: {}".format(
+        self.logger.info(json.dumps({"Received": "{} From {}. Data: {}".format(
             code, source, response
-        ))
+        )}))
 
     def get_service(self, url, endpoint_path, endpoint_payload):
         """
@@ -57,18 +67,20 @@ class FederationResponse:
         try:
             request_handle = requests.Session()
             full_path = "{}/{}".format(url, endpoint_path)
-            self.announce_fed_out("GET", url, endpoint_path, endpoint_payload)
+            # self.announce_fed_out("GET", url, endpoint_path, endpoint_payload)
             resp = request_handle.get(full_path, headers=self.header, params=endpoint_payload, timeout=self.timeout)
             self.status.append(resp.status_code)
 
+
             if isinstance(resp.json(), list):
                 self.results.extend(resp.json())
-                self.announce_fed_in(full_path, resp.status_code, resp.json())
+                # self.announce_fed_in(full_path, resp.status_code, resp.json())
             else:
                 # Only take the 'data' portion of the Response
+
                 response = [{key: value for key, value in resp.json().items() if key.lower()
                              not in ['headers', 'url']}]
-                self.announce_fed_in(full_path, resp.status_code, response)
+                # self.announce_fed_in(full_path, resp.status_code, response)
                 self.results.extend(response)
 
         except requests.exceptions.ConnectionError:
@@ -85,7 +97,6 @@ class FederationResponse:
         else:
             return True
 
-
     def post_service(self, url, endpoint_path, endpoint_payload):
         """
         make local data request and set the results and status for a FederationResponse
@@ -93,21 +104,19 @@ class FederationResponse:
         try:
             request_handle = requests.Session()
             full_path = "{}/{}".format(url, endpoint_path)
-            self.announce_fed_out("POST", url, endpoint_path, endpoint_payload)
+            # self.announce_fed_out("POST", url, endpoint_path, endpoint_payload)
             resp = request_handle.post(full_path, headers=self.header, json=endpoint_payload)
-            # self.service_headers['X-Source'] = resp.headers['X-Source']
             self.status.append(resp.status_code)
 
             if isinstance(resp.json(), list):
                 self.results.extend(resp.json())
-                self.announce_fed_in(full_path, resp.status_code, resp.json())
-
+                # self.announce_fed_in(full_path, resp.status_code, resp.json())
 
             else:
                 # Only take the 'data' portion of the Response
                 response = [{key: value for key, value in resp.json().items() if key.lower()
                              not in ['headers', 'url', 'args', 'json']}]
-                self.announce_fed_in(full_path, resp.status_code, resp.json())
+                # self.announce_fed_in(full_path, resp.status_code, resp.json())
                 self.results.extend(response)
 
         except requests.exceptions.ConnectionError:
@@ -132,16 +141,9 @@ class FederationResponse:
 
         uri_list = []
 
-        # Old logic when using "local" peers vs uniform handling
-
-        # for peer in APP.config["peers"].values():
-        #     if peer != APP.config["local"]:
-        #         uri_list.append("{}".format(peer))
-
         for peer in APP.config["peers"].values():
             uri_list.append("{}".format(peer))
 
-        # self.logger.info("Federating: {}".format(uri_list))
         for future_response in self.async_requests(uri_list=uri_list,
                                                    request_type=request,
                                                    header=header,
@@ -172,9 +174,9 @@ class FederationResponse:
                     Gather the data within each "results" and append it to
                     the main one.
                     """
+
                     self.results.extend(response.json()["results"])
                     self.status.append(response.status_code)
-
 
                 except KeyError:
                     # No "results"
@@ -208,7 +210,7 @@ class FederationResponse:
             for uri in uri_list:
 
                 try:
-                    self.announce_fed_out(request_type, uri, endpoint_path, endpoint_payload)
+                    # self.announce_fed_out(request_type, uri, endpoint_path, endpoint_payload)
                     responses.append(async_session.get(uri,
                                                        headers=header, params=args, timeout=self.timeout))
                 except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
@@ -216,7 +218,7 @@ class FederationResponse:
         elif request_type == "POST":
             for uri in uri_list:
                 try:
-                    self.announce_fed_out(request_type, uri, endpoint_path, endpoint_payload)
+                    # self.announce_fed_out(request_type, uri, endpoint_path, endpoint_payload)
                     responses.append(async_session.post(uri,
                                                         json=args, headers=header, timeout=self.timeout))
                 except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
@@ -282,7 +284,6 @@ class FederationResponse:
         else:
 
             if self.federate_check():
-                # self.logger.info("Federating POST")
                 self.handle_peer_request(request="POST",
                                          endpoint_path=self.endpoint_path,
                                          endpoint_payload=self.endpoint_payload,
@@ -291,15 +292,15 @@ class FederationResponse:
                 self.post_service(url=self.url,
                                   endpoint_path=self.endpoint_path,
                                   endpoint_payload=self.endpoint_payload)
-        
+
+        status = self.merge_status(self.status)
         try:
-            response = {"status": self.merge_status(self.status), "results": sorted(list(set(self.results)))}
+            # Remove duplicates from a list response due to Federated querying
+            response = {"status": status, "results": sorted(list(set(self.results))), "service": self.service}
 
         except TypeError:
             # Dealing with dicts objects
-            print("TE IN MERGING")
-            print(self.results)
-            response = {"status": self.merge_status(self.status), "results": self.results}
+            response = {"status": status, "results": self.results, "service": self.service}
         
-        self.logger.info(response)
-        return response, self.service_headers
+        return response, status, self.service_headers
+

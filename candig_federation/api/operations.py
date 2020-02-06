@@ -28,22 +28,27 @@ def get_search(endpoint_path, endpoint_payload=None):
     ** This still needs to be finalized **
 
     {
-    "status": [Status Codes],
-    "results": Responses
+    "status": Status,
+    "results": [Response],
+    "service": ServiceName
     }
 
-    """
+    Status - Aggregate HTTP response code
+    Response - List of service specific responses
+    ServiceName - Name of service (used for logstash tagging)
 
+    """
     service = endpoint_path.split("/")[0]
     microservice = APP.config['services'][service]
     federation_response = FederationResponse(url=microservice,
                                              request='GET',
                                              endpoint_path=endpoint_path,
                                              endpoint_payload=endpoint_payload,
-                                             request_dict=flask.request)
-    response, headers = federation_response.get_response_object()
+                                             request_dict=flask.request,
+                                             service=service)
 
-    return response, response["status"], headers
+    return federation_response.get_response_object()
+
 
 
 @apilog
@@ -68,8 +73,6 @@ def post_search():
     }
 
     """
-
-    # print(flask.request.data)
     data = json.loads(flask.request.data)
     endpoint_path = data["endpoint_path"]
     endpoint_payload = data["endpoint_payload"]
@@ -79,6 +82,7 @@ def post_search():
                                              request='POST',
                                              endpoint_path=endpoint_path,
                                              endpoint_payload=endpoint_payload,
-                                             request_dict=flask.request)
-    response, headers = federation_response.get_response_object()
-    return response, response["status"], headers
+                                             request_dict=flask.request,
+                                             service=service)
+    return federation_response.get_response_object()
+
