@@ -23,6 +23,14 @@ class FederationResponse:
     :type endpoint_path: str
     :param endpoint_payload: Query string or data needed by endpoint specified in endpoint_path
     :type endpoint_payload: object, {param0=value0, paramN=valueN} for GET, JSON struct dependent on service endpoint for POST
+    :param request_dict: Flask request object to be modified and forwarded along to service
+    :type request_dict: Flask.Request
+    :param service: Name of CanDIG service to be queried, used for log tracking
+    :type service: str
+    :param return_mimetype: HTTP content-type, default is application/json
+    :type return_mimetype: str
+    :param timeout: Wait time before a request times out, default is 5 seconds
+    :type timeout: int
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -30,6 +38,8 @@ class FederationResponse:
 
     def __init__(self, request, url, endpoint_path, endpoint_payload, request_dict, service, return_mimetype='application/json',
                  timeout=5):
+        """Constructor method
+        """
         self.results = []
         self.status = []
         self.request = request
@@ -50,19 +60,43 @@ class FederationResponse:
         self.service_headers = {}
         self.timeout = timeout
 
-    def announce_fed_out(self, request_type, destination, path, args):
-        self.logger.info(json.dumps({"Sending": "{} -> {}/{}. Args: {}".format(
-            request_type, destination, path, args
+    def announce_fed_out(self, request_type, destination, path):
+        """
+        Logging function to track requests being sent out by the Federation service
+
+        :param request_type: The type of HTTP request to federate, either GET or POST. PUT TBD
+        :type request_type: str
+        :param destination: URL of service
+        :type destination: str
+        :param path: API endpoint of service
+        :type path: Str
+        """
+        self.logger.info(json.dumps({"Sending": "{} -> {}/{}".format(
+            request_type, destination, path
         )}))
 
-    def announce_fed_in(self, source, code, response):
-        self.logger.info(json.dumps({"Received": "{} From {}. Data: {}".format(
-            code, source, response
+    def announce_fed_in(self, source, code):
+        """
+        Logging function to track requests received by Federation from CanDIG services
+
+        :param source: URL of service sending the response
+        :type source: str
+        :param code: Response code
+        :type code: int
+        """
+        self.logger.info(json.dumps({"Received": "{} From {}".format(
+            code, source
         )}))
 
     def get_service(self, url, endpoint_path, endpoint_payload):
         """
-        make local data request and set the results and status for a FederationResponse
+        Sends a GET request to service specified by url, adds response to self.status and self.results
+
+        :param url: URL of service sending the response
+        :param endpoint_path: Specific API endpoint of CanDIG service to be queried, may contain query string if GET
+        :type endpoint_path: str
+        :param endpoint_payload: Query parameters needed by endpoint specified in endpoint_path
+        :type endpoint_payload: object, {param0=value0, paramN=valueN} for GET
         """
         try:
             request_handle = requests.Session()
@@ -91,6 +125,10 @@ class FederationResponse:
             return
 
     def federate_check(self):
+        """Checks if Federation conditions are met
+
+        :return: Boolean
+        """
         if 'Federation' in self.request_dict.headers and \
                 self.request_dict.headers.get('Federation').lower() == 'false':
             return False
@@ -99,7 +137,13 @@ class FederationResponse:
 
     def post_service(self, url, endpoint_path, endpoint_payload):
         """
-        make local data request and set the results and status for a FederationResponse
+        Sends a POST request to service specified by url, adds response to self.status and self.results
+
+        :param url: URL of service sending the response
+        :param endpoint_path: Specific API endpoint of CanDIG service to be queried, may contain query string if GET
+        :type endpoint_path: str
+        :param endpoint_payload: Query parameters needed by endpoint specified in endpoint_path
+        :type endpoint_payload: object, JSON struct dependent on service endpoint for POST
         """
         try:
             request_handle = requests.Session()
@@ -129,14 +173,23 @@ class FederationResponse:
 
     def handle_peer_request(self, request, endpoint_path, endpoint_payload, header):
         """
-
         Make peer data requests and update the results and status for a FederationResponse
 
-        If a response from a peer is recieved, it will be a Response Object with keypairs
-            {"status": [], "results":[] }
+        If a response from a peer is received, it will be a Response Object with key pairs
+            {"status": [], "results":[], "service": "name" }
 
         The data structures within results are still unknown/undefined at this time, so
         just append everything instead of attempting to aggregate internal structs.
+
+        :param request: The type of HTTP request to federate, either GET or POST. PUT TBD
+        :type request: str
+        :param endpoint_path: Specific API endpoint of CanDIG service to be queried, may contain query string if GET
+        :type endpoint_path: str
+        :param endpoint_payload: Query string or data needed by endpoint specified in endpoint_path
+        :type endpoint_payload: object, {param0=value0, paramN=valueN} for GET, JSON struct dependent on service endpoint for POST
+        :param header: Request headers defined in self.headers
+        :type header: object
+        :return: List of ResponseObjects, this specific return is used only in testing
         """
 
         uri_list = []
@@ -144,8 +197,8 @@ class FederationResponse:
         for peer in APP.config["peers"].values():
             uri_list.append("{}".format(peer))
 
-        for future_response in self.async_requests(uri_list=uri_list,
-                                                   request_type=request,
+        for future_response in self.async_requests(url_list=uri_list,
+                                                   request=request,
                                                    header=header,
                                                    endpoint_payload=endpoint_payload,
                                                    endpoint_path=endpoint_path):
@@ -170,7 +223,7 @@ class FederationResponse:
                 try:
                     """
                     Each Response will be in the form on a ResponseObject
-                        {"status": [], "results": []}
+                        {"status": [], "results": [], "service": "name"}
                     Gather the data within each "results" and append it to
                     the main one.
                     """
@@ -197,29 +250,42 @@ class FederationResponse:
         # Return is used for testing individual methods
         return self.results
 
-    def async_requests(self, uri_list, request_type, endpoint_path, endpoint_payload, header):
+    def async_requests(self, url_list, request, endpoint_path, endpoint_payload, header):
         """
-        Use futures session type to async process peer requests
-        :return: list of future responses
+        Send requests to each CanDIG node in the network asynchronously using FutureSession. The
+        futures are returned back to and handled by handle_peer_requests()
+
+
+        :param url_list: List of
+        :param request: The type of HTTP request to federate, either GET or POST. PUT TBD
+        :type request: str
+        :param endpoint_path: Specific API endpoint of CanDIG service to be queried, may contain query string if GET
+        :type endpoint_path: str
+        :param endpoint_payload: Query string or data needed by endpoint specified in endpoint_path
+        :type endpoint_payload: object, {param0=value0, paramN=valueN} for GET, JSON struct dependent on service endpoint for POST
+        :param header: Request headers defined in self.headers
+        :type header: object
+        :return: List of Futures
         """
+
         args = {"endpoint_path": endpoint_path, "endpoint_payload": endpoint_payload}
         async_session = FuturesSession(max_workers=10)  # capping max threads
         responses = []
 
-        if request_type == "GET":
-            for uri in uri_list:
+        if request == "GET":
+            for url in url_list:
 
                 try:
-                    # self.announce_fed_out(request_type, uri, endpoint_path, endpoint_payload)
-                    responses.append(async_session.get(uri,
+                    # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
+                    responses.append(async_session.get(url,
                                                        headers=header, params=args, timeout=self.timeout))
                 except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
                     responses.append(e)
-        elif request_type == "POST":
-            for uri in uri_list:
+        elif request == "POST":
+            for url in url_list:
                 try:
-                    # self.announce_fed_out(request_type, uri, endpoint_path, endpoint_payload)
-                    responses.append(async_session.post(uri,
+                    # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
+                    responses.append(async_session.post(url,
                                                         json=args, headers=header, timeout=self.timeout))
                 except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
                     responses.append(e)
@@ -228,11 +294,16 @@ class FederationResponse:
 
     def merge_status(self, statuses):
         """
-        Design discussion has converged towards returning a single status
+        Returns a single status to represent the federated query.
 
         Priority List:
         1. Return 200 if one exists within the list
-        2. 500 > 408 > 404
+        2. 201 > 405 > 500 > 408 > 404
+
+        :param statuses: List of integer response codes
+        :type statuses: list
+        :return: Single response code
+        :rtype: int
         """
 
         if len(statuses) == 1:
@@ -261,12 +332,15 @@ class FederationResponse:
 
     def get_response_object(self):
         """
+        Driver method to communicate with other CanDIG nodes.
+
         1. Check if federation is needed
          1a. Broadcast if needed
-        2. If no federation is required, passed endpoint to service
+        2. If no federation is required, pass endpoint to service
         3. Aggregate and return all the responses.
 
-        :return: formatted dict that can be returned as application/json response
+        :return: ResponseObject, Status
+        :rtype: object, int
         """
 
         if self.request == "GET":
@@ -302,5 +376,5 @@ class FederationResponse:
             # Dealing with dicts objects
             response = {"status": status, "results": self.results, "service": self.service}
         
-        return response, status, self.service_headers
+        return response, status
 

@@ -234,9 +234,10 @@ def test_valid_noFed_get(mock_requests, client):
                                 request="GET",
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
-                                request_dict=TP["Headers"])
+                                request_dict=TP["Headers"],
+                                service=TP["service"])
 
-        RO, Status, Header = FR.get_response_object()
+        RO, Status = FR.get_response_object()
         assert RO["status"] == 200
         assert RO["results"] == [AP["v1"]]
 
@@ -250,9 +251,10 @@ def test_valid_noFed_post(mock_requests, client):
                                 request="POST",
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
-                                request_dict=TP["Headers"])
+                                request_dict=TP["Headers"],
+                                service=TP["service"])
 
-        RO, Status, Header = FR.get_response_object()
+        RO, Status = FR.get_response_object()
         assert RO["status"] == 200
         assert RO["results"] == [PostListV1]
 
@@ -267,9 +269,10 @@ def test_invalid_noFed_get(mock_requests, client):
                                 request="GET",
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
-                                request_dict=TP["Headers"])
+                                request_dict=TP["Headers"],
+                                service=TP["service"])
 
-        RO, Status, Header = FR.get_response_object()
+        RO, Status = FR.get_response_object()
         assert RO["status"] == 404
         assert RO["results"] == []
 
@@ -283,9 +286,10 @@ def test_invalid_noFed_post(mock_requests, client):
                                 request="POST",
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
-                                request_dict=TP["Headers"])
+                                request_dict=TP["Headers"],
+                                service=TP["service"])
 
-        RO, Status, Header = FR.get_response_object()
+        RO, Status = FR.get_response_object()
         assert RO["status"] == 404
         assert RO["results"] == []
 
@@ -299,9 +303,10 @@ def test_timeout_noFed_get(mock_requests, client):
                                 request="GET",
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
-                                request_dict=TP["Headers"])
+                                request_dict=TP["Headers"],
+                                service=TP["service"])
 
-        RO, Status, Header = FR.get_response_object()
+        RO, Status = FR.get_response_object()
         assert RO["status"] == 504
         assert RO["results"] == []
 
@@ -315,9 +320,10 @@ def test_timeout_noFed_post(mock_requests, client):
                                 request="POST",
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
-                                request_dict=TP["Headers"])
+                                request_dict=TP["Headers"],
+                                service=TP["service"])
 
-        RO, Status, Header = FR.get_response_object()
+        RO, Status = FR.get_response_object()
         assert RO["status"] == 504
         assert RO["results"] == []
 
@@ -332,11 +338,12 @@ def test_valid_asyncRequests_two_peers_get(mock_requests, client):
                                 request="GET",
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
-                                request_dict=TP["Headers"])
+                                request_dict=TP["Headers"],
+                                service=TP["service"])
 
-        resp = FR.async_requests(uri_list=["http://{}".format(TP["Tyk1"]),
+        resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
-                                 request_type='GET',
+                                 request='GET',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
                                  header=TP["Headers"])
@@ -356,11 +363,12 @@ def test_valid_asyncRequests_two_peers_post(mock_requests, client):
                                 request="POST",
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
-                                request_dict=TP["Headers"])
+                                request_dict=TP["Headers"],
+                                service=TP["service"])
 
-        resp = FR.async_requests(uri_list=["http://{}".format(TP["Tyk1"]),
+        resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
-                                 request_type='POST',
+                                 request='POST',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
                                  header=TP["Headers"])
@@ -380,11 +388,12 @@ def test_invalid_asyncRequests_two_peers_get(mock_requests, client):
                                 request="GET",
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
-                                request_dict=TP["Headers"])
+                                request_dict=TP["Headers"],
+                                service=TP["service"])
 
-        resp = FR.async_requests(uri_list=["http://{}".format(TP["Tyk1"]),
+        resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
-                                 request_type='GET',
+                                 request='GET',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
                                  header=TP["Headers"])
@@ -406,11 +415,12 @@ def test_invalid_asyncRequests_two_peers_post(mock_requests, client):
                                 request="POST",
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
-                                request_dict=TP["Headers"])
+                                request_dict=TP["Headers"],
+                                service=TP["service"])
 
-        resp = FR.async_requests(uri_list=["http://{}".format(TP["Tyk1"]),
+        resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
-                                 request_type='POST',
+                                 request='POST',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
                                  header=TP["Headers"])
@@ -430,11 +440,12 @@ def test_timeout_asyncRequests_two_peers_post(mock_requests, client):
                                 request="POST",
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
-                                request_dict=TP["Headers"])
+                                request_dict=TP["Headers"],
+                                service=TP["service"])
 
-        resp = FR.async_requests(uri_list=["http://{}".format(TP["Tyk1"]),
+        resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
-                                 request_type='POST',
+                                 request='POST',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
                                  header=TP["Headers"])
@@ -454,11 +465,12 @@ def test_timeout_asyncRequests_two_peers_get(mock_requests, client):
                                 request="GET",
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
-                                request_dict=TP["Headers"])
+                                request_dict=TP["Headers"],
+                                service=TP["service"])
 
-        resp = FR.async_requests(uri_list=["http://{}".format(TP["Tyk1"]),
+        resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
-                                 request_type='GET',
+                                 request='GET',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
                                  header=TP["Headers"])
@@ -482,9 +494,10 @@ def test_valid_PeerRequest_one_peer_get(mock_requests, mock_session, client):
                                 request="GET",
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
-                                request_dict=TP["Federate"])
+                                request_dict=TP["Federate"],
+                                service=TP["service"])
 
-        RO, Status, Header = FR.get_response_object()
+        RO, Status = FR.get_response_object()
 
         assert RO["status"] == 200
         assert RO["results"] == [AP["v1"], AP["v2"]]
@@ -514,9 +527,10 @@ def test_valid_PeerRequest_one_peer_post(mock_session, mock_requests, client):
                                 request="POST",
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
-                                request_dict=TP["Federate"])
+                                request_dict=TP["Federate"],
+                                service=TP["service"])
 
-        RO, Status, Header = FR.get_response_object()
+        RO, Status = FR.get_response_object()
 
         assert RO["status"] == 200
         assert RO["results"] == [PostListV1, PostListV2]
@@ -665,9 +679,10 @@ def test_valid_PeerRequest_two_peer_get(mock_requests, mock_session, client):
                                 request="GET",
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
-                                request_dict=TP["Federate"])
+                                request_dict=TP["Federate"],
+                                service=TP["service"])
 
-        RO, Status, Header = FR.get_response_object()
+        RO, Status = FR.get_response_object()
 
         assert RO["status"] == 200
         assert RO["results"] == [AP["v1"], AP["v2"], AP["v3"]]
@@ -697,9 +712,10 @@ def test_valid_PeerRequest_two_peer_post(mock_session, mock_requests, client):
                                 request="POST",
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
-                                request_dict=TP["Federate"])
+                                request_dict=TP["Federate"],
+                                service=TP["service"])
 
-        RO, Status, Header = FR.get_response_object()
+        RO, Status = FR.get_response_object()
 
         assert RO["status"] == 200
         assert RO["results"] == [PostListV1, PostListV2, PostListV3]
