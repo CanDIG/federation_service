@@ -6,26 +6,10 @@
 Welcome to CanDIG Federation's documentation!
 =============================================
 
-
-The ``candig_federation`` service is a one of the services which make up the CanDIG v2 platform. It acts as an entry
-point for all incoming requests made to CanDIG, passing it along to the specified service, federating the request among the
-nodes in the CanDIG network and aggregating all the responses.
-
-It is based off CanDIG's `Python Model Service`__, an OpenAPI stack utilizing Connexion, SQLAlchemy, Bravado-core,
-Pytest and Travis-CI.
-
-
-
-
-
-.. __: https://github.com/CanDIG/python_model_service
-
-
-
 .. toctree::
    :maxdepth: 4
 
-   install
+   Intro
 
 
 

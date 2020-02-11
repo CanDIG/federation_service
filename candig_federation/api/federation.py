@@ -251,8 +251,7 @@ class FederationResponse:
         return self.results
 
     def async_requests(self, url_list, request, endpoint_path, endpoint_payload, header):
-        """
-        Send requests to each CanDIG node in the network asynchronously using FutureSession. The
+        """Send requests to each CanDIG node in the network asynchronously using FutureSession. The
         futures are returned back to and handled by handle_peer_requests()
 
 
@@ -293,8 +292,7 @@ class FederationResponse:
         return responses
 
     def merge_status(self, statuses):
-        """
-        Returns a single status to represent the federated query.
+        """Returns a single status to represent the federated query.
 
         Priority List:
         1. Return 200 if one exists within the list
@@ -331,15 +329,14 @@ class FederationResponse:
             return 500
 
     def get_response_object(self):
-        """
-        Driver method to communicate with other CanDIG nodes.
+        """Driver method to communicate with other CanDIG nodes.
 
         1. Check if federation is needed
-         1a. Broadcast if needed
+        1a. Broadcast if needed
         2. If no federation is required, pass endpoint to service
         3. Aggregate and return all the responses.
 
-        :return: ResponseObject, Status
+        :return: response_object, Status
         :rtype: object, int
         """
 

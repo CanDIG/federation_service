@@ -1,0 +1,273 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>candig_federation.api package &mdash; CanDIG Federation 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Federation" href="candig_federation.api.federation.html" />
+    <link rel="prev" title="candig_federation package" href="candig_federation.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> CanDIG Federation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">candig_federation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="candig_federation.html">candig_federation package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">candig_federation.api package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-candig_federation.api.operations">candig_federation.api.operations module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-candig_federation.api">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="candig_federation.api.federation.html">Federation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CanDIG Federation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">candig_federation</a> &raquo;</li>
+        
+          <li><a href="candig_federation.html">candig_federation package</a> &raquo;</li>
+        
+      <li>candig_federation.api package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/candig_federation.api.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="candig-federation-api-package">
+<h1>candig_federation.api package<a class="headerlink" href="#candig-federation-api-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-candig_federation.api.operations">
+<span id="candig-federation-api-operations-module"></span><h2>candig_federation.api.operations module<a class="headerlink" href="#module-candig_federation.api.operations" title="Permalink to this headline">¶</a></h2>
+<p>Methods to handle incoming requests passed from Tyk</p>
+<dl class="function">
+<dt id="candig_federation.api.operations.get_search">
+<code class="sig-prename descclassname">candig_federation.api.operations.</code><code class="sig-name descname">get_search</code><span class="sig-paren">(</span><em class="sig-param">endpoint_path</em>, <em class="sig-param">endpoint_payload=None</em><span class="sig-paren">)</span><a class="headerlink" href="#candig_federation.api.operations.get_search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a GET request to CanDIG services and possibly federate it. Method defined by federation.yaml OpenAPI document.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>endpoint_path</strong> (<em>str</em>) – Full path of API endpoint such as <code class="docutils literal notranslate"><span class="pre">datasets/search</span></code></p></li>
+<li><p><strong>endpoint_payload</strong> (<em>object</em>) – Query parameters as key=value strings: <code class="docutils literal notranslate"><span class="pre">{</span> <span class="pre">&quot;param1=value1&quot;,</span> <span class="pre">&quot;param2=value2&quot;</span> <span class="pre">}</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>response_object</p>
+</dd>
+</dl>
+<p>{
+“status”: Status,
+“results”: [Response],
+“service”: ServiceName
+}</p>
+<p>Status - Aggregate HTTP response code
+Response - List of service specific responses
+ServiceName - Name of service (used for logstash tagging)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="candig_federation.api.operations.post_search">
+<code class="sig-prename descclassname">candig_federation.api.operations.</code><code class="sig-name descname">post_search</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#candig_federation.api.operations.post_search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a POST request to CanDIG services and possibly federate it.
+Method defined by federation.yaml OpenAPI document.
+Retrieves an endpoint_path and endpoint_payload from POST request body,
+following the endpoint_path conventions set in get_search().</p>
+<p>The endpoint_payload is microservice specific but will typically be a
+JSON object of sorts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>response_object</p>
+</dd>
+</dl>
+<p>response_object: json string
+Merged responses from the federation nodes. response_object structure:</p>
+<p>** This still needs to be finalized **</p>
+<p>{
+“status”: Status,
+“results”: [Response],
+“service”: ServiceName
+}</p>
+<p>Status - Aggregate HTTP response code
+Response - List of service specific responses
+ServiceName - Name of service (used for logstash tagging)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-candig_federation.api">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-candig_federation.api" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="candig_federation.api.federation.html" class="btn btn-neutral float-right" title="Federation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="candig_federation.html" class="btn btn-neutral float-left" title="candig_federation package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Dashaylan Naidoo
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
