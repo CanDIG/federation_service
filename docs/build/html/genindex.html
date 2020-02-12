@@ -80,11 +80,11 @@
             
             
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="Intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">candig_federation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="run.html">Starting Federation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="run.html#incoming-requests">Incoming Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="run.html#request-flow">Request Flow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="candig_federation.html">candig_federation package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="candig_federation.api.html">candig_federation.api package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="candig_federation.api.federation.html">Federation</a></li>
 </ul>
 
             
@@ -153,17 +153,28 @@
 <div class="genindex-jumpbox">
  <a href="#A"><strong>A</strong></a>
  | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
+ | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#P"><strong>P</strong></a>
+ | <a href="#S"><strong>S</strong></a>
  
 </div>
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="candig_federation.api.federation.html#candig_federation.api.federation.FederationResponse.async_requests">async_requests() (candig_federation.api.federation.FederationResponse method)</a>
+      <li><a href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.announce_fed_in">announce_fed_in() (candig_federation.api.federation.FederationResponse method)</a>
+</li>
+      <li><a href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.announce_fed_out">announce_fed_out() (candig_federation.api.federation.FederationResponse method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="candig_federation.api.html#candig_federation.api.logging.apilog">apilog() (in module candig_federation.api.logging)</a>
+</li>
+      <li><a href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.async_requests">async_requests() (candig_federation.api.federation.FederationResponse method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -171,11 +182,21 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="candig_federation.api.html#module-candig_federation.api">candig_federation.api (module)</a>
+      <li><a href="candig_federation.api.html#module-candig_federation.api.federation">candig_federation.api.federation (module)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="candig_federation.api.html#module-candig_federation.api.logging">candig_federation.api.logging (module)</a>
+</li>
       <li><a href="candig_federation.api.html#module-candig_federation.api.operations">candig_federation.api.operations (module)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="candig_federation.api.html#candig_federation.api.logging.FieldEncoder.default">default() (candig_federation.api.logging.FieldEncoder method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -183,11 +204,13 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="candig_federation.api.federation.html#candig_federation.api.federation.FederationResponse.federate_check">federate_check() (candig_federation.api.federation.FederationResponse method)</a>
+      <li><a href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.federate_check">federate_check() (candig_federation.api.federation.FederationResponse method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="candig_federation.api.federation.html#candig_federation.api.federation.FederationResponse">FederationResponse (class in candig_federation.api.federation)</a>
+      <li><a href="candig_federation.api.html#candig_federation.api.federation.FederationResponse">FederationResponse (class in candig_federation.api.federation)</a>
+</li>
+      <li><a href="candig_federation.api.html#candig_federation.api.logging.FieldEncoder">FieldEncoder (class in candig_federation.api.logging)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -195,13 +218,13 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="candig_federation.api.federation.html#candig_federation.api.federation.FederationResponse.get_response_object">get_response_object() (candig_federation.api.federation.FederationResponse method)</a>
+      <li><a href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.get_response_object">get_response_object() (candig_federation.api.federation.FederationResponse method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="candig_federation.api.html#candig_federation.api.operations.get_search">get_search() (in module candig_federation.api.operations)</a>
 </li>
-      <li><a href="candig_federation.api.federation.html#candig_federation.api.federation.FederationResponse.get_service">get_service() (candig_federation.api.federation.FederationResponse method)</a>
+      <li><a href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.get_service">get_service() (candig_federation.api.federation.FederationResponse method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -209,7 +232,15 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="candig_federation.api.federation.html#candig_federation.api.federation.FederationResponse.handle_peer_request">handle_peer_request() (candig_federation.api.federation.FederationResponse method)</a>
+      <li><a href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.handle_peer_request">handle_peer_request() (candig_federation.api.federation.FederationResponse method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="candig_federation.api.html#candig_federation.api.logging.logger">logger() (in module candig_federation.api.logging)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -217,7 +248,7 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="candig_federation.api.federation.html#candig_federation.api.federation.FederationResponse.merge_status">merge_status() (candig_federation.api.federation.FederationResponse method)</a>
+      <li><a href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.merge_status">merge_status() (candig_federation.api.federation.FederationResponse method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -229,7 +260,15 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="candig_federation.api.federation.html#candig_federation.api.federation.FederationResponse.post_service">post_service() (candig_federation.api.federation.FederationResponse method)</a>
+      <li><a href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.post_service">post_service() (candig_federation.api.federation.FederationResponse method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="candig_federation.api.html#candig_federation.api.logging.structured_log">structured_log() (in module candig_federation.api.logging)</a>
 </li>
   </ul></td>
 </tr></table>

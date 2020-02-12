@@ -1,5 +1,5 @@
-Federation
-==========
+Federation.py
+=============
 
 
 The ``FederationResponse`` class
@@ -9,3 +9,4 @@ The ``FederationResponse`` class
    :members: get_service, post_service, federate_check, handle_peer_request, async_requests, merge_status, get_response_object
    :undoc-members:
    :show-inheritance:
+   :noindex:

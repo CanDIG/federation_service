@@ -2,8 +2,8 @@ candig\_federation.api package
 ==============================
 
 
-candig\_federation.api.operations module
-----------------------------------------
+Operations Module
+-----------------
 
 .. automodule:: candig_federation.api.operations
    :members:
@@ -11,10 +11,19 @@ candig\_federation.api.operations module
    :show-inheritance:
 
 
-Module contents
----------------
+Federation Module
+-----------------
 
-.. automodule:: candig_federation.api
+.. automodule:: candig_federation.api.federation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Logging Module
+-----------------
+
+.. automodule:: candig_federation.api.logging
    :members:
    :undoc-members:
    :show-inheritance:

@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Introduction" href="Intro.html" /> 
+    <link rel="next" title="Installation" href="install.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -80,11 +80,11 @@
             
             
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="Intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">candig_federation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="run.html">Starting Federation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="run.html#incoming-requests">Incoming Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="run.html#request-flow">Request Flow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="candig_federation.html">candig_federation package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="candig_federation.api.html">candig_federation.api package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="candig_federation.api.federation.html">Federation</a></li>
 </ul>
 
             
@@ -151,37 +151,35 @@
             
   <div class="section" id="welcome-to-candig-federation-s-documentation">
 <h1>Welcome to CanDIG Federation’s documentation!<a class="headerlink" href="#welcome-to-candig-federation-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">candig_federation</span></code> service is a one of the services which make up the CanDIG v2 platform. It acts as an entry
+point for all incoming requests made to CanDIG, passing it along to the specified service, federating the request among the
+nodes in the CanDIG network and aggregating all the responses.</p>
+<p>It is based off CanDIG’s <a class="reference external" href="https://github.com/CanDIG/python_model_service">Python Model Service</a>, an OpenAPI stack utilizing Connexion, SQLAlchemy, Bravado-core,
+Pytest and Travis-CI.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="Intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">candig_federation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="candig_federation.html">candig_federation package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="candig_federation.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="candig_federation.api.html">candig_federation.api package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install.html#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="install.html#main-py">__main__.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install.html#json-configs">JSON configs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install.html#uwsgi-configuration">uWSGI Configuration</a></li>
 </ul>
 </li>
 </ul>
 </li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="run.html">Starting Federation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="run.html#incoming-requests">Incoming Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="run.html#request-flow">Request Flow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="candig_federation.html">candig_federation package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="candig_federation.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="candig_federation.api.html">candig_federation.api package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="candig_federation.api.html#module-candig_federation.api.operations">candig_federation.api.operations module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="candig_federation.api.html#module-candig_federation.api">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="candig_federation.api.html#module-candig_federation.api.operations">Operations Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="candig_federation.api.html#module-candig_federation.api.federation">Federation Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="candig_federation.api.html#module-candig_federation.api.logging">Logging Module</a></li>
 </ul>
 </li>
 </ul>
 </li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="candig_federation.api.html">candig_federation.api package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="candig_federation.api.html#module-candig_federation.api.operations">candig_federation.api.operations module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="candig_federation.api.html#module-candig_federation.api">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="candig_federation.api.federation.html">Federation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="candig_federation.api.federation.html#the-federationresponse-class">The <code class="docutils literal notranslate"><span class="pre">FederationResponse</span></code> class</a></li>
 </ul>
 </li>
 </ul>
@@ -204,7 +202,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="Intro.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="install.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
     </div>

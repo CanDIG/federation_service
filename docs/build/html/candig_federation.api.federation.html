@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Federation &mdash; CanDIG Federation 0.1 documentation</title>
+  <title>Federation.py &mdash; CanDIG Federation 0.1 documentation</title>
   
 
   
@@ -34,8 +34,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="candig_federation.api package" href="candig_federation.api.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -79,15 +78,12 @@
               
             
             
-              <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="Intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">candig_federation</a></li>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="run.html">Starting Federation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="run.html#incoming-requests">Incoming Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="run.html#request-flow">Request Flow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="candig_federation.html">candig_federation package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="candig_federation.api.html">candig_federation.api package</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Federation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#the-federationresponse-class">The <code class="docutils literal notranslate"><span class="pre">FederationResponse</span></code> class</a></li>
-</ul>
-</li>
 </ul>
 
             
@@ -133,7 +129,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Federation</li>
+      <li>Federation.py</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -152,13 +148,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="federation">
-<h1>Federation<a class="headerlink" href="#federation" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="federation-py">
+<h1>Federation.py<a class="headerlink" href="#federation-py" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="the-federationresponse-class">
 <h2>The <code class="docutils literal notranslate"><span class="pre">FederationResponse</span></code> class<a class="headerlink" href="#the-federationresponse-class" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="candig_federation.api.federation.FederationResponse">
-<em class="property">class </em><code class="sig-prename descclassname">candig_federation.api.federation.</code><code class="sig-name descname">FederationResponse</code><span class="sig-paren">(</span><em class="sig-param">request</em>, <em class="sig-param">url</em>, <em class="sig-param">endpoint_path</em>, <em class="sig-param">endpoint_payload</em>, <em class="sig-param">request_dict</em>, <em class="sig-param">service</em>, <em class="sig-param">return_mimetype='application/json'</em>, <em class="sig-param">timeout=5</em><span class="sig-paren">)</span><a class="headerlink" href="#candig_federation.api.federation.FederationResponse" title="Permalink to this definition">¶</a></dt>
+<dt>
+<em class="property">class </em><code class="sig-prename descclassname">candig_federation.api.federation.</code><code class="sig-name descname">FederationResponse</code><span class="sig-paren">(</span><em class="sig-param">request</em>, <em class="sig-param">url</em>, <em class="sig-param">endpoint_path</em>, <em class="sig-param">endpoint_payload</em>, <em class="sig-param">request_dict</em>, <em class="sig-param">service</em>, <em class="sig-param">return_mimetype='application/json'</em>, <em class="sig-param">timeout=5</em><span class="sig-paren">)</span></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This is a collection of methods to facilitate federated queries across the CanDIG network</p>
 <dl class="field-list simple">
@@ -176,8 +172,8 @@
 </dd>
 </dl>
 <dl class="method">
-<dt id="candig_federation.api.federation.FederationResponse.async_requests">
-<code class="sig-name descname">async_requests</code><span class="sig-paren">(</span><em class="sig-param">url_list</em>, <em class="sig-param">request</em>, <em class="sig-param">endpoint_path</em>, <em class="sig-param">endpoint_payload</em>, <em class="sig-param">header</em><span class="sig-paren">)</span><a class="headerlink" href="#candig_federation.api.federation.FederationResponse.async_requests" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="sig-name descname">async_requests</code><span class="sig-paren">(</span><em class="sig-param">url_list</em>, <em class="sig-param">request</em>, <em class="sig-param">endpoint_path</em>, <em class="sig-param">endpoint_payload</em>, <em class="sig-param">header</em><span class="sig-paren">)</span></dt>
 <dd><p>Send requests to each CanDIG node in the network asynchronously using FutureSession. The
 futures are returned back to and handled by handle_peer_requests()</p>
 <dl class="field-list simple">
@@ -197,8 +193,8 @@ futures are returned back to and handled by handle_peer_requests()</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="candig_federation.api.federation.FederationResponse.federate_check">
-<code class="sig-name descname">federate_check</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#candig_federation.api.federation.FederationResponse.federate_check" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="sig-name descname">federate_check</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
 <dd><p>Checks if Federation conditions are met</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -208,8 +204,8 @@ futures are returned back to and handled by handle_peer_requests()</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="candig_federation.api.federation.FederationResponse.get_response_object">
-<code class="sig-name descname">get_response_object</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#candig_federation.api.federation.FederationResponse.get_response_object" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="sig-name descname">get_response_object</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
 <dd><p>Driver method to communicate with other CanDIG nodes.</p>
 <p>1. Check if federation is needed
 1a. Broadcast if needed
@@ -226,8 +222,8 @@ futures are returned back to and handled by handle_peer_requests()</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="candig_federation.api.federation.FederationResponse.get_service">
-<code class="sig-name descname">get_service</code><span class="sig-paren">(</span><em class="sig-param">url</em>, <em class="sig-param">endpoint_path</em>, <em class="sig-param">endpoint_payload</em><span class="sig-paren">)</span><a class="headerlink" href="#candig_federation.api.federation.FederationResponse.get_service" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="sig-name descname">get_service</code><span class="sig-paren">(</span><em class="sig-param">url</em>, <em class="sig-param">endpoint_path</em>, <em class="sig-param">endpoint_payload</em><span class="sig-paren">)</span></dt>
 <dd><p>Sends a GET request to service specified by url, adds response to self.status and self.results</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -241,8 +237,8 @@ futures are returned back to and handled by handle_peer_requests()</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="candig_federation.api.federation.FederationResponse.handle_peer_request">
-<code class="sig-name descname">handle_peer_request</code><span class="sig-paren">(</span><em class="sig-param">request</em>, <em class="sig-param">endpoint_path</em>, <em class="sig-param">endpoint_payload</em>, <em class="sig-param">header</em><span class="sig-paren">)</span><a class="headerlink" href="#candig_federation.api.federation.FederationResponse.handle_peer_request" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="sig-name descname">handle_peer_request</code><span class="sig-paren">(</span><em class="sig-param">request</em>, <em class="sig-param">endpoint_path</em>, <em class="sig-param">endpoint_payload</em>, <em class="sig-param">header</em><span class="sig-paren">)</span></dt>
 <dd><p>Make peer data requests and update the results and status for a FederationResponse</p>
 <dl class="simple">
 <dt>If a response from a peer is received, it will be a Response Object with key pairs</dt><dd><p>{“status”: [], “results”:[], “service”: “name” }</p>
@@ -266,8 +262,8 @@ just append everything instead of attempting to aggregate internal structs.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="candig_federation.api.federation.FederationResponse.merge_status">
-<code class="sig-name descname">merge_status</code><span class="sig-paren">(</span><em class="sig-param">statuses</em><span class="sig-paren">)</span><a class="headerlink" href="#candig_federation.api.federation.FederationResponse.merge_status" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="sig-name descname">merge_status</code><span class="sig-paren">(</span><em class="sig-param">statuses</em><span class="sig-paren">)</span></dt>
 <dd><p>Returns a single status to represent the federated query.</p>
 <p>Priority List:
 1. Return 200 if one exists within the list
@@ -286,8 +282,8 @@ just append everything instead of attempting to aggregate internal structs.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="candig_federation.api.federation.FederationResponse.post_service">
-<code class="sig-name descname">post_service</code><span class="sig-paren">(</span><em class="sig-param">url</em>, <em class="sig-param">endpoint_path</em>, <em class="sig-param">endpoint_payload</em><span class="sig-paren">)</span><a class="headerlink" href="#candig_federation.api.federation.FederationResponse.post_service" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="sig-name descname">post_service</code><span class="sig-paren">(</span><em class="sig-param">url</em>, <em class="sig-param">endpoint_path</em>, <em class="sig-param">endpoint_payload</em><span class="sig-paren">)</span></dt>
 <dd><p>Sends a POST request to service specified by url, adds response to self.status and self.results</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -310,13 +306,6 @@ just append everything instead of attempting to aggregate internal structs.</p>
            
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-      
-        <a href="candig_federation.api.html" class="btn btn-neutral float-left" title="candig_federation.api package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
-    </div>
   
 
   <hr/>

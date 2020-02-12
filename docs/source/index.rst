@@ -26,14 +26,10 @@ Pytest and Travis-CI.
    :maxdepth: 4
 
    install
+   run
 
-
-
-
-   modules
    candig_federation
-   candig_federation.api
-   candig_federation.api.federation
+
 
 
 
