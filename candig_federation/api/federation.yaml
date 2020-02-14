@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   description: Microservice implementation of CanDIG v1 federation
-  version: "1.0.0-oas3"
+  version: "0.1.0-oas3"
   title: CanDIG Federation API POC
   contact:
     email: dnaidoo@bcgsc.ca

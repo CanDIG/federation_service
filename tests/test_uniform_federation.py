@@ -890,7 +890,7 @@ def test_one_TimeOut_federated_local_TimeOut_two_peer_get(mock_requests, mock_se
             RO = operations.post_search()[0]
             assert RO["status"] == 200
             assert RO["results"] == [AP["v3"]]
-            
+
 
 
 # Test Federation with two nodes (One timeout) and local valid -----------------------------------------------------
