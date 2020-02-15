@@ -82,7 +82,7 @@ parameters:
     description: Path to microservice endpoint
     in: query
     type: string
-    x-example: /variantget/projects
+    x-example: variantget/projects
     required: true
 
   endpoint_payload:
@@ -109,7 +109,7 @@ definitions:
     properties:
       endpoint_path:
         type: string
-        example: /v2/get
+        example: v2/get
       endpoint_payload:
         type: object
 

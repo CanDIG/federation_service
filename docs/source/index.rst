@@ -7,7 +7,7 @@ Welcome to CanDIG Federation's documentation!
 =============================================
 
 
-The ``candig_federation`` service is a one of the services which make up the CanDIG v2 platform. It acts as an entry
+The Federation service is a one of the services which make up the CanDIG v2 platform. It acts as an entry
 point for all incoming requests made to CanDIG, passing it along to the specified service, federating the request among the
 nodes in the CanDIG network and aggregating all the responses.
 

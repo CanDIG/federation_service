@@ -51,7 +51,6 @@ def main(args=None):
 
     # Self and Local don't actually need to be mapped anymore with the new broadcast logic
     APP.app.config["self"] = "http://{}:{}".format(args.host, args.port)
-    # APP.app.config["local"] = args.localnode
 
     # Service Parse
     APP.app.config["services"] = network.parse_configs("services", args.services,
@@ -69,8 +68,6 @@ def configure_app():
     """
     app = connexion.FlaskApp(__name__, server='tornado', options={"swagger_url": "/"})
 
-    # api_def = pkg_resources.resource_filename('candig_federation', 'api/federation.yaml')
-
     api_def = './api/federation.yaml'
 
     app.add_api(api_def, strict_validation=True, validate_responses=True)
@@ -87,5 +84,7 @@ APPLICATION, PORT = main()
 application = APPLICATION.app
 
 if __name__ == '__main__':
+
+
     APPLICATION.app.logger.info("federation_service running at {}".format(APPLICATION.app.config["self"]))
     APPLICATION.run(port=PORT)

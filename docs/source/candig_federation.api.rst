@@ -1,6 +1,8 @@
-candig\_federation.api package
+API package
 ==============================
-
+The main modules within the API package are the ``Operations`` and ``Federation`` modules, which
+implement all the API routes, routing and federation logic. The ``Operations`` module directly implements
+the paths specified in ``federation.yaml`` OpenAPI 3 spec.
 
 Operations Module
 -----------------
@@ -27,3 +29,8 @@ Logging Module
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+API Definition
+---------------
+
