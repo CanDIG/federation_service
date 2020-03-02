@@ -29,6 +29,7 @@ Pytest and Travis-CI.
    run
 
    candig_federation
+   examples
 
 
 

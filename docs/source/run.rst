@@ -60,7 +60,7 @@ peers, the Federation service will aggregate all the responses and return a comb
 
 .. note::
 
-    The case of ``federate: 'true'`` means that Federation will send a request to **itself**, which is why uWSGI needs to be running the service. Multiple processes
+    The case of ``federation: 'true'`` means that Federation will send a request to **itself**, which is why uWSGI needs to be running the service. Multiple processes
     of the initial Federation service need to be running in order to handle the second incoming request since the first process will be waiting on the initial request.
 
     This was the request flow decided upon during technical meetings in order to keep the service is uniform as possible with regards to request handling.
