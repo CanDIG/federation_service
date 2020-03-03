@@ -30,6 +30,7 @@ Pytest and Travis-CI.
 
    candig_federation
    examples
+   testing
 
 
 
