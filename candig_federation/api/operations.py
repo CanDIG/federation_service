@@ -47,7 +47,7 @@ APP = flask.current_app
 #     return federation_response.get_response_object()
 
 
-
+  
 @apilog
 def post_search():
     """
@@ -76,8 +76,8 @@ def post_search():
     Status - Aggregate HTTP response code
     Response - List of service specific responses
     ServiceName - Name of service (used for logstash tagging)
-
     """
+
     data = json.loads(flask.request.data)
     request_type = data["request_type"]
     endpoint_path = data["endpoint_path"]
