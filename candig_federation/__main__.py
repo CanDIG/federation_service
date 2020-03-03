@@ -32,6 +32,8 @@ def main(args=None):
     parser.add_argument('--peers', default="./configs/peers.json")
     parser.add_argument('--schemas', default="./configs/schemas.json")
 
+
+
     # known args used to supply command line args to pytest without raising an error here
     args, _ = parser.parse_known_args()
 
@@ -58,7 +60,6 @@ def main(args=None):
 
     return APP, args.port
 
-
 def configure_app():
     """
     Set up base flask app from Connexion
@@ -68,6 +69,7 @@ def configure_app():
     """
     app = connexion.FlaskApp(__name__, server='tornado', options={"swagger_url": "/"})
 
+
     api_def = './api/federation.yaml'
 
     app.add_api(api_def, strict_validation=True, validate_responses=True)
@@ -76,7 +78,6 @@ def configure_app():
 
 
 APP = configure_app()
-
 APPLICATION, PORT = main()
 
 # expose flask app for uwsgi
@@ -84,7 +85,5 @@ APPLICATION, PORT = main()
 application = APPLICATION.app
 
 if __name__ == '__main__':
-
-
     APPLICATION.app.logger.info("federation_service running at {}".format(APPLICATION.app.config["self"]))
     APPLICATION.run(port=PORT)

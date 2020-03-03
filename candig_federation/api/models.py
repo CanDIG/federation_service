@@ -33,3 +33,4 @@ _SWAGGER_SPEC = create_spec(_SPEC_DICT, spec_url='federation.yaml')
 # Error = _SWAGGER_SPEC.definitions['Error']
 
 BASEPATH = _SWAGGER_SPEC.servers[0].url
+

@@ -3,6 +3,7 @@
 Provides methods to handle both local and federated requests
 """
 
+
 import json
 import requests
 from flask import current_app
@@ -13,6 +14,7 @@ APP = current_app
 
 class FederationResponse:
     """
+
     This is a collection of methods to facilitate federated queries across the CanDIG network
 
     :param request: The type of HTTP request to federate, either GET or POST. PUT TBD
@@ -36,6 +38,7 @@ class FederationResponse:
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=too-many-arguments
 
+
     def __init__(self, request, url, endpoint_path, endpoint_payload, request_dict, service, return_mimetype='application/json',
                  timeout=5):
         """Constructor method
@@ -46,17 +49,20 @@ class FederationResponse:
         self.url = url
         self.endpoint_path = endpoint_path
         self.endpoint_payload = endpoint_payload
+
         self.service = service
         self.return_mimetype = return_mimetype
         self.request_dict = request_dict
         self.token = self.request_dict.headers['Authorization']
         self.logger = APP.logger
+
         self.header = {
             'Content-Type': self.return_mimetype,
             'Accept': self.return_mimetype,
             'Federation': 'false',
             'Authorization': self.token,
         }
+
         self.service_headers = {}
         self.timeout = timeout
 
@@ -88,6 +94,7 @@ class FederationResponse:
             code, source
         )}))
 
+
     def get_service(self, url, endpoint_path, endpoint_payload):
         """
         Sends a GET request to service specified by url, adds response to self.status and self.results
@@ -101,6 +108,7 @@ class FederationResponse:
         try:
             request_handle = requests.Session()
             full_path = "{}/{}".format(url, endpoint_path)
+
             # self.announce_fed_out("GET", url, endpoint_path, endpoint_payload)
             resp = request_handle.get(full_path, headers=self.header, params=endpoint_payload, timeout=self.timeout)
             self.status.append(resp.status_code)
@@ -209,6 +217,7 @@ class FederationResponse:
                     self.status.append(404)
                 if isinstance(future_response, requests.exceptions.Timeout):
                     self.status.append(504)
+
                 continue
             except requests.exceptions.ConnectionError:
                 self.status.append(404)
@@ -219,7 +228,6 @@ class FederationResponse:
                 continue
 
             # If the call was successful append the results
-
             if response.status_code in [200, 201, 405]:
                 try:
                     """
@@ -345,6 +353,7 @@ class FederationResponse:
         if self.request == "GET":
 
             if self.federate_check():
+
                 self.handle_peer_request(request="GET",
                                          endpoint_path=self.endpoint_path,
                                          endpoint_payload=self.endpoint_payload,

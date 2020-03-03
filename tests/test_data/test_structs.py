@@ -21,6 +21,7 @@ class MockResponse:
     def headers(self):
         return self.headers
 
+
 # Internal Response needs a result() function since it's supposed to be a Future response
 
 class MockResponseInternal:
