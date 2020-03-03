@@ -4,11 +4,13 @@ MockResponseInternal: Responses which are accessed in within handle_peer_request
     have already been modified by the time they are received.
 """
 
+import json
 
 class MockResponse:
-    def __init__(self, json_data, status_code):
+    def __init__(self, json_data, status_code, headers={}):
         self.json_data = json_data
         self.status_code = status_code
+        self.headers = {'X-Source': '2222'}
 
     def json(self):
         return self.json_data
@@ -16,17 +18,24 @@ class MockResponse:
     def status_code(self):
         return self.status_code
 
+    def headers(self):
+        return self.headers
 
 # Internal Response needs a result() function since it's supposed to be a Future response
 
 class MockResponseInternal:
-    def __init__(self, json_data, status_code):
+    def __init__(self, json_data, status_code, headers={}):
         self.json_data = json_data
         self.status_code = status_code
+        self.headers = {'X-Source': '2222'}
+
 
     def json(self):
         return {"results": self.json_data,
                 "status": self.status_code}
+    
+    def headers(self):
+        return self.headers
 
     def result(self):
         return MockResponseInternal(self.json_data, self.status_code)
@@ -83,16 +92,17 @@ TP = {
     "Tyk1": "10.9.208.132:6000",
     "Tyk2": "10.9.208.132:8000",
     "Tyk3": "10.9.208.132:9000",
-    "path": "rnaget/projects"
+    "path": "rnaget/projects",
+    "service": "TestService"
 }
 
 AP = {
-    "s1": MockResponse({"projects": {"k1": "v1", "k2": "v2"}}, 200),
-    "s2": MockResponse({"projects": {"key1": "value1"}}, 200),
-    "s3": MockResponse({"projects": {"keyA": "valueB"}}, 200),
-    "i1": MockResponseInternal({"projects": {"k1": "v1", "k2": "v2"}}, 200),
-    "i2": MockResponseInternal({"projects": {"key1": "value1"}}, 200),
-    "i3": MockResponseInternal({"projects": {"keyA": "valueB"}}, 200),
+    "s1": MockResponse([{"projects": {"k1": "v1", "k2": "v2"}}], 200),
+    "s2": MockResponse([{"projects": {"key1": "value1"}}], 200),
+    "s3": MockResponse([{"projects": {"keyA": "valueB"}}], 200),
+    "i1": MockResponseInternal([{"projects": {"k1": "v1", "k2": "v2"}}], 200),
+    "i2": MockResponseInternal([{"projects": {"key1": "value1"}}], 200),
+    "i3": MockResponseInternal([{"projects": {"keyA": "valueB"}}], 200),
     "timeout": MockResponseInternal({}, 408),
     "fail": MockResponse(None, 404),
     "v1": {"projects": {"k1": "v1", "k2": "v2"}},
@@ -164,12 +174,12 @@ PostListV3 = {
 }
 
 PR = {
-    "PLM1": MockResponse(PostListM1, 200),
-    "PLV1": MockResponse(PostListV1, 200),
-    "PLV2": MockResponse(PostListV2, 200),
-    "iPLV1": MockResponseInternal(PostListV1, 200),
-    "iPLV2": MockResponseInternal(PostListV2, 200),
-    "PLV3": MockResponse(PostListV3, 200),
-    "iPLV3": MockResponseInternal(PostListV3, 200)
+    "PLM1": MockResponse([PostListM1], 200),
+    "PLV1": MockResponse([PostListV1], 200),
+    "PLV2": MockResponse([PostListV2], 200),
+    "iPLV1": MockResponseInternal([PostListV1], 200),
+    "iPLV2": MockResponseInternal([PostListV2], 200),
+    "PLV3": MockResponse([PostListV3], 200),
+    "iPLV3": MockResponseInternal([PostListV3], 200)
 }
 
