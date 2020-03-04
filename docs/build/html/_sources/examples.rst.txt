@@ -75,3 +75,16 @@ With this function, it's simple to query any downstream service:
     send_post_request("GET", "datasets/search?ontologies=DUO:0000027")
 
     send_post_request("GET", "datasets/247e28c3794044208a4ffb3c152d4cc2")
+
+    send_post_request("GET", "datasets/search", {"tags": "gold", "ontologies": ["DUO:0000001", "DUO:0000011"]})
+
+
+
+Why No GET?
+===========
+
+A question that may come to mind when looking at these examples is why specify GET or POST within a POST request_handle
+rather than just sending a GET request directly to be passed on? This was the case at first, but it quickly became convoluted
+to pass complex search queries as strings formatted as dictionaries or json objects. Utilizing the POST body to pass on all the
+endpoint arguments to a GET request makes it much easier from both a user and coding standpoint.
+

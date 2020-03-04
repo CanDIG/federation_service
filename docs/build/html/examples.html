@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Testing the Federation Service" href="testing.html" />
     <link rel="prev" title="API package" href="candig_federation.api.html" /> 
 </head>
 
@@ -86,6 +87,8 @@
 <li class="toctree-l1"><a class="reference internal" href="run.html#request-flow">Request Flow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="candig_federation.html">candig_federation package</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Sending a Request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#why-no-get">Why No GET?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing the Federation Service</a></li>
 </ul>
 
             
@@ -220,8 +223,17 @@ Requests package and invoke that whenever a path needed to be queried.</p>
 <span class="n">send_post_request</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="s2">&quot;datasets/search?ontologies=DUO:0000027&quot;</span><span class="p">)</span>
 
 <span class="n">send_post_request</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="s2">&quot;datasets/247e28c3794044208a4ffb3c152d4cc2&quot;</span><span class="p">)</span>
+
+<span class="n">send_post_request</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="s2">&quot;datasets/search&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="s2">&quot;gold&quot;</span><span class="p">,</span> <span class="s2">&quot;ontologies&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;DUO:0000001&quot;</span><span class="p">,</span> <span class="s2">&quot;DUO:0000011&quot;</span><span class="p">]})</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="why-no-get">
+<h1>Why No GET?<a class="headerlink" href="#why-no-get" title="Permalink to this headline">¶</a></h1>
+<p>A question that may come to mind when looking at these examples is why specify GET or POST within a POST request_handle
+rather than just sending a GET request directly to be passed on? This was the case at first, but it quickly became convoluted
+to pass complex search queries as strings formatted as dictionaries or json objects. Utilizing the POST body to pass on all the
+endpoint arguments to a GET request makes it much easier from both a user and coding standpoint.</p>
 </div>
 
 
@@ -231,6 +243,8 @@ Requests package and invoke that whenever a path needed to be queried.</p>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="testing.html" class="btn btn-neutral float-right" title="Testing the Federation Service" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="candig_federation.api.html" class="btn btn-neutral float-left" title="API package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

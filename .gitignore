@@ -4,3 +4,5 @@ reqtest.py
 *.log
 *.json
 datasets_structs.py
+
+docs/build
