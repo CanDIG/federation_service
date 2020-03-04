@@ -9,7 +9,6 @@ import argparse
 import logging
 
 import connexion
-import pkg_resources
 
 from candig_federation.api import network
 
@@ -32,7 +31,8 @@ def main(args=None):
     parser.add_argument('--services', default="./configs/services.json")
     parser.add_argument('--peers', default="./configs/peers.json")
     parser.add_argument('--schemas', default="./configs/schemas.json")
-    parser.add_argument('--localnode', default="http://ga4ghdev01.bcgsc.ca:8008/federation2")
+
+
 
     # known args used to supply command line args to pytest without raising an error here
     args, _ = parser.parse_known_args()
@@ -53,14 +53,12 @@ def main(args=None):
 
     # Self and Local don't actually need to be mapped anymore with the new broadcast logic
     APP.app.config["self"] = "http://{}:{}".format(args.host, args.port)
-    # APP.app.config["local"] = args.localnode
 
     # Service Parse
     APP.app.config["services"] = network.parse_configs("services", args.services,
                                                        args.schemas, APP.app.logger)
 
     return APP, args.port
-
 
 def configure_app():
     """
@@ -69,9 +67,8 @@ def configure_app():
     App pulled out as global variable to allow import into
     testing files to access application context
     """
-    app = connexion.FlaskApp(__name__, server='tornado')
+    app = connexion.FlaskApp(__name__, server='tornado', options={"swagger_url": "/"})
 
-    # api_def = pkg_resources.resource_filename('candig_federation', 'api/federation.yaml')
 
     api_def = './api/federation.yaml'
 
@@ -81,7 +78,6 @@ def configure_app():
 
 
 APP = configure_app()
-
 APPLICATION, PORT = main()
 
 # expose flask app for uwsgi
