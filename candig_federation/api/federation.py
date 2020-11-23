@@ -277,27 +277,17 @@ class FederationResponse:
         :return: List of Futures
         """
 
-        args = {"endpoint_path": endpoint_path, "endpoint_payload": endpoint_payload}
+        args = {"request_type": request, "endpoint_path": endpoint_path, "endpoint_payload": endpoint_payload}
         async_session = FuturesSession(max_workers=10)  # capping max threads
         responses = []
 
-        if request == "GET":
-            for url in url_list:
-
-                try:
-                    # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
-                    responses.append(async_session.get(url,
-                                                       headers=header, params=args, timeout=self.timeout))
-                except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
-                    responses.append(e)
-        elif request == "POST":
-            for url in url_list:
-                try:
-                    # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
-                    responses.append(async_session.post(url,
-                                                        json=args, headers=header, timeout=self.timeout))
-                except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
-                    responses.append(e)
+        for url in url_list:
+            try:
+                # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
+                responses.append(async_session.post(url,
+                                                    json=args, headers=header, timeout=self.timeout))
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+                responses.append(e)
 
         return responses
 
