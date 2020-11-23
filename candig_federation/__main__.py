@@ -9,6 +9,8 @@ import argparse
 import logging
 
 import connexion
+from prometheus_flask_exporter import PrometheusMetrics
+
 
 from candig_federation.api import network
 
@@ -83,6 +85,7 @@ APPLICATION, PORT = main()
 # expose flask app for uwsgi
 
 application = APPLICATION.app
+metrics = PrometheusMetrics(application)
 
 if __name__ == '__main__':
     APPLICATION.app.logger.info("federation_service running at {}".format(APPLICATION.app.config["self"]))
