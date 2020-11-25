@@ -329,7 +329,7 @@ def test_timeout_noFed_post(mock_requests, client):
 
 # Test the async request function --------------------------------------------------------------------
 
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_get)
 def test_valid_asyncRequests_two_peers_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
@@ -379,7 +379,7 @@ def test_valid_asyncRequests_two_peers_post(mock_requests, client):
         assert Success == [200, 200]
 
 
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=exceptions.ConnectionError)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=exceptions.ConnectionError)
 def test_invalid_asyncRequests_two_peers_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
@@ -456,7 +456,7 @@ def test_timeout_asyncRequests_two_peers_post(mock_requests, client):
         assert Success == [True, True]
 
 
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=exceptions.Timeout)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=exceptions.Timeout)
 def test_timeout_asyncRequests_two_peers_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
@@ -485,7 +485,7 @@ def test_timeout_asyncRequests_two_peers_get(mock_requests, client):
 # Test Federation with one peer --------------------------------------------------------------------
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_get)
 def test_valid_PeerRequest_one_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = TWO
     with client:
@@ -504,7 +504,7 @@ def test_valid_PeerRequest_one_peer_get(mock_requests, mock_session, client):
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_get)
 def test_valid_federated_query_one_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = TWO
     with client:
@@ -590,7 +590,7 @@ def test_valid_federated_local_TimeOut_one_peer_post(mock_session,  client):
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_local_timeout_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_timeout_requests_get)
 def test_valid_federated_local_TimeOut_one_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = TWO
     with client:
@@ -606,7 +606,7 @@ def test_valid_federated_local_TimeOut_one_peer_get(mock_requests, mock_session,
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_local_ConnErr_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_requests_get)
 def test_valid_federated_local_ConnErr_one_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = TWO
     with client:
@@ -656,7 +656,7 @@ def test_TimeOut_federated_valid_local_one_peer_post(mock_session,  client):
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_p1_ConnErr_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_p1_ConnErr_requests_get)
 def test_ConnErr_federated_valid_local_one_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = TWO
     with client:
@@ -672,7 +672,7 @@ def test_ConnErr_federated_valid_local_one_peer_get(mock_requests, mock_session,
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_p1_ConnErr_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_p1_ConnErr_requests_get)
 def test_TimeOut_federated_valid_local_one_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = TWO
     with client:
@@ -690,7 +690,7 @@ def test_TimeOut_federated_valid_local_one_peer_get(mock_requests, mock_session,
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_get)
 def test_valid_PeerRequest_two_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = THREE
     with client:
@@ -709,7 +709,7 @@ def test_valid_PeerRequest_two_peer_get(mock_requests, mock_session, client):
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_get)
 def test_valid_federated_query_two_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = THREE
     with client:
@@ -795,7 +795,7 @@ def test_valid_federated_local_TimeOut_two_peer_post(mock_session,  client):
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_local_ConnErr_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_requests_get)
 def test_valid_federated_local_ConnErr_two_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = THREE
     with client:
@@ -811,7 +811,7 @@ def test_valid_federated_local_ConnErr_two_peer_get(mock_requests, mock_session,
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_local_timeout_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_timeout_requests_get)
 def test_valid_federated_local_TimeOut_two_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = THREE
     with client:
@@ -861,7 +861,7 @@ def test_one_TimeOut_federated_local_TimeOut_two_peer_post(mock_session,  client
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_local_ConnErr_p1_Timeout_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_p1_Timeout_requests_get)
 def test_one_TimeOut_federated_local_ConnErr_two_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = THREE
     with client:
@@ -877,7 +877,7 @@ def test_one_TimeOut_federated_local_ConnErr_two_peer_get(mock_requests, mock_se
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_local_TimeOut_p1_Timeout_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_TimeOut_p1_Timeout_requests_get)
 def test_one_TimeOut_federated_local_TimeOut_two_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = THREE
     with client:
@@ -927,7 +927,7 @@ def test_one_TimeOut_federated_local_valid_two_peer_post(mock_session,  client):
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_p1_timeout_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_p1_timeout_requests_get)
 def test_one_TimeOut_federated_local_valid_two_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = THREE
     with client:
