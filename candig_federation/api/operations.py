@@ -58,14 +58,13 @@ def post_search():
         will be due to the service dictionary receiving an invalid key.
         """
         return {
-            "response": """
-            Invalid service name: {}.
-            Please make sure that the beginning of your endpoint_path matches a registered service:
-            {}
-            """.format(service, APP.config['services'].keys()),
+            "response": ("Invalid service name: {}. "
+            "Please make sure that the beginning of your endpoint_path matches a registered service: "
+            "{} "
+            .format(service, list(APP.config['services'].keys()))),
             "status": 404,
             "service": "ErrorHandling"
-            }
+            }, 404
     
     except :
         """     
@@ -75,5 +74,5 @@ def post_search():
             "response": sys.exc_info()[0],
             "status": 500,
             "service": "ErrorHandling"
-            }
+            }, 500
     
