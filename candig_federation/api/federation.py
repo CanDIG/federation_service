@@ -109,7 +109,7 @@ class FederationResponse:
             request_handle = requests.Session()
             full_path = "{}/{}".format(url, endpoint_path)
 
-            # self.announce_fed_out("GET", url, endpoint_path, endpoint_payload)
+            self.announce_fed_out("GET", url, endpoint_path)
             resp = request_handle.get(full_path, headers=self.header, params=endpoint_payload, timeout=self.timeout)
             self.status.append(resp.status_code)
 
@@ -179,7 +179,7 @@ class FederationResponse:
             self.status.append(504)
             return
 
-    def handle_peer_request(self, request, endpoint_path, endpoint_payload, header):
+    def handle_peer_request(self, request, endpoint_path, endpoint_payload, endpoint_service, header):
         """
         Make peer data requests and update the results and status for a FederationResponse
 
@@ -209,7 +209,8 @@ class FederationResponse:
                                                    request=request,
                                                    header=header,
                                                    endpoint_payload=endpoint_payload,
-                                                   endpoint_path=endpoint_path):
+                                                   endpoint_path=endpoint_path,
+                                                   endpoint_service=endpoint_service):
             try:
                 response = future_response.result()
             except AttributeError:
@@ -260,7 +261,7 @@ class FederationResponse:
         # Return is used for testing individual methods
         return self.results
 
-    def async_requests(self, url_list, request, endpoint_path, endpoint_payload, header):
+    def async_requests(self, url_list, request, endpoint_path, endpoint_payload, endpoint_service, header):
         """Send requests to each CanDIG node in the network asynchronously using FutureSession. The
         futures are returned back to and handled by handle_peer_requests()
 
@@ -278,7 +279,7 @@ class FederationResponse:
         """
 
 
-        args = {"request_type": request, "endpoint_path": endpoint_path, "endpoint_payload": endpoint_payload}
+        args = {"request_type": request, "endpoint_path": endpoint_path, "endpoint_payload": endpoint_payload, "endpoint_service": endpoint_service}
         async_session = FuturesSession(max_workers=10)  # capping max threads
         responses = []
 
@@ -348,6 +349,7 @@ class FederationResponse:
                 self.handle_peer_request(request="GET",
                                          endpoint_path=self.endpoint_path,
                                          endpoint_payload=self.endpoint_payload,
+                                         endpoint_service=self.endpoint_service,
                                          header=self.header)
 
             else:
@@ -360,6 +362,7 @@ class FederationResponse:
                 self.handle_peer_request(request="POST",
                                          endpoint_path=self.endpoint_path,
                                          endpoint_payload=self.endpoint_payload,
+                                         endpoint_service=self.endpoint_service,
                                          header=self.header)
             else:
                 self.post_service(url=self.url,

@@ -68,13 +68,13 @@ def post_search():
             "service": "ErrorHandling"
             }, 404
     
-    except :
-        """     
-        Ideally nothing ever reaches this error handler
-        """
-    return {
-            "response": sys.exc_info()[0],
-            "status": 500,
-            "service": "ErrorHandling"
-            }, 500
+    #except :
+    #    """     
+    #    Ideally nothing ever reaches this error handler
+    #    """
+    #return {
+    #        "response": sys.exc_info(),
+    #        "status": 500,
+    #        "service": "ErrorHandling"
+    #        }, 500
     
