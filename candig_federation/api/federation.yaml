@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   description: Microservice implementation of CanDIG v1 federation
-  version: "0.1.0-oas3"
+  version: "0.1.1-oas3"
   title: CanDIG Federation API POC
   contact:
     email: dnaidoo@bcgsc.ca
@@ -10,58 +10,60 @@ info:
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 paths:
   /search:
-    # get:
-    #   summary: send query to a microservice
-    #   description: >
-    #     Entry point for Tyk to pass GET requests to CanDIG microservices.
-    #     Federation broadcasting defined by 'federation' header.
-    #   operationId: candig_federation.api.operations.get_search
-    #   parameters:
-    #     - $ref: '#/components/parameters/endpoint_path'
-    #     - $ref: '#/components/parameters/endpoint_payload'
-    #     - $ref: '#/components/parameters/Federation'
-    #   responses:
-    #     '200':
-    #       description: Successful query
-    #     '400':
-    #       description: Bad input parameter
-    #     '403':
-    #       description: Authorization Error
-    #     '404':
-    #       description: Expression not found
-    #     '500':
-    #       description: Internal Error
-    #     '508':
-    #       description: Federation node time out
-
     post:
       summary: Send a request to the CanDIG network
       description: >
         Entry point for Tyk to pass ALL requests to CanDIG microservices.
-        Federation broadcasting defined by 'federation' header.
+        Federation broadcasting defined by 'federation' header. If federated, the response
+        is an aggregation of all queried nodes, with the response code following a priority.
+        Only the highest ranked will be returned.
+        200 > 201 > 405 > 500 > 504 > 404
       operationId: candig_federation.api.operations.post_search
       parameters:
         - $ref: '#/components/parameters/Federation'
-      responses:
-        '201':
-          description: entry created
-        '400':
-          description: 'invalid input, object invalid'
-        '403':
-          description: Authorization Error
-        '404':
-          description: Expression not found
-        '409':
-          description: an existing item already exists
-        '500':
-          description: Internal Error
-        '508':
-          description: Federation node time out
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/PostObject'
+      responses:
+        '200':
+          description: Indicates at least one successful response was returned from a Federation node.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseObject_Simple'
+        '201':
+          description: Indicates at least one item was successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseObject_Complex'
+        '404':
+          description: Indicates a connection error between services or nodes in the network.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseObject_Complex'
+        '405':
+          description: Indicates that an entry already exists within the database.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseObject_Complex'
+        '500':
+          description: Indicates a malformed request or server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseObject_Complex'
+        '504':
+          description: Indicates that a request timed out. Default timeout is 5 seconds.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseObject_Complex'
+
 servers:
   - url: /federation
 components:
@@ -71,7 +73,7 @@ components:
       description: Path to microservice endpoint
       in: query
       required: true
-      example: datasets/search
+      example: datasets/search/ontologies
       schema:
         type: string
     endpoint_payload:
@@ -79,7 +81,7 @@ components:
       description: Semicolon separated parameters to pass on
       in: query
       required: false
-      example:
+      example: 
       explode: true
       schema:
         type: array
@@ -87,10 +89,11 @@ components:
           $ref: '#/components/schemas/Parameter'
     Federation:
       name: Federation
-      description: Flag for federated query. Federation assumed unless false is specified
+      description: Flag for federated query. Federation assumed true unless false is specified
       in: header
       schema:
-        type: boolean
+          type: string
+          pattern: '(^true$)|(^false$)'
   schemas:
     PostObject:
       type: object
@@ -98,15 +101,20 @@ components:
         - request_type
         - endpoint_path
         - endpoint_payload
+        - endpoint_service
       properties:
         request_type:
           type: string
           pattern: '(^GET$)|(^POST$)'
+          example: GET
         endpoint_path:
           type: string
-          example: v2/get
+          example: /search/ontologies
         endpoint_payload:
           type: object
+        endpoint_service:
+          type: string
+          example: datasets
     Parameter:
       type: object
       properties:
@@ -119,7 +127,72 @@ components:
              items:
               type:
                 string
-      example: '"ontologies": ["DUO:0000001", "DUO:0000028"]'
+      example: '"ontologies": ["DUO:0000001", "DUO:0000028"]' 
+    ResponseObject_Simple:
+      type: object
+      required: 
+        - results
+        - service
+      properties:
+        results:
+          type: object
+          description: >
+            The results object cannot be clearly defined
+            in the Federation spec due to it being an
+            forwarded aggregation of Responses from downstream
+            services. In all cases the result is a list, either
+            containing simple structures or complex JSON objects.
+          example: ['DUO:0000001',
+                    'DUO:0000003',
+                    'DUO:0000011']
+
+        service:
+          type: string
+          example: datasets
+    
+    ResponseObject_Complex:
+      type: object
+      required: 
+        - results
+        - service
+      properties:
+        results:
+          type: object
+          description: >
+            The results object cannot be clearly defined
+            in the Federation spec due to it being an
+            forwarded aggregation of Responses from downstream
+            services. In all cases the result is a list, either
+            containing simple structures or complex JSON objects.
+            The example is taken from a Datasets service.
+          example: 
+                     - created: '2019-12-06T19:29:00.063564Z'
+                       description: This is a duplicate test set
+                       id: b5ccba33941c492e81f45ed4001890cb
+                       name: test_n1_1
+                       ontologies:
+                         - definition: 'A data item that is used to indicate consent permissions for datasets and/or materials, and relates to the purposes for which datasets and/or material might be removed, stored or used.'
+                           id: 'DUO:0000001'
+                           name: consent code
+                           shorthand: None
+                         - definition: This primary category consent code indicates that use of the data is limited to the study of population origins or ancestry.
+                           id: 'DUO:0000011'
+                           name: population origins or ancestry research
+                           shorthand: POA
+                         - definition: This requirement indicates that the requestor must agree to collaboration with the primary study investigator(s).
+                           id: 'DUO:0000020'
+                           name: collaboration required
+                           shorthand: COL
+                       tags:
+                         - green
+                         - gold
+                       version: '0.4'
+         
+                   
+
+        service:
+          type: string
+          example: datasets
 
     Error:
       type: object

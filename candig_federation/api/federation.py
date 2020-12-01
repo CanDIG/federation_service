@@ -39,7 +39,7 @@ class FederationResponse:
     # pylint: disable=too-many-arguments
 
 
-    def __init__(self, request, url, endpoint_path, endpoint_payload, request_dict, service, return_mimetype='application/json',
+    def __init__(self, request, url, endpoint_path, endpoint_payload, request_dict, endpoint_service, return_mimetype='application/json',
                  timeout=5):
         """Constructor method
         """
@@ -49,8 +49,8 @@ class FederationResponse:
         self.url = url
         self.endpoint_path = endpoint_path
         self.endpoint_payload = endpoint_payload
+        self.endpoint_service = endpoint_service
 
-        self.service = service
         self.return_mimetype = return_mimetype
         self.request_dict = request_dict
         self.token = self.request_dict.headers['Authorization']
@@ -369,11 +369,11 @@ class FederationResponse:
         status = self.merge_status(self.status)
         try:
             # Remove duplicates from a list response due to Federated querying
-            response = {"status": status, "results": sorted(list(set(self.results))), "service": self.service}
+            response = {"status": status, "results": sorted(list(set(self.results))), "service": self.endpoint_service}
 
         except TypeError:
             # Dealing with dicts objects
-            response = {"status": status, "results": self.results, "service": self.service}
+            response = {"status": status, "results": self.results, "service": self.endpoint_service}
         
         return response, status
 

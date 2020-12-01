@@ -41,14 +41,16 @@ def post_search():
         request_type = data["request_type"]
         endpoint_path = data["endpoint_path"]
         endpoint_payload = data["endpoint_payload"]
-        service = endpoint_path.split("/")[0]
-        microservice = APP.config['services'][service]
-        federation_response = FederationResponse(url=microservice,
+        endpoint_service = data["endpoint_service"]
+        # service = endpoint_path.split("/")[0]
+        microservice_URL = APP.config['services'][endpoint_service]
+        federation_response = FederationResponse(url=microservice_URL,
                                                 request=request_type,
                                                 endpoint_path=endpoint_path,
                                                 endpoint_payload=endpoint_payload,
                                                 request_dict=flask.request,
-                                                service=service)
+                                                endpoint_service=endpoint_service
+                                                )
         return federation_response.get_response_object()
 
     except KeyError:
@@ -61,7 +63,7 @@ def post_search():
             "response": ("Invalid service name: {}. "
             "Please make sure that the beginning of your endpoint_path matches a registered service: "
             "{} "
-            .format(service, list(APP.config['services'].keys()))),
+            .format(endpoint_service, list(APP.config['services'].keys()))),
             "status": 404,
             "service": "ErrorHandling"
             }, 404
