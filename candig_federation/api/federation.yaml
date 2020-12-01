@@ -129,13 +129,15 @@ components:
                 string
       example: '"ontologies": ["DUO:0000001", "DUO:0000028"]' 
     ResponseObject_Simple:
-      type: object
+
       required: 
         - results
         - service
       properties:
         results:
-          type: object
+          oneOf:
+          - type: array  
+          - type: object
           description: >
             The results object cannot be clearly defined
             in the Federation spec due to it being an
@@ -157,7 +159,9 @@ components:
         - service
       properties:
         results:
-          type: object
+          oneOf:
+          - type: array  
+          - type: object
           description: >
             The results object cannot be clearly defined
             in the Federation spec due to it being an
