@@ -53,8 +53,14 @@ class FederationResponse:
 
         self.return_mimetype = return_mimetype
         self.request_dict = request_dict
-        self.token = self.request_dict.headers['Authorization']
+        #self.token = self.request_dict.headers['Authorization']
         self.logger = APP.logger
+        
+        try:
+            self.token = self.request_dict.headers['Authorization']
+        except KeyError as e:
+            self.logger.warn("Request lacking Authorization header")
+            self.token = ""
 
         self.header = {
             'Content-Type': self.return_mimetype,

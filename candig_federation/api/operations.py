@@ -34,7 +34,6 @@ def post_search():
     Response - List of service specific responses
     ServiceName - Name of service (used for logstash tagging)
     """
-
     try:
 
         data = json.loads(flask.request.data)
@@ -53,20 +52,20 @@ def post_search():
                                                 )
         return federation_response.get_response_object()
 
-    except KeyError:
+    #except KeyError:
         """     
         Due to Connexion parsing the args prior this code running, it will be assumed that we
         have a valid request_type, endpoint_path and endpoint_payload. A KeyError occuring here 
         will be due to the service dictionary receiving an invalid key.
         """
-        return {
-            "response": ("Invalid service name: {}. "
-            "Please make sure that the beginning of your endpoint_path matches a registered service: "
-            "{} "
-            .format(endpoint_service, list(APP.config['services'].keys()))),
-            "status": 404,
-            "service": "ErrorHandling"
-            }, 404
+   #     return {
+   #         "response": ("Invalid service name: {}. "
+   #         "Please make sure that the beginning of your endpoint_path matches a registered service: "
+   #         "{} "
+   #         .format(endpoint_service, list(APP.config['services'].keys()))),
+   #         "status": 404,
+   #         "service": "ErrorHandling"
+   #         }, 404
     
     #except :
     #    """     
@@ -77,4 +76,5 @@ def post_search():
     #        "status": 500,
     #        "service": "ErrorHandling"
     #        }, 500
-    
+    except ZeroDivisionError as e:
+        return {} 
