@@ -21,7 +21,8 @@ from tests.test_data.test_structs import *
 APP.app.config["services"] = {
     "rnaget": 'http://{}:{}'.format(TP["URI"], TP["PORT0"]),
     "datasets": "http://10.9.208.132:19712",
-    "datasetsP": "https://ff345ede-96fd-4357-bc44-80ba503591b3.mock.pstmn.io"
+    "datasetsP": "https://ff345ede-96fd-4357-bc44-80ba503591b3.mock.pstmn.io",
+    "TestService": "http://10.9.208.132:9999"
 }
 APP.app.config["local"] = "http://10.9.208.132:6000"
 
@@ -235,7 +236,7 @@ def test_valid_noFed_get(mock_requests, client):
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Headers"],
-                                service=TP["service"])
+                                endpoint_service=TP["service"])
 
         RO, Status = FR.get_response_object()
         assert RO["status"] == 200
@@ -252,7 +253,7 @@ def test_valid_noFed_post(mock_requests, client):
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Headers"],
-                                service=TP["service"])
+                                endpoint_service=TP["service"])
 
         RO, Status = FR.get_response_object()
         assert RO["status"] == 200
@@ -270,7 +271,7 @@ def test_invalid_noFed_get(mock_requests, client):
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Headers"],
-                                service=TP["service"])
+                                endpoint_service=TP["service"])
 
         RO, Status = FR.get_response_object()
         assert RO["status"] == 404
@@ -287,7 +288,7 @@ def test_invalid_noFed_post(mock_requests, client):
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Headers"],
-                                service=TP["service"])
+                                endpoint_service=TP["service"])
 
         RO, Status = FR.get_response_object()
         assert RO["status"] == 404
@@ -304,7 +305,7 @@ def test_timeout_noFed_get(mock_requests, client):
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Headers"],
-                                service=TP["service"])
+                                endpoint_service=TP["service"])
 
         RO, Status = FR.get_response_object()
         assert RO["status"] == 504
@@ -321,7 +322,7 @@ def test_timeout_noFed_post(mock_requests, client):
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Headers"],
-                                service=TP["service"])
+                                endpoint_service=TP["service"])
 
         RO, Status = FR.get_response_object()
         assert RO["status"] == 504
@@ -339,14 +340,15 @@ def test_valid_asyncRequests_two_peers_get(mock_requests, client):
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Headers"],
-                                service=TP["service"])
+                                endpoint_service=TP["service"])
 
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
                                  request='GET',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
-                                 header=TP["Headers"])
+                                 header=TP["Headers"],
+                                 endpoint_service=TP["service"])
 
         Success = list(filter(lambda x: x == 200, map(lambda a: a.status_code, resp)))
 
@@ -364,14 +366,15 @@ def test_valid_asyncRequests_two_peers_post(mock_requests, client):
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Headers"],
-                                service=TP["service"])
+                                endpoint_service=TP["service"])
 
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
                                  request='POST',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
-                                 header=TP["Headers"])
+                                 header=TP["Headers"],
+                                 endpoint_service=TP["service"])
 
         Success = list(filter(lambda x: x == 200, map(lambda a: a.status_code, resp)))
 
@@ -389,14 +392,15 @@ def test_invalid_asyncRequests_two_peers_get(mock_requests, client):
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Headers"],
-                                service=TP["service"])
+                                endpoint_service=TP["service"])
 
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
                                  request='GET',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
-                                 header=TP["Headers"])
+                                 header=TP["Headers"],
+                                 endpoint_service=TP["service"])
 
         ConnErrs = list(map(lambda a: isinstance(a, exceptions.ConnectionError), resp))
 
@@ -416,14 +420,15 @@ def test_invalid_asyncRequests_two_peers_post(mock_requests, client):
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Headers"],
-                                service=TP["service"])
+                                endpoint_service=TP["service"])
 
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
                                  request='POST',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
-                                 header=TP["Headers"])
+                                 header=TP["Headers"],
+                                 endpoint_service=TP["service"])
 
         Success = list(map(lambda a: isinstance(a, exceptions.ConnectionError), resp))
 
@@ -441,14 +446,15 @@ def test_timeout_asyncRequests_two_peers_post(mock_requests, client):
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Headers"],
-                                service=TP["service"])
+                                endpoint_service=TP["service"])
 
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
                                  request='POST',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
-                                 header=TP["Headers"])
+                                 header=TP["Headers"],
+                                 endpoint_service=TP["service"])
 
         Success = list(map(lambda a: isinstance(a, exceptions.Timeout), resp))
 
@@ -466,14 +472,15 @@ def test_timeout_asyncRequests_two_peers_get(mock_requests, client):
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Headers"],
-                                service=TP["service"])
+                                endpoint_service=TP["service"])
 
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
                                  request='GET',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
-                                 header=TP["Headers"])
+                                 header=TP["Headers"],
+                                 endpoint_service=TP["service"])
 
         TimeoutErrs = list(map(lambda a: isinstance(a, exceptions.Timeout), resp))
 
@@ -495,7 +502,7 @@ def test_valid_PeerRequest_one_peer_get(mock_requests, mock_session, client):
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Federate"],
-                                service=TP["service"])
+                                endpoint_service=TP["service"])
 
         RO, Status = FR.get_response_object()
 
@@ -511,7 +518,9 @@ def test_valid_federated_query_one_peer_get(mock_requests, mock_session, client)
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "GET"}),
+                                 "request_type": "GET",
+                                 "endpoint_service": TP["service"]
+                }),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -531,7 +540,7 @@ def test_valid_PeerRequest_one_peer_post(mock_session, mock_requests, client):
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Federate"],
-                                service=TP["service"])
+                                endpoint_service=TP["service"])
 
         RO, Status = FR.get_response_object()
 
@@ -547,7 +556,8 @@ def test_valid_federated_query_one_peer_post(mock_requests, mock_session, client
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -565,7 +575,8 @@ def test_valid_federated_local_ConnErr_one_peer_post(mock_session,  client):
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -581,7 +592,8 @@ def test_valid_federated_local_TimeOut_one_peer_post(mock_session,  client):
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -597,7 +609,8 @@ def test_valid_federated_local_TimeOut_one_peer_get(mock_requests, mock_session,
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "GET"}),
+                                 "request_type": "GET",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -613,7 +626,9 @@ def test_valid_federated_local_ConnErr_one_peer_get(mock_requests, mock_session,
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path"   : TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type"    : "GET"}),
+                                 "request_type"    : "GET",
+                                 "endpoint_service": TP["service"]
+                                 }),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -631,7 +646,8 @@ def test_ConnErr_federated_valid_local_one_peer_post(mock_session,  client):
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -647,7 +663,8 @@ def test_TimeOut_federated_valid_local_one_peer_post(mock_session,  client):
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -663,7 +680,8 @@ def test_ConnErr_federated_valid_local_one_peer_get(mock_requests, mock_session,
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "GET"}),
+                                 "request_type": "GET",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -679,7 +697,8 @@ def test_TimeOut_federated_valid_local_one_peer_get(mock_requests, mock_session,
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "GET"}),
+                                 "request_type": "GET",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -700,7 +719,7 @@ def test_valid_PeerRequest_two_peer_get(mock_requests, mock_session, client):
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Federate"],
-                                service=TP["service"])
+                                endpoint_service=TP["service"])
 
         RO, Status = FR.get_response_object()
 
@@ -716,7 +735,8 @@ def test_valid_federated_query_two_peer_get(mock_requests, mock_session, client)
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "GET"}),
+                                 "request_type": "GET",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -736,7 +756,7 @@ def test_valid_PeerRequest_two_peer_post(mock_session, mock_requests, client):
                                 endpoint_payload="",
                                 endpoint_path=TP["path"],
                                 request_dict=TP["Federate"],
-                                service=TP["service"])
+                                endpoint_service=TP["service"])
 
         RO, Status = FR.get_response_object()
 
@@ -752,7 +772,8 @@ def test_valid_federated_query_two_peer_post(mock_requests, mock_session, client
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -770,7 +791,8 @@ def test_valid_federated_local_ConnErr_two_peer_post(mock_session,  client):
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -786,7 +808,8 @@ def test_valid_federated_local_TimeOut_two_peer_post(mock_session,  client):
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -802,7 +825,8 @@ def test_valid_federated_local_ConnErr_two_peer_get(mock_requests, mock_session,
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "GET"}),
+                                 "request_type": "GET",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -818,7 +842,8 @@ def test_valid_federated_local_TimeOut_two_peer_get(mock_requests, mock_session,
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "GET"}),
+                                 "request_type": "GET",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -836,7 +861,8 @@ def test_one_TimeOut_federated_local_ConnErr_two_peer_post(mock_session,  client
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -852,7 +878,8 @@ def test_one_TimeOut_federated_local_TimeOut_two_peer_post(mock_session,  client
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -868,7 +895,8 @@ def test_one_TimeOut_federated_local_ConnErr_two_peer_get(mock_requests, mock_se
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "GET"}),
+                                 "request_type": "GET",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -884,7 +912,8 @@ def test_one_TimeOut_federated_local_TimeOut_two_peer_get(mock_requests, mock_se
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "GET"}),
+                                 "request_type": "GET",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -902,7 +931,8 @@ def test_one_TimeOut_federated_valid_two_peer_post(mock_session,  client):
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -918,7 +948,8 @@ def test_one_TimeOut_federated_local_valid_two_peer_post(mock_session,  client):
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -934,7 +965,8 @@ def test_one_TimeOut_federated_local_valid_two_peer_get(mock_requests, mock_sess
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "GET"}),
+                                 "request_type": "GET",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
