@@ -33,6 +33,16 @@ def client():
 
     return context
 
+def get_federation_response(request_type, headers="Headers"):
+
+    return FederationResponse(url="http://{}:{}".format(TP['URI'], TP['PORT0']),
+                        request=request_type,
+                        endpoint_payload="",
+                        endpoint_path=TP["path"],
+                        request_dict=TP[headers],
+                        endpoint_service=TP["service"])
+
+
 
 # Taken from https://stackoverflow.com/questions/15753390/how-can-i-mock-requests-and-the-response
 def mocked_service_get(*args, **kwargs):
@@ -220,6 +230,9 @@ def mocked_async_local_TimeOUt_p1_Timeout_requests_post(*args, **kwargs):
         return PR["iPLV3"]
 
     return AP["fail"]
+
+
+
 ###################
 # Testing Portion #
 ###################
@@ -230,13 +243,7 @@ def mocked_async_local_TimeOUt_p1_Timeout_requests_post(*args, **kwargs):
 def test_valid_noFed_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="GET",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                endpoint_service=TP["service"])
+        FR = get_federation_response("GET")
 
         RO, Status = FR.get_response_object()
         assert RO["status"] == 200
@@ -247,13 +254,7 @@ def test_valid_noFed_get(mock_requests, client):
 def test_valid_noFed_post(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="POST",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                endpoint_service=TP["service"])
+        FR = get_federation_response("POST")
 
         RO, Status = FR.get_response_object()
         assert RO["status"] == 200
@@ -265,13 +266,7 @@ def test_valid_noFed_post(mock_requests, client):
 def test_invalid_noFed_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http:2132{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="GET",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                endpoint_service=TP["service"])
+        FR = get_federation_response("GET")
 
         RO, Status = FR.get_response_object()
         assert RO["status"] == 404
@@ -282,13 +277,8 @@ def test_invalid_noFed_get(mock_requests, client):
 def test_invalid_noFed_post(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="POST",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                endpoint_service=TP["service"])
+        FR = get_federation_response("POST")
+
 
         RO, Status = FR.get_response_object()
         assert RO["status"] == 404
@@ -299,13 +289,7 @@ def test_invalid_noFed_post(mock_requests, client):
 def test_timeout_noFed_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http:{}:{}".format('0.0.0.0', TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="GET",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                endpoint_service=TP["service"])
+        FR = get_federation_response("GET")
 
         RO, Status = FR.get_response_object()
         assert RO["status"] == 504
@@ -316,13 +300,8 @@ def test_timeout_noFed_get(mock_requests, client):
 def test_timeout_noFed_post(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="POST",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                endpoint_service=TP["service"])
+        FR = get_federation_response("POST")
+
 
         RO, Status = FR.get_response_object()
         assert RO["status"] == 504
@@ -334,13 +313,7 @@ def test_timeout_noFed_post(mock_requests, client):
 def test_valid_asyncRequests_two_peers_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="GET",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                endpoint_service=TP["service"])
+        FR = get_federation_response("POST", "Federate")
 
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
@@ -360,13 +333,8 @@ def test_valid_asyncRequests_two_peers_get(mock_requests, client):
 def test_valid_asyncRequests_two_peers_post(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="POST",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                endpoint_service=TP["service"])
+        FR = get_federation_response("POST")
+
 
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
@@ -386,13 +354,7 @@ def test_valid_asyncRequests_two_peers_post(mock_requests, client):
 def test_invalid_asyncRequests_two_peers_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="GET",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                endpoint_service=TP["service"])
+        FR = get_federation_response("POST")
 
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
@@ -414,13 +376,8 @@ def test_invalid_asyncRequests_two_peers_get(mock_requests, client):
 def test_invalid_asyncRequests_two_peers_post(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="POST",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                endpoint_service=TP["service"])
+        FR = get_federation_response("POST")
+
 
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
@@ -440,13 +397,8 @@ def test_invalid_asyncRequests_two_peers_post(mock_requests, client):
 def test_timeout_asyncRequests_two_peers_post(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="POST",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                endpoint_service=TP["service"])
+        FR = get_federation_response("POST")
+
 
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
@@ -466,13 +418,7 @@ def test_timeout_asyncRequests_two_peers_post(mock_requests, client):
 def test_timeout_asyncRequests_two_peers_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="GET",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                endpoint_service=TP["service"])
+        FR = get_federation_response("GET")
 
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
@@ -496,13 +442,8 @@ def test_timeout_asyncRequests_two_peers_get(mock_requests, client):
 def test_valid_PeerRequest_one_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="GET",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Federate"],
-                                endpoint_service=TP["service"])
+        FR = get_federation_response("GET", "Federate")
+
 
         RO, Status = FR.get_response_object()
 
@@ -534,13 +475,8 @@ def test_valid_federated_query_one_peer_get(mock_requests, mock_session, client)
 def test_valid_PeerRequest_one_peer_post(mock_session, mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="POST",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Federate"],
-                                endpoint_service=TP["service"])
+        FR = get_federation_response("POST", "Federate")
+
 
         RO, Status = FR.get_response_object()
 
@@ -713,13 +649,7 @@ def test_TimeOut_federated_valid_local_one_peer_get(mock_requests, mock_session,
 def test_valid_PeerRequest_two_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = THREE
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="GET",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Federate"],
-                                endpoint_service=TP["service"])
+        FR = get_federation_response("GET", "Federate")
 
         RO, Status = FR.get_response_object()
 
@@ -750,13 +680,7 @@ def test_valid_federated_query_two_peer_get(mock_requests, mock_session, client)
 def test_valid_PeerRequest_two_peer_post(mock_session, mock_requests, client):
     APP.app.config["peers"] = THREE
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="POST",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Federate"],
-                                endpoint_service=TP["service"])
+        FR = get_federation_response("POST", "Federate")
 
         RO, Status = FR.get_response_object()
 

@@ -137,6 +137,10 @@ class FederationResponse:
         except requests.exceptions.Timeout:
             self.status.append(504)
             return
+        except AttributeError as e:
+            self.status.append(500)
+            print(e)
+            return
 
     def federate_check(self):
         """Checks if Federation conditions are met
@@ -183,6 +187,11 @@ class FederationResponse:
 
         except requests.exceptions.Timeout:
             self.status.append(504)
+            return
+            
+        except AttributeError as e:
+            self.status.append(500)
+            print(e)
             return
 
     def handle_peer_request(self, request, endpoint_path, endpoint_payload, endpoint_service, header):
@@ -304,7 +313,7 @@ class FederationResponse:
 
         Priority List:
         1. Return 200 if one exists within the list
-        2. 201 > 405 > 500 > 408 > 404
+        2. 201 > 405 > 404 >
 
         :param statuses: List of integer response codes
         :type statuses: list
@@ -323,15 +332,17 @@ class FederationResponse:
 
         elif 405 in statuses:
             return 405
-
-        elif 500 in statuses:
-            return 500
-
+        
         elif 504 in statuses:
             return 504
 
         elif 404 in statuses:
             return 404
+
+
+        elif 500 in statuses:
+            return 500
+
 
         else:
             return 500
