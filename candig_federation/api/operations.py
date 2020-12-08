@@ -41,7 +41,6 @@ def post_search():
         endpoint_path = data["endpoint_path"]
         endpoint_payload = data["endpoint_payload"]
         endpoint_service = data["endpoint_service"]
-        # service = endpoint_path.split("/")[0]
         microservice_URL = APP.config['services'][endpoint_service]
         federation_response = FederationResponse(url=microservice_URL,
                                                 request=request_type,
@@ -52,29 +51,17 @@ def post_search():
                                                 )
         return federation_response.get_response_object()
 
-    #except KeyError:
+    except KeyError:
         """     
         Due to Connexion parsing the args prior this code running, it will be assumed that we
         have a valid request_type, endpoint_path and endpoint_payload. A KeyError occuring here 
         will be due to the service dictionary receiving an invalid key.
         """
-   #     return {
-   #         "response": ("Invalid service name: {}. "
-   #         "Please make sure that the beginning of your endpoint_path matches a registered service: "
-   #         "{} "
-   #         .format(endpoint_service, list(APP.config['services'].keys()))),
-   #         "status": 404,
-   #         "service": "ErrorHandling"
-   #         }, 404
-    
-    #except :
-    #    """     
-    #    Ideally nothing ever reaches this error handler
-    #    """
-    #return {
-    #        "response": sys.exc_info(),
-    #        "status": 500,
-    #        "service": "ErrorHandling"
-    #        }, 500
-    except ZeroDivisionError as e:
-        return {} 
+    return {
+           "response": ("Invalid service name: {}. "
+           "Please make sure that the beginning of your endpoint_path matches a registered service: "
+           "{} "
+           .format(endpoint_service, list(APP.config['services'].keys()))),
+           "status": 404,
+           "service": "ErrorHandling"
+           }, 404

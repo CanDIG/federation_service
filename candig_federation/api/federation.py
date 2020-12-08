@@ -53,7 +53,6 @@ class FederationResponse:
 
         self.return_mimetype = return_mimetype
         self.request_dict = request_dict
-        #self.token = self.request_dict.headers['Authorization']
         self.logger = APP.logger
         
         try:
@@ -115,7 +114,7 @@ class FederationResponse:
             request_handle = requests.Session()
             full_path = "{}/{}".format(url, endpoint_path)
 
-            self.announce_fed_out("GET", url, endpoint_path)
+            # self.announce_fed_out("GET", url, endpoint_path)
             resp = request_handle.get(full_path, headers=self.header, params=endpoint_payload, timeout=self.timeout)
             self.status.append(resp.status_code)
 
@@ -210,6 +209,8 @@ class FederationResponse:
         :type endpoint_path: str
         :param endpoint_payload: Query string or data needed by endpoint specified in endpoint_path
         :type endpoint_payload: object, {param0=value0, paramN=valueN} for GET, JSON struct dependent on service endpoint for POST
+        :param endpoint_service: Specific microservice name, should match a service listed in services.json config
+        :type endpoint_service: str
         :param header: Request headers defined in self.headers
         :type header: object
         :return: List of ResponseObjects, this specific return is used only in testing
@@ -288,6 +289,8 @@ class FederationResponse:
         :type endpoint_path: str
         :param endpoint_payload: Query string or data needed by endpoint specified in endpoint_path
         :type endpoint_payload: object, {param0=value0, paramN=valueN} for GET, JSON struct dependent on service endpoint for POST
+        :param endpoint_service: Specific microservice name, should match a service listed in services.json config
+        :type endpoint_service: str
         :param header: Request headers defined in self.headers
         :type header: object
         :return: List of Futures
@@ -313,7 +316,7 @@ class FederationResponse:
 
         Priority List:
         1. Return 200 if one exists within the list
-        2. 201 > 405 > 404 >
+        2. 201 > 405 > 504 > 404 > 500
 
         :param statuses: List of integer response codes
         :type statuses: list
