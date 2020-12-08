@@ -5,13 +5,13 @@ There are a number of ways to send requests to the Federation service, ranging f
 simple cURL commands, to programs such as Insomnia or Postman. Regardless of method, the POST
 request being sent out needs to have four parameters:
 
-**request_type**: This needs to be either GET or POST, and will tell the federation service what
-type of request to forward on to the microservice.
-**endpoint_service**: This should be a name matching a key in the services.json configuration file.
-**endpoint_path**: The microservice endpoint being queried without any initial backslash, as the 
-Federation service will add one in when constructing the full path to the microservice.
-**endpoint_payload**: Any additional arguments needed to be past on to microservice endpoints. Should be 
-an empty object ({}) if nothing is required.
+| **request_type**: This needs to be either GET or POST, and will tell the federation service what type of request to forward on to the microservice.
+
+| **endpoint_service**: This should be a name matching a key in the services.json configuration file.
+
+| **endpoint_path**: The microservice endpoint being queried without any initial backslash, as the Federation service will add one in when constructing the full path to the microservice.
+
+| **endpoint_payload**: Any additional arguments needed to be past on to microservice endpoints. Should be an empty object ({}) if nothing is required.
 
 
 
