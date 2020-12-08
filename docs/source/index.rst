@@ -28,7 +28,7 @@ Pytest and Travis-CI.
    install
    run
 
-   candig_federation
+   modules
    examples
    testing
 

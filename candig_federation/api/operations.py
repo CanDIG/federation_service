@@ -34,21 +34,21 @@ def post_search():
     Response - List of service specific responses
     ServiceName - Name of service (used for logstash tagging)
     """
-
     try:
 
         data = json.loads(flask.request.data)
         request_type = data["request_type"]
         endpoint_path = data["endpoint_path"]
         endpoint_payload = data["endpoint_payload"]
-        service = endpoint_path.split("/")[0]
-        microservice = APP.config['services'][service]
-        federation_response = FederationResponse(url=microservice,
+        endpoint_service = data["endpoint_service"]
+        microservice_URL = APP.config['services'][endpoint_service]
+        federation_response = FederationResponse(url=microservice_URL,
                                                 request=request_type,
                                                 endpoint_path=endpoint_path,
                                                 endpoint_payload=endpoint_payload,
                                                 request_dict=flask.request,
-                                                service=service)
+                                                endpoint_service=endpoint_service
+                                                )
         return federation_response.get_response_object()
 
     except KeyError:
@@ -57,22 +57,11 @@ def post_search():
         have a valid request_type, endpoint_path and endpoint_payload. A KeyError occuring here 
         will be due to the service dictionary receiving an invalid key.
         """
-        return {
-            "response": ("Invalid service name: {}. "
-            "Please make sure that the beginning of your endpoint_path matches a registered service: "
-            "{} "
-            .format(service, list(APP.config['services'].keys()))),
-            "status": 404,
-            "service": "ErrorHandling"
-            }, 404
-    
-    except :
-        """     
-        Ideally nothing ever reaches this error handler
-        """
     return {
-            "response": sys.exc_info()[0],
-            "status": 500,
-            "service": "ErrorHandling"
-            }, 500
-    
+           "response": ("Invalid service name: {}. "
+           "Please make sure that the beginning of your endpoint_path matches a registered service: "
+           "{} "
+           .format(endpoint_service, list(APP.config['services'].keys()))),
+           "status": 404,
+           "service": "ErrorHandling"
+           }, 404

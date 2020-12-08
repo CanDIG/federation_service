@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   description: Microservice implementation of CanDIG v1 federation
-  version: "0.1.0-oas3"
+  version: 0.1.4-oas3
   title: CanDIG Federation API POC
   contact:
     email: dnaidoo@bcgsc.ca
@@ -98,6 +98,7 @@ components:
         - request_type
         - endpoint_path
         - endpoint_payload
+        - endpoint_service
       properties:
         request_type:
           type: string
@@ -107,6 +108,8 @@ components:
           example: v2/get
         endpoint_payload:
           type: object
+        endpoint_service:
+          type: string
     Parameter:
       type: object
       properties:
