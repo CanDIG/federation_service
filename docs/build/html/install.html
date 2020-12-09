@@ -1,0 +1,319 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Installation &mdash; CanDIG Federation 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Starting Federation" href="run.html" />
+    <link rel="prev" title="Welcome to CanDIG Federation’s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> CanDIG Federation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#main-py">__main__.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#json-configs">JSON configs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uwsgi-configuration">uWSGI Configuration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="run.html">Starting Federation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="run.html#incoming-requests">Incoming Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="run.html#request-flow">Request Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="candig_federation.html">candig_federation package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Sending a Request</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CanDIG Federation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Installation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/install.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>After pulling the repo, create a virtual environment utilizing Python 3.7+ and install the requirements:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install -r requirements.txt
+</pre></div>
+</div>
+<p>After installation, the Federation service should first be configured.</p>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>There are three sections which need to be configured to properly set up the Federation service.</p>
+<ol class="arabic simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">__main__.py</span></code> file in <code class="docutils literal notranslate"><span class="pre">federation_service/candig_federation</span></code></p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">peers.json</span></code> and <code class="docutils literal notranslate"><span class="pre">services.json</span></code> files in <code class="docutils literal notranslate"><span class="pre">federation_service/configs</span></code></p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">federation.ini</span></code> configuration file for uWSGI</p></li>
+</ol>
+<div class="section" id="main-py">
+<h3>__main__.py<a class="headerlink" href="#main-py" title="Permalink to this headline">¶</a></h3>
+<p>This file acts as the driver for the Federation service as well as contains a number of default configuration settings.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--port&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">8890</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--host&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;ga4ghdev01.bcgsc.ca&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--logfile&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;./log/federation.log&quot;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--loglevel&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;INFO&#39;</span><span class="p">,</span>
+                    <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;DEBUG&#39;</span><span class="p">,</span> <span class="s1">&#39;INFO&#39;</span><span class="p">,</span> <span class="s1">&#39;WARN&#39;</span><span class="p">,</span> <span class="s1">&#39;ERROR&#39;</span><span class="p">,</span> <span class="s1">&#39;CRITICAL&#39;</span><span class="p">])</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--services&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;./configs/services.json&quot;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--peers&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;./configs/peers.json&quot;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--schemas&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;./configs/schemas.json&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Any of these keyword arguments may be altered when running the service through the command line. Additional arguments
+may be added by copying the format above.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 87%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>Argument</p></td>
+<td><p>Explanation</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--port</span></code></p></td>
+<td><p>specifies the port the service should listen on.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--host</span></code></p></td>
+<td><p>specifies the host address for the service.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--logfile</span></code></p></td>
+<td><p>specifies the file which messages are logged to.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--loglevel</span></code></p></td>
+<td><p>controls the verbosity of the logs.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--services</span></code></p></td>
+<td><p>specifies a configuration file that tells Federation which services it should know about.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--peers</span></code></p></td>
+<td><p>specifies a configuration file that tells Federation which peers it should know about.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="json-configs">
+<h3>JSON configs<a class="headerlink" href="#json-configs" title="Permalink to this headline">¶</a></h3>
+<p>Two types of configuration files are located in the <cite>configs</cite> folder, with examples of each marked by <code class="docutils literal notranslate"><span class="pre">_ex</span></code>. Valid instances
+of both files are required in order to start the Federation service.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;peers&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;p1&quot;</span><span class="p">:</span> <span class="s2">&quot;http://peer1.com&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;p2&quot;</span><span class="p">:</span> <span class="s2">&quot;http://peer2.com&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Currently, each peer listed in a <code class="docutils literal notranslate"><span class="pre">peers</span></code> configuration file should correspond with the Tyk API Gateway for each CanDIG node,
+including the one running in the node this Federation service is running in.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;services&quot;</span><span class="p">:</span> <span class="p">{</span>
+       <span class="nt">&quot;rnaget&quot;</span><span class="p">:</span> <span class="s2">&quot;http://example1.com&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;datasets&quot;</span><span class="p">:</span> <span class="s2">&quot;http://example2.com&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Each service should correspond to a CanDIG service accessible by the Federation service. Due to the way request parsing works,
+it’s important to utilize the same service key name as its base API path.</p>
+</div>
+<div class="section" id="uwsgi-configuration">
+<h3>uWSGI Configuration<a class="headerlink" href="#uwsgi-configuration" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">federation.ini</span></code> file located in the top level of the directory controls uWSGI. The only portion that would need to be
+altered is the <code class="docutils literal notranslate"><span class="pre">chdir</span></code> location and <code class="docutils literal notranslate"><span class="pre">socket</span></code> output location.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[uwsgi]</span>
+<span class="na">module</span> <span class="o">=</span> <span class="s">wsgi:application</span>
+<span class="na">chdir</span> <span class="o">=</span> <span class="s">/home/dnaidoo/Documents/federation_service</span>
+
+<span class="na">master</span> <span class="o">=</span> <span class="s">true</span>
+<span class="na">processes</span> <span class="o">=</span> <span class="s">3</span>
+
+<span class="na">gid</span> <span class="o">=</span> <span class="s">candig</span>
+<span class="na">socket</span> <span class="o">=</span> <span class="s">/home/dnaidoo/Documents/federation_service/federation.sock</span>
+<span class="na">chmod-socket</span> <span class="o">=</span> <span class="s">660</span>
+<span class="na">vacuum</span> <span class="o">=</span> <span class="s">true</span>
+
+<span class="na">die-on-term</span> <span class="o">=</span> <span class="s">true</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="run.html" class="btn btn-neutral float-right" title="Starting Federation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to CanDIG Federation’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Dashaylan Naidoo
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

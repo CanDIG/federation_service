@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   description: Microservice implementation of CanDIG v1 federation
-  version: 0.1.4-oas3
+  version: "0.1.0-oas3"
   title: CanDIG Federation API POC
   contact:
     email: dnaidoo@bcgsc.ca
@@ -10,34 +10,33 @@ info:
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 paths:
   /search:
-    # get:
-    #   summary: send query to a microservice
-    #   description: >
-    #     Entry point for Tyk to pass GET requests to CanDIG microservices.
-    #     Federation broadcasting defined by 'federation' header.
-    #   operationId: candig_federation.api.operations.get_search
-    #   parameters:
-    #     - $ref: '#/components/parameters/endpoint_path'
-    #     - $ref: '#/components/parameters/endpoint_payload'
-    #     - $ref: '#/components/parameters/Federation'
-    #   responses:
-    #     '200':
-    #       description: Successful query
-    #     '400':
-    #       description: Bad input parameter
-    #     '403':
-    #       description: Authorization Error
-    #     '404':
-    #       description: Expression not found
-    #     '500':
-    #       description: Internal Error
-    #     '508':
-    #       description: Federation node time out
-
-    post:
-      summary: Send a request to the CanDIG network
+    get:
+      summary: send query to a microservice
       description: >
-        Entry point for Tyk to pass ALL requests to CanDIG microservices.
+        Entry point for Tyk to pass GET requests to CanDIG microservices.
+        Federation broadcasting defined by 'federation' header.
+      operationId: candig_federation.api.operations.get_search
+      parameters:
+        - $ref: '#/components/parameters/endpoint_path'
+        - $ref: '#/components/parameters/endpoint_payload'
+        - $ref: '#/components/parameters/Federation'
+      responses:
+        '200':
+          description: Successful query
+        '400':
+          description: Bad input parameter
+        '403':
+          description: Authorization Error
+        '404':
+          description: Expression not found
+        '500':
+          description: Internal Error
+        '508':
+          description: Federation node time out
+    post:
+      summary: Add entry to microservice
+      description: >
+        Entry point for Tyk to pass POST requests to CanDIG microservices.
         Federation broadcasting defined by 'federation' header.
       operationId: candig_federation.api.operations.post_search
       parameters:
@@ -71,7 +70,7 @@ components:
       description: Path to microservice endpoint
       in: query
       required: true
-      example: datasets/search
+      example: /variantget/projects
       schema:
         type: string
     endpoint_payload:
@@ -79,12 +78,9 @@ components:
       description: Semicolon separated parameters to pass on
       in: query
       required: false
-      example:
-      explode: true
+      example: 'abc:123;def:789'
       schema:
-        type: array
-        items:
-          $ref: '#/components/schemas/Parameter'
+        type: string
     Federation:
       name: Federation
       description: Flag for federated query. Federation assumed unless false is specified
@@ -95,35 +91,14 @@ components:
     PostObject:
       type: object
       required:
-        - request_type
         - endpoint_path
         - endpoint_payload
-        - endpoint_service
       properties:
-        request_type:
-          type: string
-          pattern: '(^GET$)|(^POST$)'
         endpoint_path:
           type: string
           example: v2/get
         endpoint_payload:
           type: object
-        endpoint_service:
-          type: string
-    Parameter:
-      type: object
-      properties:
-        key:
-          type: string
-        value:
-          anyOf:
-           - type: string
-           - type: array
-             items:
-              type:
-                string
-      example: '"ontologies": ["DUO:0000001", "DUO:0000028"]'
-
     Error:
       type: object
       required:
@@ -135,4 +110,3 @@ components:
           format: int32
         message:
           type: string
-

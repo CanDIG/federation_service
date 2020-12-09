@@ -50,7 +50,6 @@ class FederationResponse:
         self.endpoint_path = endpoint_path
         self.endpoint_payload = endpoint_payload
         self.endpoint_service = endpoint_service
-
         self.return_mimetype = return_mimetype
         self.request_dict = request_dict
         self.logger = APP.logger
@@ -115,6 +114,7 @@ class FederationResponse:
             full_path = "{}/{}".format(url, endpoint_path)
 
             # self.announce_fed_out("GET", url, endpoint_path)
+
             resp = request_handle.get(full_path, headers=self.header, params=endpoint_payload, timeout=self.timeout)
             self.status.append(resp.status_code)
 
@@ -296,7 +296,6 @@ class FederationResponse:
         :return: List of Futures
         """
 
-
         args = {"request_type": request, "endpoint_path": endpoint_path, "endpoint_payload": endpoint_payload, "endpoint_service": endpoint_service}
         async_session = FuturesSession(max_workers=10)  # capping max threads
         responses = []
@@ -335,17 +334,15 @@ class FederationResponse:
 
         elif 405 in statuses:
             return 405
-        
+    
         elif 504 in statuses:
             return 504
 
         elif 404 in statuses:
             return 404
 
-
         elif 500 in statuses:
             return 500
-
 
         else:
             return 500

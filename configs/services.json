@@ -4,6 +4,7 @@
     "datasets": "http://ga4ghdev01.bcgsc.ca:8870/v2",
     "katsu": "http://ga4ghdev01.bcgsc.ca:8008/v2/katsu",
     "katsuDirect": "http://ga4ghdev01.bcgsc.ca:4000"
+
   }
 }
 

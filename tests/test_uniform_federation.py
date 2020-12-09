@@ -244,7 +244,6 @@ def test_valid_noFed_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
         FR = get_federation_response("GET")
-
         RO, Status = FR.get_response_object()
         assert RO["status"] == 200
         assert RO["results"] == [AP["v1"]]
@@ -255,7 +254,6 @@ def test_valid_noFed_post(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
         FR = get_federation_response("POST")
-
         RO, Status = FR.get_response_object()
         assert RO["status"] == 200
         assert RO["results"] == [PostListV1]
@@ -267,7 +265,6 @@ def test_invalid_noFed_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
         FR = get_federation_response("GET")
-
         RO, Status = FR.get_response_object()
         assert RO["status"] == 404
         assert RO["results"] == []
@@ -278,8 +275,6 @@ def test_invalid_noFed_post(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
         FR = get_federation_response("POST")
-
-
         RO, Status = FR.get_response_object()
         assert RO["status"] == 404
         assert RO["results"] == []
@@ -290,7 +285,6 @@ def test_timeout_noFed_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
         FR = get_federation_response("GET")
-
         RO, Status = FR.get_response_object()
         assert RO["status"] == 504
         assert RO["results"] == []
@@ -301,8 +295,6 @@ def test_timeout_noFed_post(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
         FR = get_federation_response("POST")
-
-
         RO, Status = FR.get_response_object()
         assert RO["status"] == 504
         assert RO["results"] == []
@@ -314,7 +306,6 @@ def test_valid_asyncRequests_two_peers_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
         FR = get_federation_response("POST", "Federate")
-
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
                                  request='GET',
@@ -334,8 +325,6 @@ def test_valid_asyncRequests_two_peers_post(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
         FR = get_federation_response("POST")
-
-
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
                                  request='POST',
@@ -355,7 +344,6 @@ def test_invalid_asyncRequests_two_peers_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
         FR = get_federation_response("POST")
-
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
                                  request='GET',
@@ -377,8 +365,6 @@ def test_invalid_asyncRequests_two_peers_post(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
         FR = get_federation_response("POST")
-
-
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
                                  request='POST',
@@ -398,8 +384,6 @@ def test_timeout_asyncRequests_two_peers_post(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
         FR = get_federation_response("POST")
-
-
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
                                  request='POST',
@@ -419,7 +403,6 @@ def test_timeout_asyncRequests_two_peers_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
         FR = get_federation_response("GET")
-
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
                                  request='GET',
@@ -443,8 +426,6 @@ def test_valid_PeerRequest_one_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = TWO
     with client:
         FR = get_federation_response("GET", "Federate")
-
-
         RO, Status = FR.get_response_object()
 
         assert RO["status"] == 200
@@ -476,8 +457,6 @@ def test_valid_PeerRequest_one_peer_post(mock_session, mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
         FR = get_federation_response("POST", "Federate")
-
-
         RO, Status = FR.get_response_object()
 
         assert RO["status"] == 200
@@ -650,7 +629,6 @@ def test_valid_PeerRequest_two_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = THREE
     with client:
         FR = get_federation_response("GET", "Federate")
-
         RO, Status = FR.get_response_object()
 
         assert RO["status"] == 200
@@ -681,7 +659,6 @@ def test_valid_PeerRequest_two_peer_post(mock_session, mock_requests, client):
     APP.app.config["peers"] = THREE
     with client:
         FR = get_federation_response("POST", "Federate")
-
         RO, Status = FR.get_response_object()
 
         assert RO["status"] == 200
@@ -913,3 +890,4 @@ def test_invalid_backslash_endpoint_start(mock_requests, mock_session, client):
         ):
             RO = operations.post_search()[0]
             assert RO["status"] == 400
+

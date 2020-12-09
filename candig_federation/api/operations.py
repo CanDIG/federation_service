@@ -21,6 +21,7 @@ def post_search():
     following the endpoint_path conventions set in get_search().
     The endpoint_payload is microservice specific but will typically be a
     JSON object of sorts.
+    
     :return: response_object
     response_object: json string
     Merged responses from the federation nodes. response_object structure:
@@ -30,6 +31,7 @@ def post_search():
     "results": [Response],
     "service": ServiceName
     }
+
     Status - Aggregate HTTP response code
     Response - List of service specific responses
     ServiceName - Name of service (used for logstash tagging)
@@ -73,3 +75,4 @@ def post_search():
            "status": 404,
            "service": "ErrorHandling"
            }, 404
+
