@@ -39,6 +39,14 @@ def post_search():
         data = json.loads(flask.request.data)
         request_type = data["request_type"]
         endpoint_path = data["endpoint_path"]
+        if endpoint_path[0] == "/":
+            return {
+                    "response": ("Invalid endpoint_path: {}. "
+                    "Please remove the / at the beginning: ".format(endpoint_path)),
+                    "status": 400,
+                    "service": "ErrorHandling"
+                    }, 400
+
         endpoint_payload = data["endpoint_payload"]
         endpoint_service = data["endpoint_service"]
         microservice_URL = APP.config['services'][endpoint_service]
@@ -59,7 +67,7 @@ def post_search():
         """
     return {
            "response": ("Invalid service name: {}. "
-           "Please make sure that the beginning of your endpoint_path matches a registered service: "
+           "Please make sure that the service requested matches a registered service: "
            "{} "
            .format(endpoint_service, list(APP.config['services'].keys()))),
            "status": 404,
