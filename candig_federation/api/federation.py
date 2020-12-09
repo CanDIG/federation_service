@@ -39,7 +39,7 @@ class FederationResponse:
     # pylint: disable=too-many-arguments
 
 
-    def __init__(self, request, url, endpoint_path, endpoint_payload, request_dict, service, return_mimetype='application/json',
+    def __init__(self, request, url, endpoint_path, endpoint_payload, request_dict, endpoint_service, return_mimetype='application/json',
                  timeout=5):
         """Constructor method
         """
@@ -49,12 +49,16 @@ class FederationResponse:
         self.url = url
         self.endpoint_path = endpoint_path
         self.endpoint_payload = endpoint_payload
-
-        self.service = service
+        self.endpoint_service = endpoint_service
         self.return_mimetype = return_mimetype
         self.request_dict = request_dict
-        self.token = self.request_dict.headers['Authorization']
         self.logger = APP.logger
+        
+        try:
+            self.token = self.request_dict.headers['Authorization']
+        except KeyError as e:
+            self.logger.warn("Request lacking Authorization header")
+            self.token = ""
 
         self.header = {
             'Content-Type': self.return_mimetype,
@@ -109,7 +113,8 @@ class FederationResponse:
             request_handle = requests.Session()
             full_path = "{}/{}".format(url, endpoint_path)
 
-            # self.announce_fed_out("GET", url, endpoint_path, endpoint_payload)
+            # self.announce_fed_out("GET", url, endpoint_path)
+
             resp = request_handle.get(full_path, headers=self.header, params=endpoint_payload, timeout=self.timeout)
             self.status.append(resp.status_code)
 
@@ -130,6 +135,10 @@ class FederationResponse:
             return
         except requests.exceptions.Timeout:
             self.status.append(504)
+            return
+        except AttributeError as e:
+            self.status.append(500)
+            print(e)
             return
 
     def federate_check(self):
@@ -178,8 +187,13 @@ class FederationResponse:
         except requests.exceptions.Timeout:
             self.status.append(504)
             return
+            
+        except AttributeError as e:
+            self.status.append(500)
+            print(e)
+            return
 
-    def handle_peer_request(self, request, endpoint_path, endpoint_payload, header):
+    def handle_peer_request(self, request, endpoint_path, endpoint_payload, endpoint_service, header):
         """
         Make peer data requests and update the results and status for a FederationResponse
 
@@ -195,6 +209,8 @@ class FederationResponse:
         :type endpoint_path: str
         :param endpoint_payload: Query string or data needed by endpoint specified in endpoint_path
         :type endpoint_payload: object, {param0=value0, paramN=valueN} for GET, JSON struct dependent on service endpoint for POST
+        :param endpoint_service: Specific microservice name, should match a service listed in services.json config
+        :type endpoint_service: str
         :param header: Request headers defined in self.headers
         :type header: object
         :return: List of ResponseObjects, this specific return is used only in testing
@@ -209,7 +225,8 @@ class FederationResponse:
                                                    request=request,
                                                    header=header,
                                                    endpoint_payload=endpoint_payload,
-                                                   endpoint_path=endpoint_path):
+                                                   endpoint_path=endpoint_path,
+                                                   endpoint_service=endpoint_service):
             try:
                 response = future_response.result()
             except AttributeError:
@@ -260,7 +277,7 @@ class FederationResponse:
         # Return is used for testing individual methods
         return self.results
 
-    def async_requests(self, url_list, request, endpoint_path, endpoint_payload, header):
+    def async_requests(self, url_list, request, endpoint_path, endpoint_payload, endpoint_service, header):
         """Send requests to each CanDIG node in the network asynchronously using FutureSession. The
         futures are returned back to and handled by handle_peer_requests()
 
@@ -272,32 +289,24 @@ class FederationResponse:
         :type endpoint_path: str
         :param endpoint_payload: Query string or data needed by endpoint specified in endpoint_path
         :type endpoint_payload: object, {param0=value0, paramN=valueN} for GET, JSON struct dependent on service endpoint for POST
+        :param endpoint_service: Specific microservice name, should match a service listed in services.json config
+        :type endpoint_service: str
         :param header: Request headers defined in self.headers
         :type header: object
         :return: List of Futures
         """
 
-        args = {"endpoint_path": endpoint_path, "endpoint_payload": endpoint_payload}
+        args = {"request_type": request, "endpoint_path": endpoint_path, "endpoint_payload": endpoint_payload, "endpoint_service": endpoint_service}
         async_session = FuturesSession(max_workers=10)  # capping max threads
         responses = []
 
-        if request == "GET":
-            for url in url_list:
-
-                try:
-                    # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
-                    responses.append(async_session.get(url,
-                                                       headers=header, params=args, timeout=self.timeout))
-                except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
-                    responses.append(e)
-        elif request == "POST":
-            for url in url_list:
-                try:
-                    # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
-                    responses.append(async_session.post(url,
-                                                        json=args, headers=header, timeout=self.timeout))
-                except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
-                    responses.append(e)
+        for url in url_list:
+            try:
+                # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
+                responses.append(async_session.post(url,
+                                                    json=args, headers=header, timeout=self.timeout))
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+                responses.append(e)
 
         return responses
 
@@ -306,7 +315,7 @@ class FederationResponse:
 
         Priority List:
         1. Return 200 if one exists within the list
-        2. 201 > 405 > 500 > 408 > 404
+        2. 201 > 405 > 504 > 404 > 500
 
         :param statuses: List of integer response codes
         :type statuses: list
@@ -325,15 +334,15 @@ class FederationResponse:
 
         elif 405 in statuses:
             return 405
-
-        elif 500 in statuses:
-            return 500
-
+    
         elif 504 in statuses:
             return 504
 
         elif 404 in statuses:
             return 404
+
+        elif 500 in statuses:
+            return 500
 
         else:
             return 500
@@ -357,6 +366,7 @@ class FederationResponse:
                 self.handle_peer_request(request="GET",
                                          endpoint_path=self.endpoint_path,
                                          endpoint_payload=self.endpoint_payload,
+                                         endpoint_service=self.endpoint_service,
                                          header=self.header)
 
             else:
@@ -369,6 +379,7 @@ class FederationResponse:
                 self.handle_peer_request(request="POST",
                                          endpoint_path=self.endpoint_path,
                                          endpoint_payload=self.endpoint_payload,
+                                         endpoint_service=self.endpoint_service,
                                          header=self.header)
             else:
                 self.post_service(url=self.url,
@@ -378,11 +389,11 @@ class FederationResponse:
         status = self.merge_status(self.status)
         try:
             # Remove duplicates from a list response due to Federated querying
-            response = {"status": status, "results": sorted(list(set(self.results))), "service": self.service}
+            response = {"status": status, "results": sorted(list(set(self.results))), "service": self.endpoint_service}
 
         except TypeError:
             # Dealing with dicts objects
-            response = {"status": status, "results": self.results, "service": self.service}
+            response = {"status": status, "results": self.results, "service": self.endpoint_service}
         
         return response, status
 

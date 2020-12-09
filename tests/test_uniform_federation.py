@@ -21,7 +21,8 @@ from tests.test_data.test_structs import *
 APP.app.config["services"] = {
     "rnaget": 'http://{}:{}'.format(TP["URI"], TP["PORT0"]),
     "datasets": "http://10.9.208.132:19712",
-    "datasetsP": "https://ff345ede-96fd-4357-bc44-80ba503591b3.mock.pstmn.io"
+    "datasetsP": "https://ff345ede-96fd-4357-bc44-80ba503591b3.mock.pstmn.io",
+    "TestService": "http://10.9.208.132:9999"
 }
 APP.app.config["local"] = "http://10.9.208.132:6000"
 
@@ -31,6 +32,16 @@ def client():
     context = APP.app.app_context()
 
     return context
+
+def get_federation_response(request_type, headers="Headers"):
+
+    return FederationResponse(url="http://{}:{}".format(TP['URI'], TP['PORT0']),
+                        request=request_type,
+                        endpoint_payload="",
+                        endpoint_path=TP["path"],
+                        request_dict=TP[headers],
+                        endpoint_service=TP["service"])
+
 
 
 # Taken from https://stackoverflow.com/questions/15753390/how-can-i-mock-requests-and-the-response
@@ -219,6 +230,9 @@ def mocked_async_local_TimeOUt_p1_Timeout_requests_post(*args, **kwargs):
         return PR["iPLV3"]
 
     return AP["fail"]
+
+
+
 ###################
 # Testing Portion #
 ###################
@@ -229,14 +243,7 @@ def mocked_async_local_TimeOUt_p1_Timeout_requests_post(*args, **kwargs):
 def test_valid_noFed_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="GET",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                service=TP["service"])
-
+        FR = get_federation_response("GET")
         RO, Status = FR.get_response_object()
         assert RO["status"] == 200
         assert RO["results"] == [AP["v1"]]
@@ -246,14 +253,7 @@ def test_valid_noFed_get(mock_requests, client):
 def test_valid_noFed_post(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="POST",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                service=TP["service"])
-
+        FR = get_federation_response("POST")
         RO, Status = FR.get_response_object()
         assert RO["status"] == 200
         assert RO["results"] == [PostListV1]
@@ -264,14 +264,7 @@ def test_valid_noFed_post(mock_requests, client):
 def test_invalid_noFed_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http:2132{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="GET",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                service=TP["service"])
-
+        FR = get_federation_response("GET")
         RO, Status = FR.get_response_object()
         assert RO["status"] == 404
         assert RO["results"] == []
@@ -281,14 +274,7 @@ def test_invalid_noFed_get(mock_requests, client):
 def test_invalid_noFed_post(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="POST",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                service=TP["service"])
-
+        FR = get_federation_response("POST")
         RO, Status = FR.get_response_object()
         assert RO["status"] == 404
         assert RO["results"] == []
@@ -298,14 +284,7 @@ def test_invalid_noFed_post(mock_requests, client):
 def test_timeout_noFed_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http:{}:{}".format('0.0.0.0', TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="GET",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                service=TP["service"])
-
+        FR = get_federation_response("GET")
         RO, Status = FR.get_response_object()
         assert RO["status"] == 504
         assert RO["results"] == []
@@ -315,38 +294,25 @@ def test_timeout_noFed_get(mock_requests, client):
 def test_timeout_noFed_post(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="POST",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                service=TP["service"])
-
+        FR = get_federation_response("POST")
         RO, Status = FR.get_response_object()
         assert RO["status"] == 504
         assert RO["results"] == []
 
 # Test the async request function --------------------------------------------------------------------
 
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_get)
 def test_valid_asyncRequests_two_peers_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="GET",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                service=TP["service"])
-
+        FR = get_federation_response("POST", "Federate")
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
                                  request='GET',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
-                                 header=TP["Headers"])
+                                 header=TP["Headers"],
+                                 endpoint_service=TP["service"])
 
         Success = list(filter(lambda x: x == 200, map(lambda a: a.status_code, resp)))
 
@@ -358,20 +324,14 @@ def test_valid_asyncRequests_two_peers_get(mock_requests, client):
 def test_valid_asyncRequests_two_peers_post(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="POST",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                service=TP["service"])
-
+        FR = get_federation_response("POST")
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
                                  request='POST',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
-                                 header=TP["Headers"])
+                                 header=TP["Headers"],
+                                 endpoint_service=TP["service"])
 
         Success = list(filter(lambda x: x == 200, map(lambda a: a.status_code, resp)))
 
@@ -379,24 +339,18 @@ def test_valid_asyncRequests_two_peers_post(mock_requests, client):
         assert Success == [200, 200]
 
 
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=exceptions.ConnectionError)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=exceptions.ConnectionError)
 def test_invalid_asyncRequests_two_peers_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="GET",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                service=TP["service"])
-
+        FR = get_federation_response("POST")
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
                                  request='GET',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
-                                 header=TP["Headers"])
+                                 header=TP["Headers"],
+                                 endpoint_service=TP["service"])
 
         ConnErrs = list(map(lambda a: isinstance(a, exceptions.ConnectionError), resp))
 
@@ -410,20 +364,14 @@ def test_invalid_asyncRequests_two_peers_get(mock_requests, client):
 def test_invalid_asyncRequests_two_peers_post(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="POST",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                service=TP["service"])
-
+        FR = get_federation_response("POST")
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
                                  request='POST',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
-                                 header=TP["Headers"])
+                                 header=TP["Headers"],
+                                 endpoint_service=TP["service"])
 
         Success = list(map(lambda a: isinstance(a, exceptions.ConnectionError), resp))
 
@@ -435,20 +383,14 @@ def test_invalid_asyncRequests_two_peers_post(mock_requests, client):
 def test_timeout_asyncRequests_two_peers_post(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="POST",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                service=TP["service"])
-
+        FR = get_federation_response("POST")
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
                                  request='POST',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
-                                 header=TP["Headers"])
+                                 header=TP["Headers"],
+                                 endpoint_service=TP["service"])
 
         Success = list(map(lambda a: isinstance(a, exceptions.Timeout), resp))
 
@@ -456,24 +398,18 @@ def test_timeout_asyncRequests_two_peers_post(mock_requests, client):
         assert Success == [True, True]
 
 
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=exceptions.Timeout)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=exceptions.Timeout)
 def test_timeout_asyncRequests_two_peers_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="GET",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Headers"],
-                                service=TP["service"])
-
+        FR = get_federation_response("GET")
         resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
                                            "http://{}".format(TP["Tyk2"])],
                                  request='GET',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
-                                 header=TP["Headers"])
+                                 header=TP["Headers"],
+                                 endpoint_service=TP["service"])
 
         TimeoutErrs = list(map(lambda a: isinstance(a, exceptions.Timeout), resp))
 
@@ -485,18 +421,11 @@ def test_timeout_asyncRequests_two_peers_get(mock_requests, client):
 # Test Federation with one peer --------------------------------------------------------------------
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_get)
 def test_valid_PeerRequest_one_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="GET",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Federate"],
-                                service=TP["service"])
-
+        FR = get_federation_response("GET", "Federate")
         RO, Status = FR.get_response_object()
 
         assert RO["status"] == 200
@@ -504,14 +433,16 @@ def test_valid_PeerRequest_one_peer_get(mock_requests, mock_session, client):
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_get)
 def test_valid_federated_query_one_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = TWO
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "GET"}),
+                                 "request_type": "GET",
+                                 "endpoint_service": TP["service"]
+                }),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -525,14 +456,7 @@ def test_valid_federated_query_one_peer_get(mock_requests, mock_session, client)
 def test_valid_PeerRequest_one_peer_post(mock_session, mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="POST",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Federate"],
-                                service=TP["service"])
-
+        FR = get_federation_response("POST", "Federate")
         RO, Status = FR.get_response_object()
 
         assert RO["status"] == 200
@@ -547,7 +471,8 @@ def test_valid_federated_query_one_peer_post(mock_requests, mock_session, client
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -565,7 +490,8 @@ def test_valid_federated_local_ConnErr_one_peer_post(mock_session,  client):
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -581,7 +507,8 @@ def test_valid_federated_local_TimeOut_one_peer_post(mock_session,  client):
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -590,14 +517,15 @@ def test_valid_federated_local_TimeOut_one_peer_post(mock_session,  client):
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_local_timeout_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_timeout_requests_get)
 def test_valid_federated_local_TimeOut_one_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = TWO
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "GET"}),
+                                 "request_type": "GET",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -606,14 +534,16 @@ def test_valid_federated_local_TimeOut_one_peer_get(mock_requests, mock_session,
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_local_ConnErr_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_requests_get)
 def test_valid_federated_local_ConnErr_one_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = TWO
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path"   : TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type"    : "GET"}),
+                                 "request_type"    : "GET",
+                                 "endpoint_service": TP["service"]
+                                 }),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -631,7 +561,8 @@ def test_ConnErr_federated_valid_local_one_peer_post(mock_session,  client):
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -647,7 +578,8 @@ def test_TimeOut_federated_valid_local_one_peer_post(mock_session,  client):
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -656,14 +588,15 @@ def test_TimeOut_federated_valid_local_one_peer_post(mock_session,  client):
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_p1_ConnErr_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_p1_ConnErr_requests_get)
 def test_ConnErr_federated_valid_local_one_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = TWO
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "GET"}),
+                                 "request_type": "GET",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -672,14 +605,15 @@ def test_ConnErr_federated_valid_local_one_peer_get(mock_requests, mock_session,
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_p1_ConnErr_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_p1_ConnErr_requests_get)
 def test_TimeOut_federated_valid_local_one_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = TWO
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "GET"}),
+                                 "request_type": "GET",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -690,18 +624,11 @@ def test_TimeOut_federated_valid_local_one_peer_get(mock_requests, mock_session,
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_get)
 def test_valid_PeerRequest_two_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = THREE
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="GET",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Federate"],
-                                service=TP["service"])
-
+        FR = get_federation_response("GET", "Federate")
         RO, Status = FR.get_response_object()
 
         assert RO["status"] == 200
@@ -709,14 +636,15 @@ def test_valid_PeerRequest_two_peer_get(mock_requests, mock_session, client):
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_get)
 def test_valid_federated_query_two_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = THREE
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "GET"}),
+                                 "request_type": "GET",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -730,14 +658,7 @@ def test_valid_federated_query_two_peer_get(mock_requests, mock_session, client)
 def test_valid_PeerRequest_two_peer_post(mock_session, mock_requests, client):
     APP.app.config["peers"] = THREE
     with client:
-        url = "http://{}:{}".format(TP['URI'], TP['PORT0'])
-        FR = FederationResponse(url=url,
-                                request="POST",
-                                endpoint_payload="",
-                                endpoint_path=TP["path"],
-                                request_dict=TP["Federate"],
-                                service=TP["service"])
-
+        FR = get_federation_response("POST", "Federate")
         RO, Status = FR.get_response_object()
 
         assert RO["status"] == 200
@@ -752,7 +673,8 @@ def test_valid_federated_query_two_peer_post(mock_requests, mock_session, client
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -770,7 +692,8 @@ def test_valid_federated_local_ConnErr_two_peer_post(mock_session,  client):
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -786,7 +709,8 @@ def test_valid_federated_local_TimeOut_two_peer_post(mock_session,  client):
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -795,14 +719,15 @@ def test_valid_federated_local_TimeOut_two_peer_post(mock_session,  client):
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_local_ConnErr_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_requests_get)
 def test_valid_federated_local_ConnErr_two_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = THREE
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "GET"}),
+                                 "request_type": "GET",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -811,14 +736,15 @@ def test_valid_federated_local_ConnErr_two_peer_get(mock_requests, mock_session,
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_local_timeout_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_timeout_requests_get)
 def test_valid_federated_local_TimeOut_two_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = THREE
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "GET"}),
+                                 "request_type": "GET",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -836,7 +762,8 @@ def test_one_TimeOut_federated_local_ConnErr_two_peer_post(mock_session,  client
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -852,7 +779,8 @@ def test_one_TimeOut_federated_local_TimeOut_two_peer_post(mock_session,  client
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -861,14 +789,15 @@ def test_one_TimeOut_federated_local_TimeOut_two_peer_post(mock_session,  client
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_local_ConnErr_p1_Timeout_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_p1_Timeout_requests_get)
 def test_one_TimeOut_federated_local_ConnErr_two_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = THREE
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "GET"}),
+                                 "request_type": "GET",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -877,14 +806,15 @@ def test_one_TimeOut_federated_local_ConnErr_two_peer_get(mock_requests, mock_se
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_local_TimeOut_p1_Timeout_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_TimeOut_p1_Timeout_requests_get)
 def test_one_TimeOut_federated_local_TimeOut_two_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = THREE
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "GET"}),
+                                 "request_type": "GET",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -902,7 +832,8 @@ def test_one_TimeOut_federated_valid_two_peer_post(mock_session,  client):
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -918,7 +849,8 @@ def test_one_TimeOut_federated_local_valid_two_peer_post(mock_session,  client):
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "POST"}),
+                                 "request_type": "POST",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
@@ -927,18 +859,35 @@ def test_one_TimeOut_federated_local_valid_two_peer_post(mock_session,  client):
 
 
 @patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.get', side_effect=mocked_async_p1_timeout_requests_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_p1_timeout_requests_get)
 def test_one_TimeOut_federated_local_valid_two_peer_get(mock_requests, mock_session, client):
     APP.app.config["peers"] = THREE
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
                                  "endpoint_payload": "",
-                                 "request_type": "GET"}),
+                                 "request_type": "GET",
+                                 "endpoint_service": TP["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO = operations.post_search()[0]
             assert RO["status"] == 200
             assert RO["results"] == [AP["v1"], AP["v3"]]
 
+
+@patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
+@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_get)
+def test_invalid_backslash_endpoint_start(mock_requests, mock_session, client):
+    APP.app.config["peers"] = TWO
+    with client:
+        with APP.app.test_request_context(
+                data=json.dumps({"endpoint_path": "/fail/this/path",
+                                 "endpoint_payload": "",
+                                 "request_type": "GET",
+                                 "endpoint_service": TP["service"]
+                }),
+                headers=Headers(fedHeader.headers)
+        ):
+            RO = operations.post_search()[0]
+            assert RO["status"] == 400
 
