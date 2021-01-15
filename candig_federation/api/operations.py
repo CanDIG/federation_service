@@ -8,6 +8,8 @@ import flask
 import sys
 from candig_federation.api.logging import apilog
 from candig_federation.api.federation import FederationResponse
+from candig_federation.api.ping import ConnectivityCheck 
+
 
 APP = flask.current_app
 
@@ -34,7 +36,7 @@ def post_search():
 
     Status - Aggregate HTTP response code
     Response - List of service specific responses
-    ServiceName - Name of service (used for logstash tagging)
+    ServiceName - Name of service
     """
     try:
 
@@ -68,11 +70,70 @@ def post_search():
         will be due to the service dictionary receiving an invalid key.
         """
     return {
-           "response": ("Invalid service name: {}. "
+           "results": ("Invalid service name: {}. "
            "Please make sure that the service requested matches a registered service: "
            "{} "
            .format(endpoint_service, list(APP.config['services'].keys()))),
            "status": 404,
            "service": "ErrorHandling"
            }, 404
+
+
+@apilog
+def get_search():
+    """
+    Federation is configured to only forward POST requests. Attempts to use
+    GET will be returned with a 400 and a reminder to use POST.
+    
+    :return: response_object
+    response_object: json string
+
+    {
+    "status": Status,
+    "results": Response,
+    "service": ServiceName
+    }
+
+    Status - Aggregate HTTP response code
+    Response - Help Message
+    ServiceName - Name of service
+    """
+
+    return {
+        "results": ("GET is not a valid request type for the /search endpoint. Please use POST."
+        "See more information at https://candig-federation.readthedocs.io/en/latest/"),
+        "status": 400,
+        "service": "Federation" 
+    }
+
+@apilog
+def get_ping():
+    """
+    Diagnostic endpoint to test a Federation node's connectivity.
+    
+    {
+    "status": Status,
+    "results": Response,
+    "service": SiteName
+    }
+
+    Status - Aggregate HTTP response code
+    Response - Success
+    SiteName - Site specific identifier
+    """
+
+    return {
+        "results": "Success",
+        "status": 200,
+        "service": APP.config['self']
+    }
+
+def post_ping():
+    """
+    Send a ping across the peer network
+    """
+
+    connection_check = ConnectivityCheck(request_dict=flask.request)
+    return connection_check.check_connectivity, 200
+
 

@@ -7,5 +7,6 @@ datasets_structs.py
 log/*
 configs/services.json
 configs/peers.json
-docs/build
+docs/build/*
+fed_env
 

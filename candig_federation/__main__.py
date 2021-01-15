@@ -61,6 +61,7 @@ def main(args=None):
     APP.app.config["services"] = network.parse_configs("services", args.services,
                                                        args.schemas, APP.app.logger)
 
+    
     return APP, args.port
 
 def configure_app():
