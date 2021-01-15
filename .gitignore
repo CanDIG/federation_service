@@ -9,4 +9,5 @@ configs/services.json
 configs/peers.json
 docs/build/*
 fed_env
+federation.ini
 
