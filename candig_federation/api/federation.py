@@ -46,7 +46,7 @@ class FederationResponse:
         self.results = []
         self.status = []
         self.request = request
-        self.url = url+'/search'
+        self.url = url
         self.endpoint_path = endpoint_path
         self.endpoint_payload = endpoint_payload
         self.endpoint_service = endpoint_service
@@ -219,7 +219,7 @@ class FederationResponse:
         uri_list = []
 
         for peer in APP.config["peers"].values():
-            uri_list.append("{}".format(peer))
+            uri_list.append("{}/search".format(peer))
 
         for future_response in self.async_requests(url_list=uri_list,
                                                    request=request,
