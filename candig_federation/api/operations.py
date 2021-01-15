@@ -134,6 +134,6 @@ def post_ping():
     """
 
     connection_check = ConnectivityCheck(request_dict=flask.request)
-    return connection_check.check_connectivity, 200
+    return connection_check.check_connectivity(), 200
 
 

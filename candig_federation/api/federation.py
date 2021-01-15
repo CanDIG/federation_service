@@ -46,7 +46,7 @@ class FederationResponse:
         self.results = []
         self.status = []
         self.request = request
-        self.url = url
+        self.url = url+'/search'
         self.endpoint_path = endpoint_path
         self.endpoint_payload = endpoint_payload
         self.endpoint_service = endpoint_service
