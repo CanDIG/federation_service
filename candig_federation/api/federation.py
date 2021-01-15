@@ -81,7 +81,7 @@ class FederationResponse:
         :param path: API endpoint of service
         :type path: Str
         """
-        self.logger.info(json.dumps({"Sending": "{} -> {}/{}".format(
+        self.logger.debug(json.dumps({"Sending Request": "{} -> {}/{}\n".format(
             request_type, destination, path
         )}))
 
@@ -94,7 +94,8 @@ class FederationResponse:
         :param code: Response code
         :type code: int
         """
-        self.logger.info(json.dumps({"Received": "{} From {}".format(
+        if 
+        self.logger.debug(json.dumps({"Received": "{} From {}".format(
             code, source
         )}))
 
@@ -113,7 +114,7 @@ class FederationResponse:
             request_handle = requests.Session()
             full_path = "{}/{}".format(url, endpoint_path)
 
-            # self.announce_fed_out("GET", url, endpoint_path)
+            self.announce_fed_out("GET", url, endpoint_path)
 
             resp = request_handle.get(full_path, headers=self.header, params=endpoint_payload, timeout=self.timeout)
             self.status.append(resp.status_code)
@@ -121,23 +122,26 @@ class FederationResponse:
 
             if isinstance(resp.json(), list):
                 self.results.extend(resp.json())
-                # self.announce_fed_in(full_path, resp.status_code, resp.json())
+                self.announce_fed_in(resp.url, resp.status_code)
             else:
                 # Only take the 'data' portion of the Response
 
                 response = [{key: value for key, value in resp.json().items() if key.lower()
                              not in ['headers', 'url']}]
-                # self.announce_fed_in(full_path, resp.status_code, response)
+                self.announce_fed_in(resp.url, resp.status_code)
                 self.results.extend(response)
 
         except requests.exceptions.ConnectionError:
             self.status.append(404)
+            self.logger.warn("404 Encountered for {}".format(resp.url))
             return
         except requests.exceptions.Timeout:
             self.status.append(504)
+            self.logger.warn("504 Encountered for {}".format(resp.url))
             return
         except AttributeError as e:
             self.status.append(500)
+            self.logger.warn("500 Encountered for {}".format(resp.url))
             print(e)
             return
 
@@ -165,31 +169,32 @@ class FederationResponse:
         try:
             request_handle = requests.Session()
             full_path = "{}/{}".format(url, endpoint_path)
-            # self.announce_fed_out("POST", url, endpoint_path, endpoint_payload)
+            self.announce_fed_out("POST", url, endpoint_path, endpoint_payload)
             resp = request_handle.post(full_path, headers=self.header, json=endpoint_payload)
             self.status.append(resp.status_code)
 
             if isinstance(resp.json(), list):
                 self.results.extend(resp.json())
-                # self.announce_fed_in(full_path, resp.status_code, resp.json())
+                self.announce_fed_in(full_path, resp.status_code, resp.url)
 
             else:
                 # Only take the 'data' portion of the Response
                 response = [{key: value for key, value in resp.json().items() if key.lower()
                              not in ['headers', 'url', 'args', 'json']}]
-                # self.announce_fed_in(full_path, resp.status_code, resp.json())
+                self.announce_fed_in(resp.url, resp.status_code)
                 self.results.extend(response)
 
         except requests.exceptions.ConnectionError:
             self.status.append(404)
+            self.logger.warn("404 Encountered for {}".format(resp.url))
             return
-
         except requests.exceptions.Timeout:
             self.status.append(504)
+            self.logger.warn("504 Encountered for {}".format(resp.url))
             return
-            
         except AttributeError as e:
             self.status.append(500)
+            self.logger.warn("500 Encountered for {}".format(resp.url))
             print(e)
             return
 
@@ -229,19 +234,27 @@ class FederationResponse:
                                                    endpoint_service=endpoint_service):
             try:
                 response = future_response.result()
+                self.announce_fed_in(resp.url, resp.status_code)
+
             except AttributeError:
                 if isinstance(future_response, requests.exceptions.ConnectionError):
                     self.status.append(404)
+                    self.logger.warn("404 Encountered for {}".format(future_response.result().url))
+
                 if isinstance(future_response, requests.exceptions.Timeout):
                     self.status.append(504)
+                    self.logger.warn("504 Encountered for {}".format(future_response.result().url))
 
                 continue
             except requests.exceptions.ConnectionError:
                 self.status.append(404)
+                self.logger.warn("404 Encountered for {}".format(future_response.result().url))
+
                 continue
 
             except requests.exceptions.Timeout:
                 self.status.append(504)
+                self.logger.warn("404 Encountered for {}".format(future_response.result().url))
                 continue
 
             # If the call was successful append the results
@@ -302,7 +315,7 @@ class FederationResponse:
 
         for url in url_list:
             try:
-                # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
+                self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
                 responses.append(async_session.post(url,
                                                     json=args, headers=header, timeout=self.timeout))
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:

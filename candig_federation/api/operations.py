@@ -104,7 +104,7 @@ def get_search():
         "See more information at https://candig-federation.readthedocs.io/en/latest/"),
         "status": 400,
         "service": "Federation" 
-    }
+    }, 400
 
 @apilog
 def get_ping():
