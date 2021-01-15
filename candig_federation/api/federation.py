@@ -94,8 +94,7 @@ class FederationResponse:
         :param code: Response code
         :type code: int
         """
-        if 
-        self.logger.debug(json.dumps({"Received": "{} From {}".format(
+        self.logger.debug(json.dumps({"Received": "{} From {}\n".format(
             code, source
         )}))
 
