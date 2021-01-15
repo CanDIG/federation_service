@@ -168,13 +168,13 @@ class FederationResponse:
         try:
             request_handle = requests.Session()
             full_path = "{}/{}".format(url, endpoint_path)
-            self.announce_fed_out("POST", url, endpoint_path, endpoint_payload)
+            self.announce_fed_out("POST", url, endpoint_path)
             resp = request_handle.post(full_path, headers=self.header, json=endpoint_payload)
             self.status.append(resp.status_code)
 
             if isinstance(resp.json(), list):
                 self.results.extend(resp.json())
-                self.announce_fed_in(full_path, resp.status_code, resp.url)
+                self.announce_fed_in(resp.url, resp.status_code)
 
             else:
                 # Only take the 'data' portion of the Response
@@ -233,7 +233,7 @@ class FederationResponse:
                                                    endpoint_service=endpoint_service):
             try:
                 response = future_response.result()
-                self.announce_fed_in(resp.url, resp.status_code)
+                self.announce_fed_in(response.url, response.status_code)
 
             except AttributeError:
                 if isinstance(future_response, requests.exceptions.ConnectionError):
@@ -314,7 +314,7 @@ class FederationResponse:
 
         for url in url_list:
             try:
-                self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
+                self.announce_fed_out(request, url, endpoint_path)
                 responses.append(async_session.post(url,
                                                     json=args, headers=header, timeout=self.timeout))
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
