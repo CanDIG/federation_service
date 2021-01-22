@@ -35,7 +35,7 @@ def main(args=None):
     parser.add_argument('--peers', default="./configs/peers.json")
     parser.add_argument('--schemas', default="./configs/schemas.json")
 
-
+    print(sys.argv)
 
     # known args used to supply command line args to pytest without raising an error here
     args, _ = parser.parse_known_args()

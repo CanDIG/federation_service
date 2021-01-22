@@ -21,6 +21,9 @@ class MockResponse:
     def headers(self):
         return self.headers
 
+    def url(self):
+        return "DummyURL"
+
 
 # Internal Response needs a result() function since it's supposed to be a Future response
 
@@ -41,6 +44,9 @@ class MockResponseInternal:
     def result(self):
         return MockResponseInternal(self.json_data, self.status_code)
 
+    def url(self):
+        return "DummyURL"
+
 
 class testHeader():
     def __init__(self, headers):
@@ -51,13 +57,13 @@ class testHeader():
 
 
 TWO = {
-    "p1": "http://10.9.208.132:6000",
-    "p2": "http://10.9.208.132:8000"
+    "p1": "http://10.9.208.132:6000/federation",
+    "p2": "http://10.9.208.132:8000/federation"
 }
 THREE = {
-    "p1": "http://10.9.208.132:6000",
-    "p2": "http://10.9.208.132:8000",
-    "p3": "http://10.9.208.132:9000"
+    "p1": "http://10.9.208.132:6000/federation",
+    "p2": "http://10.9.208.132:8000/federation",
+    "p3": "http://10.9.208.132:9000/federation"
 }
 
 
@@ -90,9 +96,9 @@ TP = {
     "PORT2": "8892",
     "Headers": exampleHeaders,
     "Federate": fedHeader,
-    "Tyk1": "10.9.208.132:6000",
-    "Tyk2": "10.9.208.132:8000",
-    "Tyk3": "10.9.208.132:9000",
+    "Tyk1": "10.9.208.132:6000/federation",
+    "Tyk2": "10.9.208.132:8000/federation",
+    "Tyk3": "10.9.208.132:9000/federation",
     "path": "rnaget/projects",
     "service": "TestService",
 

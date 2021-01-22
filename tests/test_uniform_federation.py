@@ -4,6 +4,8 @@ from werkzeug.datastructures import Headers
 import sys
 import os
 import json
+import argparse
+
 from functools import reduce
 
 import pytest
@@ -12,6 +14,13 @@ from requests import exceptions
 sys.path.append("{}/{}".format(os.getcwd(), "candig_federation"))
 
 sys.path.append(os.getcwd())
+
+sys.argv.extend(["--peers", "./test_data/peers.json"])
+sys.argv.extend(["--schemas", "./test_data/schemas.json"])
+sys.argv.extend(["--services", "./test_data/services_bad.json"])
+sys.argv.extend(["--logfile", "../log/federation.log"])
+
+print("IN TEST")
 
 from candig_federation.__main__ import APP
 from candig_federation.api.federation import FederationResponse
@@ -25,6 +34,10 @@ APP.app.config["services"] = {
     "TestService": "http://10.9.208.132:9999"
 }
 APP.app.config["local"] = "http://10.9.208.132:6000"
+APP.app.config["peers"] = {
+    "p1": "http://10.9.208.132:8890",
+    "p2": "http://10.9.208.132:8891"
+  }
 
 
 @pytest.fixture()
@@ -70,22 +83,22 @@ def mocked_service_post(*args, **kwargs):
 # The returns from async requests need to be futures, so a second class is used to represent that
 
 def mocked_async_requests_get(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
+    if args[0] == 'http://{}/search'.format(TP["Tyk1"]):
         return AP["i1"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk2"]):
         return AP["i2"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk3"]):
         return AP["i3"]
 
     return AP["fail"]
 
 
 def mocked_async_requests_post(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
+    if args[0] == 'http://{}/search'.format(TP["Tyk1"]):
         return PR["iPLV1"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk2"]):
         return PR["iPLV2"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk3"]):
         return PR["iPLV3"]
 
     return AP["fail"]
@@ -93,22 +106,22 @@ def mocked_async_requests_post(*args, **kwargs):
 # Mocked async requests that simulate "peer" node failing (Timeout)
 
 def mocked_async_p1_timeout_requests_get(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
+    if args[0] == 'http://{}/search'.format(TP["Tyk1"]):
         return AP["i1"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk2"]):
         return AP["timeout"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk3"]):
         return AP["i3"]
 
     return AP["fail"]
 
 
 def mocked_async_p1_timeout_requests_post(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
+    if args[0] == 'http://{}/search'.format(TP["Tyk1"]):
         return PR["iPLV1"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk2"]):
         return AP["timeout"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk3"]):
         return PR["iPLV3"]
 
     return AP["fail"]
@@ -117,22 +130,22 @@ def mocked_async_p1_timeout_requests_post(*args, **kwargs):
 # Mocked async requests that simulate "local" node failing (Timeout)
 
 def mocked_async_local_timeout_requests_get(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
+    if args[0] == 'http://{}/search'.format(TP["Tyk1"]):
         return AP["timeout"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk2"]):
         return AP["i2"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk3"]):
         return AP["i3"]
 
     return AP["fail"]
 
 
 def mocked_async_local_timeout_requests_post(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
+    if args[0] == 'http://{}/search'.format(TP["Tyk1"]):
         return AP["timeout"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk2"]):
         return PR["iPLV2"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk3"]):
         return PR["iPLV3"]
 
     return AP["fail"]
@@ -141,22 +154,22 @@ def mocked_async_local_timeout_requests_post(*args, **kwargs):
 # Mocked async requests that simulate "peer" node failing (Connection Error)
 
 def mocked_async_p1_ConnErr_requests_get(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
+    if args[0] == 'http://{}/search'.format(TP["Tyk1"]):
         return AP["i1"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk2"]):
         return AP["fail"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk3"]):
         return AP["i3"]
 
     return AP["fail"]
 
 
 def mocked_async_p1_ConnErr_requests_post(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
+    if args[0] == 'http://{}/search'.format(TP["Tyk1"]):
         return PR["iPLV1"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk2"]):
         return AP["fail"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk3"]):
         return PR["iPLV3"]
 
     return AP["fail"]
@@ -165,22 +178,22 @@ def mocked_async_p1_ConnErr_requests_post(*args, **kwargs):
 # Mocked async requests that simulate "local" node failing (Connection Error)
 
 def mocked_async_local_ConnErr_requests_get(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
+    if args[0] == 'http://{}/search'.format(TP["Tyk1"]):
         return AP["fail"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk2"]):
         return AP["i2"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk3"]):
         return AP["i3"]
 
     return AP["fail"]
 
 
 def mocked_async_local_ConnErr_requests_post(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
+    if args[0] == 'http://{}/search'.format(TP["Tyk1"]):
         return AP["fail"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk2"]):
         return PR["iPLV2"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk3"]):
         return PR["iPLV3"]
 
     return AP["fail"]
@@ -188,22 +201,22 @@ def mocked_async_local_ConnErr_requests_post(*args, **kwargs):
 # Mocked async requests that simulate "local" node failing (Connection Error) and one peer TimeOut
 
 def mocked_async_local_ConnErr_p1_Timeout_requests_get(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
+    if args[0] == 'http://{}/search'.format(TP["Tyk1"]):
         return AP["fail"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk2"]):
         return AP["timeout"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk3"]):
         return AP["i3"]
 
     return AP["fail"]
 
 
 def mocked_async_local_ConnErr_p1_Timeout_requests_post(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
+    if args[0] == 'http://{}/search'.format(TP["Tyk1"]):
         return AP["fail"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk2"]):
         return AP["timeout"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk3"]):
         return PR["iPLV3"]
 
     return AP["fail"]
@@ -211,22 +224,22 @@ def mocked_async_local_ConnErr_p1_Timeout_requests_post(*args, **kwargs):
 # Mocked async requests that simulate "local" node failing (TimeOut) and one peer TimeOut
 
 def mocked_async_local_TimeOut_p1_Timeout_requests_get(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
+    if args[0] == 'http://{}/search'.format(TP["Tyk1"]):
         return AP["timeout"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk2"]):
         return AP["timeout"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk3"]):
         return AP["i3"]
 
     return AP["fail"]
 
 
 def mocked_async_local_TimeOUt_p1_Timeout_requests_post(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
+    if args[0] == 'http://{}/search'.format(TP["Tyk1"]):
         return AP["timeout"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk2"]):
         return AP["timeout"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
+    elif args[0] == 'http://{}/search'.format(TP["Tyk3"]):
         return PR["iPLV3"]
 
     return AP["fail"]
@@ -306,8 +319,8 @@ def test_valid_asyncRequests_two_peers_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
         FR = get_federation_response("POST", "Federate")
-        resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
-                                           "http://{}".format(TP["Tyk2"])],
+        resp = FR.async_requests(url_list=["http://{}/search".format(TP["Tyk1"]),
+                                           "http://{}/search".format(TP["Tyk2"])],
                                  request='GET',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
@@ -325,8 +338,8 @@ def test_valid_asyncRequests_two_peers_post(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
         FR = get_federation_response("POST")
-        resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
-                                           "http://{}".format(TP["Tyk2"])],
+        resp = FR.async_requests(url_list=["http://{}/search".format(TP["Tyk1"]),
+                                           "http://{}/search".format(TP["Tyk2"])],
                                  request='POST',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
@@ -344,8 +357,8 @@ def test_invalid_asyncRequests_two_peers_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
         FR = get_federation_response("POST")
-        resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
-                                           "http://{}".format(TP["Tyk2"])],
+        resp = FR.async_requests(url_list=["http://{}/search".format(TP["Tyk1"]),
+                                           "http://{}/search".format(TP["Tyk2"])],
                                  request='GET',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
@@ -365,8 +378,8 @@ def test_invalid_asyncRequests_two_peers_post(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
         FR = get_federation_response("POST")
-        resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
-                                           "http://{}".format(TP["Tyk2"])],
+        resp = FR.async_requests(url_list=["http://{}/search".format(TP["Tyk1"]),
+                                           "http://{}/search".format(TP["Tyk2"])],
                                  request='POST',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
@@ -384,8 +397,8 @@ def test_timeout_asyncRequests_two_peers_post(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
         FR = get_federation_response("POST")
-        resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
-                                           "http://{}".format(TP["Tyk2"])],
+        resp = FR.async_requests(url_list=["http://{}/search".format(TP["Tyk1"]),
+                                           "http://{}/search".format(TP["Tyk2"])],
                                  request='POST',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
@@ -403,8 +416,8 @@ def test_timeout_asyncRequests_two_peers_get(mock_requests, client):
     APP.app.config["peers"] = TWO
     with client:
         FR = get_federation_response("GET")
-        resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
-                                           "http://{}".format(TP["Tyk2"])],
+        resp = FR.async_requests(url_list=["http://{}/search".format(TP["Tyk1"]),
+                                           "http://{}/search".format(TP["Tyk2"])],
                                  request='GET',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
@@ -890,4 +903,3 @@ def test_invalid_backslash_endpoint_start(mock_requests, mock_session, client):
         ):
             RO = operations.post_search()[0]
             assert RO["status"] == 400
-

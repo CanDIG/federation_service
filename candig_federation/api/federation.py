@@ -132,16 +132,15 @@ class FederationResponse:
 
         except requests.exceptions.ConnectionError:
             self.status.append(404)
-            self.logger.warn("404 Encountered for {}".format(resp.url))
+            self.logger.warn("404 Encountered for {}".format(url))
             return
         except requests.exceptions.Timeout:
             self.status.append(504)
-            self.logger.warn("504 Encountered for {}".format(resp.url))
+            self.logger.warn("504 Encountered for {}".format(url))
             return
         except AttributeError as e:
             self.status.append(500)
-            self.logger.warn("500 Encountered for {}".format(resp.url))
-            print(e)
+            self.logger.warn("500 Encountered for {}".format(url))
             return
 
     def federate_check(self):
@@ -185,15 +184,15 @@ class FederationResponse:
 
         except requests.exceptions.ConnectionError:
             self.status.append(404)
-            self.logger.warn("404 Encountered for {}".format(resp.url))
+            self.logger.warn("404 Encountered for {}".format(url))
             return
         except requests.exceptions.Timeout:
             self.status.append(504)
-            self.logger.warn("504 Encountered for {}".format(resp.url))
+            self.logger.warn("504 Encountered for {}".format(url))
             return
         except AttributeError as e:
             self.status.append(500)
-            self.logger.warn("500 Encountered for {}".format(resp.url))
+            self.logger.warn("500 Encountered for {}".format(url))
             print(e)
             return
 
@@ -224,7 +223,7 @@ class FederationResponse:
 
         for peer in APP.config["peers"].values():
             uri_list.append("{}/search".format(peer))
-
+        
         for future_response in self.async_requests(url_list=uri_list,
                                                    request=request,
                                                    header=header,

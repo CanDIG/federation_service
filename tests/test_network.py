@@ -16,11 +16,11 @@ sys.path.append(os.getcwd())
 from candig_federation.api import network
 from jsonschema.exceptions import ValidationError
 
-VALID_PEERS = "./tests/test_data/peers.json"
-INVALID_PEER_VAL = "./tests/test_data/peers_bad_value.json"
-INVALID_PEER_KEY = "./tests/test_data/peers_bad_initkey.json"
+VALID_PEERS = "./test_data/peers.json"
+INVALID_PEER_VAL = "./test_data/peers_bad_value.json"
+INVALID_PEER_KEY = "./test_data/peers_bad_initkey.json"
 
-VALID_SCHEMA = "./tests/test_data/schemas.json"
+VALID_SCHEMA = "./test_data/schemas.json"
 INVALID_SCHEMA = "notschemas"
 
 
