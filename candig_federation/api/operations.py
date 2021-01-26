@@ -11,6 +11,9 @@ from candig_federation.api.federation import FederationResponse
 
 APP = flask.current_app
 
+@APP.route("/")
+def index():
+    return flask.redirect('/federation/search')
   
 @apilog
 def post_search():
