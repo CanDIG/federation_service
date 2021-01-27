@@ -9,30 +9,32 @@ info:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 paths:
+  /:
+    post:
+      description: >
+        Redirects request to /search
+      operationId: candig_federation.api.operations.redirect_post_search
+      responses:
+        '302':
+          description: Redirect
+    get:
+      description: >
+        Redirects request to /search
+      operationId: candig_federation.api.operations.redirect_get_search
+      responses:
+        '302':
+          description: Redirect
+
   /search:
-    # get:
-    #   summary: send query to a microservice
-    #   description: >
-    #     Entry point for Tyk to pass GET requests to CanDIG microservices.
-    #     Federation broadcasting defined by 'federation' header.
-    #   operationId: candig_federation.api.operations.get_search
-    #   parameters:
-    #     - $ref: '#/components/parameters/endpoint_path'
-    #     - $ref: '#/components/parameters/endpoint_payload'
-    #     - $ref: '#/components/parameters/Federation'
-    #   responses:
-    #     '200':
-    #       description: Successful query
-    #     '400':
-    #       description: Bad input parameter
-    #     '403':
-    #       description: Authorization Error
-    #     '404':
-    #       description: Expression not found
-    #     '500':
-    #       description: Internal Error
-    #     '508':
-    #       description: Federation node time out
+    get:
+      summary: GET does not function for SEARCH
+      description: >
+        Returns a warning message to reformat request to use POST
+      operationId: candig_federation.api.operations.get_search
+      responses:
+        '400':
+          description: Invalid Endpoint
+
 
     post:
       summary: Send a request to the CanDIG network

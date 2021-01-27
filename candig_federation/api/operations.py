@@ -11,9 +11,6 @@ from candig_federation.api.federation import FederationResponse
 
 APP = flask.current_app
 
-@APP.route("/")
-def index():
-    return flask.redirect('/federation/search')
   
 @apilog
 def post_search():
@@ -79,3 +76,43 @@ def post_search():
            "service": "ErrorHandling"
            }, 404
 
+@apilog
+def get_search():
+    """
+    Federation is configured to only forward POST requests. Attempts to use
+    GET will be returned with a 400 and a reminder to use POST.
+    
+    :return: response_object
+    response_object: json string
+    {
+    "status": Status,
+    "results": Response,
+    "service": ServiceName
+    }
+    Status - Aggregate HTTP response code
+    Response - Help Message
+    ServiceName - Name of service
+    """
+
+    return {
+        "results": ("GET is not a valid request type for the /search endpoint. Please use POST."
+        "See more information at https://candig-federation.readthedocs.io/en/latest/"),
+        "status": 400,
+        "service": "Federation" 
+    }, 400
+
+@apilog
+def redirect_post_search():
+    """
+    Redirect to post_search
+    """
+
+    return post_search()
+
+@apilog
+def redirect_get_search():
+    """
+    Redirect to get_search
+    """
+
+    return get_search()
