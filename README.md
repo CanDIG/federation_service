@@ -1,5 +1,5 @@
 # federation_service
-Microservice implementation of federation code from CanDIG v1 for CanDIG v2
+Microservice implementation of Federation Service for CanDIG v2
 
 Based on CanDIG demo projects: [OpenAPI variant service demo](https://github.com/ljdursi/openapi_calls_example), [Python Model Service](https://github.com/CanDIG/python_model_service).
 
@@ -21,28 +21,52 @@ pip install -r requirements.txt
 
 ## Configuration Files
 
-The federation_service requires two JSON configuration files to be
-placed into the `federation_service/configs` directory. These files are
-a peers.json and a services.json file following the peers_ex.json 
-and services_ex.json examples provided in the configs folder
+The Federation Service requires two JSON configuration files to be placed into the `federation_service/configs` directory. 
+These files are `peers.json` and `services.json`.
 
-#### Peers
+#### How to register services
 
-Peer nodes 
+Below is an example of `services.json`
+
+```
+{
+  "services": {
+    "katsu": "https://katsu-api-2.herokuapp.com",
+    "candig-server": "https://app05.herokuapp.com"
+  }
+}
+```
+
+#### How to register peers
+
+For federation to work, you will need to register both the `host` and its peers as `peers` under `config/peers.json`.
+
+This may be confusing, as you may think that your `host` does not need to be registered.
+
+For example, if your host federation service is running at `http://0.0.0.0:8890`, and your first 
+peer federation service is running at `http://0.0.0.0:8891`, your `peers.json` would look like this:
+
+```
+{
+  "peers": {
+    "p1": "http://ga4ghdev01.bcgsc.ca:8890/federation/search",
+    "p2": "http://ga4ghdev01.bcgsc.ca:8891/federation/search"
+  }
+}
+```
 
 ### Running
 
-The service can be started with:
+You should use `uwsgi` to run the app with the following command for all functionalities to work as expected.
 
 ```
-python -m candig_federation
+uwsgi federation.ini --http 0.0.0.0:8080
 ```
 
-If wanting to run multiple nodes on the same network, create different
-service configs and specify them at runtime:
+You may also start the server with the following command, but federation queries will not work. The command below is for usually for debugging purposes.
 
 ```
-python -m candig_federation --host 0.0.0.0 --port 4232 --services ./configs/service_name.json
+python -m candig_federation --host 0.0.0.0 --port 8080 --services ./configs/services.json --peers configs/peers.json
 ```
 
 Once the service is running, a Swagger UI can be accessed at : `/federation/ui`
