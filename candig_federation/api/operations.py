@@ -11,6 +11,32 @@ from candig_federation.api.federation import FederationResponse
 
 APP = flask.current_app
 
+
+@apilog
+def get_registered_peers():
+    """
+    Get a list of registered services.
+    [{"name": "peer_name", "url": "http://peer_url"}]
+    """
+    peers = []
+
+    for name, url in APP.config["peers"].items():
+        peers.append({"name": name, "url": url})
+
+    return peers
+
+@apilog
+def get_registered_services():
+    """
+    Get a list of registered services.
+    [{"name": "service_name", "url": "http://service_url"}]
+    """
+    services = []
+
+    for name, url in APP.config["services"].items():
+        services.append({"name": name, "url": url})
+
+    return services
   
 @apilog
 def post_search():
