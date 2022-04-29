@@ -44,7 +44,7 @@ class FederationResponse:
         """Constructor method
         """
         self.result = {}
-        self.results = {}
+        self.results = []
         self.status = []
         self.request = request
         self.url = url
@@ -236,13 +236,15 @@ class FederationResponse:
                                                    endpoint_path=endpoint_path,
                                                    endpoint_service=endpoint_service):
 
-            
+            peer_response_object = {}
+            peer_response_object['peer'] = future_response["peer"]
+
             try:
                 self.status.append(200)
                 response = future_response["data"].result()
-                self.results[future_response['peer']] = {}
-                self.results[future_response['peer']]['status'] = response.status_code
-                self.results[future_response['peer']]['response'] = response.json()['response']
+                peer_response_object['response'] = response.json()['response']
+                peer_response_object['status'] = response.status_code
+                self.results.append(peer_response_object)
             except AttributeError:
                 if isinstance(future_response["data"], requests.exceptions.ConnectionError):
                     self.status.append(404)
@@ -251,16 +253,16 @@ class FederationResponse:
                 continue
             except requests.exceptions.ConnectionError:
                 self.status.append(404)
-                self.results[future_response['peer']] = {}
-                self.results[future_response['peer']]['status'] = 404
-                self.results[future_response['peer']]['response'] = 'Connection Error. Peer server may be down.'
+                peer_response_object['status'] = 404
+                peer_response_object['response'] = 'Connection Error. Peer server may be down.'
+                self.results.append(peer_response_object)
                 continue
 
             except requests.exceptions.Timeout:
                 self.status.append(504)
-                self.results[future_response['peer']] = {}
-                self.results[future_response['peer']]['status'] = 404
-                self.results[future_response['peer']]['response'] = 'Peer server timed out, it may be down.'
+                peer_response_object['status'] = 404
+                peer_response_object['response'] = 'Peer server timed out, it may be down.'
+                self.results.append(peer_response_object)
                 continue
 
         # Return is used for testing individual methods
