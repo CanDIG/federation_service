@@ -170,8 +170,6 @@ class FederationResponse:
         :param endpoint_payload: Query parameters needed by endpoint specified in endpoint_path
         :type endpoint_payload: object, JSON struct dependent on service endpoint for POST
         """
-        peer = self.get_peer_from_url(url)
-        self.results[peer] = {}
 
         try:
             request_handle = requests.Session()
