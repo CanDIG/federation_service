@@ -10,7 +10,7 @@ pytest-cov==2.7.1
 requests==2.22.0
 requests-futures==1.0.0
 swagger-ui-bundle==0.0.5
-uwsgi==2.0.18
+uwsgi==2.0.20
 Sphinx==2.3.1
 sphinx-rtd-theme==0.4.3
 prometheus-flask-exporter==0.13.0 
