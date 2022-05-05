@@ -20,7 +20,7 @@ def main(args=None):
     """
     Main Routine
 
-    Parse all the args and set up peer and service dictionaries
+    Parse all the args and set up server and service dictionaries
     """
     if args is None:
         args = sys.argv[1:]
@@ -32,7 +32,7 @@ def main(args=None):
     parser.add_argument('--loglevel', default='INFO',
                         choices=['DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'])
     parser.add_argument('--services', default="./configs/services.json")
-    parser.add_argument('--peers', default="./configs/peers.json")
+    parser.add_argument('--servers', default="./configs/servers.json")
     parser.add_argument('--schemas', default="./configs/schemas.json")
 
 
@@ -49,9 +49,9 @@ def main(args=None):
     APP.app.logger.addHandler(log_handler)
     APP.app.logger.setLevel(numeric_loglevel)
 
-    # Peer Setup
+    # Peer Servers Setup
 
-    APP.app.config["peers"] = network.parse_configs("peers", args.peers,
+    APP.app.config["servers"] = network.parse_configs("servers", args.servers,
                                                     args.schemas, APP.app.logger)
 
     # Self and Local don't actually need to be mapped anymore with the new broadcast logic

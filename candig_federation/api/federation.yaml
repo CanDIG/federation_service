@@ -9,10 +9,10 @@ info:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 paths:
-  /peers:
+  /servers:
     get:
       description: get a list of services registered on the node.
-      operationId: candig_federation.api.operations.get_registered_peers
+      operationId: candig_federation.api.operations.get_registered_servers
       responses:
         '200':
           description: Successful query

@@ -22,7 +22,7 @@ pip install -r requirements.txt
 ## Configuration Files
 
 The Federation Service requires two JSON configuration files to be placed into the `federation_service/configs` directory. 
-These files are `peers.json` and `services.json`.
+These files are `servers.json` and `services.json`.
 
 #### How to register services
 
@@ -37,18 +37,18 @@ Below is an example of `services.json`
 }
 ```
 
-#### How to register peers
+#### How to register peer servers
 
-For federation to work, you will need to register both the `host` and its peers as `peers` under `config/peers.json`.
+For federation to work, you will need to register both the `host` and its peer servers as `servers` under `config/servers.json`.
 
 This may be confusing, as you may think that your `host` does not need to be registered.
 
 For example, if your host federation service is running at `http://0.0.0.0:8890`, and your first 
-peer federation service is running at `http://0.0.0.0:8891`, your `peers.json` would look like this:
+peer server federation service is running at `http://0.0.0.0:8891`, your `servers.json` would look like this:
 
 ```
 {
-  "peers": {
+  "servers": {
     "p1": "http://ga4ghdev01.bcgsc.ca:8890/federation/search",
     "p2": "http://ga4ghdev01.bcgsc.ca:8891/federation/search"
   }
@@ -66,7 +66,7 @@ uwsgi federation.ini --http 0.0.0.0:8080
 You may also start the server with the following command, but federation queries will not work. The command below is for usually for debugging purposes.
 
 ```
-python -m candig_federation --host 0.0.0.0 --port 8080 --services ./configs/services.json --peers configs/peers.json
+python -m candig_federation --host 0.0.0.0 --port 8080 --services ./configs/services.json --servers configs/servers.json
 ```
 
 Once the service is running, a Swagger UI can be accessed at : `/federation/ui`

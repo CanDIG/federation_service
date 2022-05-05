@@ -29,7 +29,7 @@ def parse_configs(schema_type, file_path, schema_path, logger=None):
         if logger:
             logger.warning("Couldn't load the "
                            "{} pairings. Try adding a "
-                           "file named 'peers.json' "
+                           "file named 'servers.json' "
                            "to {}/configs".
                            format(schema_type, os.getcwd()))
             exit()

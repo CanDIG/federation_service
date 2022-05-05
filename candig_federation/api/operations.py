@@ -13,17 +13,17 @@ APP = flask.current_app
 
 
 @apilog
-def get_registered_peers():
+def get_registered_servers():
     """
     Get a list of registered services.
-    [{"name": "peer_name", "url": "http://peer_url"}]
+    [{"name": "server_name", "url": "http://server_url"}]
     """
-    peers = []
+    servers = []
 
-    for name, url in APP.config["peers"].items():
-        peers.append({"name": name, "url": url})
+    for name, url in APP.config["servers"].items():
+        servers.append({"name": name, "url": url})
 
-    return peers
+    return servers
 
 @apilog
 def get_registered_services():

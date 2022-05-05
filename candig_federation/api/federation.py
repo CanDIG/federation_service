@@ -148,17 +148,17 @@ class FederationResponse:
         else:
             return True
 
-    def get_peer_from_url(self, peer_url):
+    def get_server_from_url(self, server_url):
         """
-        Returns the peer name from the peer_url
+        Returns the server name from the server_url
 
-        :param peer_url: URL of service
-        :type peer_url: str
+        :param server_url: URL of service
+        :type server_url: str
         :return: str
         """
-        for peer, url in APP.config["peers"].items():
-            if url == peer_url:
-                return peer
+        for server, url in APP.config["servers"].items():
+            if url == server_url:
+                return server
 
     def post_service(self, url, endpoint_path, endpoint_payload):
         """
@@ -170,8 +170,8 @@ class FederationResponse:
         :param endpoint_payload: Query parameters needed by endpoint specified in endpoint_path
         :type endpoint_payload: object, JSON struct dependent on service endpoint for POST
         """
-        peer = self.get_peer_from_url(url)
-        self.results[peer] = {}
+        server = self.get_server_from_url(url)
+        self.results[server] = {}
 
         try:
             request_handle = requests.Session()
@@ -199,11 +199,11 @@ class FederationResponse:
             self.result['status'] = 500
             return
 
-    def handle_peer_request(self, request, endpoint_path, endpoint_payload, endpoint_service, header):
+    def handle_server_request(self, request, endpoint_path, endpoint_payload, endpoint_service, header):
         """
         Make peer data requests and update the results and status for a FederationResponse
 
-        If a response from a peer is received, it will be a Response Object with key pairs
+        If a response from a peer server is received, it will be a Response Object with key pairs
             {"results":{"p1": {"status": 200, "response": [1, 2, 3]}}}, "service": "name" }
 
         Clients should be aware that the response from each peer server is returned as is, 
@@ -226,8 +226,8 @@ class FederationResponse:
 
         uri_list = []
 
-        for peer in APP.config["peers"].values():
-            uri_list.append("{}".format(peer))
+        for server in APP.config["servers"].values():
+            uri_list.append("{}".format(server))
 
         for future_response in self.async_requests(url_list=uri_list,
                                                    request=request,
@@ -240,9 +240,9 @@ class FederationResponse:
             try:
                 self.status.append(200)
                 response = future_response["data"].result()
-                self.results[future_response['peer']] = {}
-                self.results[future_response['peer']]['status'] = response.status_code
-                self.results[future_response['peer']]['response'] = response.json()['response']
+                self.results[future_response['server']] = {}
+                self.results[future_response['server']]['status'] = response.status_code
+                self.results[future_response['server']]['response'] = response.json()['response']
             except AttributeError:
                 if isinstance(future_response["data"], requests.exceptions.ConnectionError):
                     self.status.append(404)
@@ -251,16 +251,16 @@ class FederationResponse:
                 continue
             except requests.exceptions.ConnectionError:
                 self.status.append(404)
-                self.results[future_response['peer']] = {}
-                self.results[future_response['peer']]['status'] = 404
-                self.results[future_response['peer']]['response'] = 'Connection Error. Peer server may be down.'
+                self.results[future_response['server']] = {}
+                self.results[future_response['server']]['status'] = 404
+                self.results[future_response['server']]['response'] = 'Connection Error. Peer server may be down.'
                 continue
 
             except requests.exceptions.Timeout:
                 self.status.append(504)
-                self.results[future_response['peer']] = {}
-                self.results[future_response['peer']]['status'] = 404
-                self.results[future_response['peer']]['response'] = 'Peer server timed out, it may be down.'
+                self.results[future_response['server']] = {}
+                self.results[future_response['server']]['status'] = 404
+                self.results[future_response['server']]['response'] = 'Peer server timed out, it may be down.'
                 continue
 
         # Return is used for testing individual methods
@@ -268,7 +268,7 @@ class FederationResponse:
 
     def async_requests(self, url_list, request, endpoint_path, endpoint_payload, endpoint_service, header):
         """Send requests to each CanDIG node in the network asynchronously using FutureSession. The
-        futures are returned back to and handled by handle_peer_requests()
+        futures are returned back to and handled by handle_server_requests()
 
 
         :param url_list: List of
@@ -291,14 +291,14 @@ class FederationResponse:
 
         for url in url_list:
             future_resp = {}
-            peer = self.get_peer_from_url(url)
+            server = self.get_server_from_url(url)
             try:
-                future_resp["peer"] = peer
+                future_resp["server"] = server
                 future_resp["data"] = async_session.post(url,
                                                     json=args, headers=header, timeout=self.timeout)
                 future_responses.append(future_resp)
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
-                future_resp["peer"] = peer
+                future_resp["server"] = server
                 future_resp["data"] = e
                 future_responses.append(future_resp)
 
@@ -357,7 +357,7 @@ class FederationResponse:
 
             if self.federate_check():
 
-                self.handle_peer_request(request="GET",
+                self.handle_server_request(request="GET",
                                          endpoint_path=self.endpoint_path,
                                          endpoint_payload=self.endpoint_payload,
                                          endpoint_service=self.endpoint_service,
@@ -370,7 +370,7 @@ class FederationResponse:
         else:
 
             if self.federate_check():
-                self.handle_peer_request(request="POST",
+                self.handle_server_request(request="POST",
                                          endpoint_path=self.endpoint_path,
                                          endpoint_payload=self.endpoint_payload,
                                          endpoint_service=self.endpoint_service,
