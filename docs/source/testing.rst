@@ -3,7 +3,7 @@ Testing the Federation Service
 
 
 The Pytest library is used for automated testing of the Federation service and is divided into two test files.
-The ``test_network.py`` set of tests are configuration related and check config validation regarding peers
+The ``test_network.py`` set of tests are configuration related and check config validation regarding peer servers
 and service json files. The bulk of the testing is done in ``test_uniform_federation.py``, which tests most
 functions in both ``federation.py`` and ``operations.py``. Due to the nature of this service, being an aggregator
 and communication tool between other services, many methods need to be mocked to simulate outgoing or incoming

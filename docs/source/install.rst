@@ -16,7 +16,7 @@ Configuration
 There are three sections which need to be configured to properly set up the Federation service.
 
 1. The ``__main__.py`` file in ``federation_service/candig_federation``
-2. The ``peers.json`` and ``services.json`` files in ``federation_service/configs``
+2. The ``servers.json`` and ``services.json`` files in ``federation_service/configs``
 3. The ``federation.ini`` configuration file for uWSGI
 
 
@@ -33,7 +33,7 @@ This file acts as the driver for the Federation service as well as contains a nu
     parser.add_argument('--loglevel', default='INFO',
                         choices=['DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'])
     parser.add_argument('--services', default="./configs/services.json")
-    parser.add_argument('--peers', default="./configs/peers.json")
+    parser.add_argument('--servers', default="./configs/servers.json")
     parser.add_argument('--schemas', default="./configs/schemas.json")
 
 Any of these keyword arguments may be altered when running the service through the command line. Additional arguments
@@ -47,7 +47,7 @@ Argument        Explanation
 ``--logfile``   specifies the file which messages are logged to.
 ``--loglevel``  controls the verbosity of the logs.
 ``--services``  specifies a configuration file that tells Federation which services it should know about.
-``--peers``     specifies a configuration file that tells Federation which peers it should know about.
+``--servers``     specifies a configuration file that tells Federation which peer servers it should know about.
 ============== ============
 
 
@@ -61,13 +61,13 @@ of both files are required in order to start the Federation service.
 .. code-block:: json
 
   {
-    "peers": {
-        "p1": "http://peer1.com",
-        "p2": "http://peer2.com"
+    "servers": {
+        "p1": "http://server1.com",
+        "p2": "http://server2.com"
     }
   }
 
-Currently, each peer listed in a ``peers`` configuration file should correspond with the Tyk API Gateway for each CanDIG node,
+Currently, each peer server is listed in a ``servers`` configuration file should correspond with the Tyk API Gateway for each CanDIG node,
 including the one running in the node this Federation service is running in.
 
 

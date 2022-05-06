@@ -1,6 +1,6 @@
 """
 MockResponse: Functions like a regular Response from Requests
-MockResponseInternal: Responses which are accessed in within handle_peer_requests
+MockResponseInternal: Responses which are accessed in within handle_server_requests
     have already been modified by the time they are received.
 """
 

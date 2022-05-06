@@ -9,7 +9,7 @@ import jsonschema
 
 def parse_configs(schema_type, file_path, schema_path, logger=None):
     """
-    Attempts to get a dict of peers/services from a json file specified in configuration.
+    Attempts to get a dict of peer servers/services from a json file specified in configuration.
     This file should have a json structure matching the schema specified.
 
     """
