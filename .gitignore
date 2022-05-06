@@ -6,6 +6,7 @@ reqtest.py
 datasets_structs.py
 log/*
 configs/services.json
-configs/peers.json
+configs/servers.json
 docs/build
-
+venv/
+report.html
