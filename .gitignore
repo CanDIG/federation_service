@@ -2,7 +2,7 @@
 .coverage
 reqtest.py
 *.log
-*.json
+settings.json
 datasets_structs.py
 log/*
 configs/services.json
