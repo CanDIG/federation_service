@@ -8,5 +8,6 @@ log/*
 configs/services.json
 configs/servers.json
 docs/build
+.venv/
 venv/
-report.html
+test_report.html
