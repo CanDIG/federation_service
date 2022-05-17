@@ -77,3 +77,6 @@ Once the service is running, a Swagger UI can be accessed at : `/federation/ui`
 Tests can be run with pytest and coverage:
 
 ```pytest --cov=candig_federation tests/```
+
+To generate a readable html report of the test results, use:
+```pytest --cov=candig_federation tests/ --html=tests_report.html --self-contained-html```
