@@ -40,12 +40,12 @@ class FederationResponse:
 
 
     def __init__(self, request, url, endpoint_path, endpoint_payload, request_dict, endpoint_service, return_mimetype='application/json',
-                 timeout=15):
+                 timeout=5):
         """Constructor method
         """
-        self.result = {}
-        self.results = {}
+        self.results = []
         self.status = []
+        self.message = []
         self.request = request
         self.url = url
         self.endpoint_path = endpoint_path
@@ -99,7 +99,6 @@ class FederationResponse:
             code, source
         )}))
 
-
     def get_service(self, url, endpoint_path, endpoint_payload):
         """
         Sends a GET request to service specified by url, adds response to self.status and self.results
@@ -118,23 +117,30 @@ class FederationResponse:
 
             resp = request_handle.get(full_path, headers=self.header, params=endpoint_payload, timeout=self.timeout)
             self.status.append(resp.status_code)
-            self.result['response'] = resp.json()
-            self.result['status'] = resp.status_code
+
+
+            if isinstance(resp.json(), list):
+                self.results.extend(resp.json())
+                # self.announce_fed_in(full_path, resp.status_code, resp.json())
+            else:
+                # Only take the 'data' portion of the Response
+
+                response = [{key: value for key, value in resp.json().items() if key.lower()
+                             not in ['headers', 'url']}]
+                # self.announce_fed_in(full_path, resp.status_code, response)
+                self.results.extend(response)
 
         except requests.exceptions.ConnectionError:
             self.status.append(404)
-            self.result['response'] = 'Connection Error. Peer server may be down.'
-            self.result['status'] = 404
+            self.message.append('Connection Error, peer server may be down.')
             return
         except requests.exceptions.Timeout:
             self.status.append(504)
-            self.result['response'] = 'Peer server timed out, it may be down.'
-            self.result['status'] = 504
+            self.message.append('Peer server timed out, it may be down.')
             return
         except AttributeError as e:
             self.status.append(500)
-            self.result['response'] = str(e)
-            self.result['status'] = 500
+            print(e)
             return
 
     def federate_check(self):
@@ -151,7 +157,6 @@ class FederationResponse:
     def get_server_from_url(self, server_url):
         """
         Returns the server name from the server_url
-
         :param server_url: URL of service
         :type server_url: str
         :return: str
@@ -170,9 +175,6 @@ class FederationResponse:
         :param endpoint_payload: Query parameters needed by endpoint specified in endpoint_path
         :type endpoint_payload: object, JSON struct dependent on service endpoint for POST
         """
-        server = self.get_server_from_url(url)
-        self.results[server] = {}
-
         try:
             request_handle = requests.Session()
             full_path = "{}/{}".format(url, endpoint_path)
@@ -180,36 +182,41 @@ class FederationResponse:
             resp = request_handle.post(full_path, headers=self.header, json=endpoint_payload)
             self.status.append(resp.status_code)
 
-            self.result['response'] = resp.json()
-            self.result['status'] = resp.status_code
+            if isinstance(resp.json(), list):
+                self.results.extend(resp.json())
+                # self.announce_fed_in(full_path, resp.status_code, resp.json())
+
+            else:
+                # Only take the 'data' portion of the Response
+                response = [{key: value for key, value in resp.json().items() if key.lower()
+                             not in ['headers', 'url', 'args', 'json']}]
+                # self.announce_fed_in(full_path, resp.status_code, resp.json())
+                self.results.extend(response)
 
         except requests.exceptions.ConnectionError:
             self.status.append(404)
-            self.result['response'] = 'Connection Error. Peer server may be down.'
-            self.result['status'] = 404
+            self.message.append('Connection Error. Peer server may be down.')
             return
+
         except requests.exceptions.Timeout:
             self.status.append(504)
-            self.result['response'] = 'Peer server timed out, it may be down.'
-            self.result['status'] = 504
+            self.message.append('Peer server timed out, it may be down.')
             return
+            
         except AttributeError as e:
             self.status.append(500)
-            self.result['response'] = str(e)
-            self.result['status'] = 500
+            print(e)
             return
 
     def handle_server_request(self, request, endpoint_path, endpoint_payload, endpoint_service, header):
         """
-        Make peer data requests and update the results and status for a FederationResponse
+        Make peer server data requests and update the results and status for a FederationResponse
 
         If a response from a peer server is received, it will be a Response Object with key pairs
-            {"results":{"p1": {"status": 200, "response": [1, 2, 3]}}}, "service": "name" }
+            {"status": [], "results":[], "service": "name" }
 
-        Clients should be aware that the response from each peer server is returned as is, 
-        meaning the data structure of the response is not known ahead of time.
-
-        Clients are also advised to check for status code before proceeding.
+        The data structures within results are still unknown/undefined at this time, so
+        just append everything instead of attempting to aggregate internal structs.
 
         :param request: The type of HTTP request to federate, either GET or POST. PUT TBD
         :type request: str
@@ -235,33 +242,55 @@ class FederationResponse:
                                                    endpoint_payload=endpoint_payload,
                                                    endpoint_path=endpoint_path,
                                                    endpoint_service=endpoint_service):
-
-            
             try:
-                self.status.append(200)
-                response = future_response["data"].result()
-                self.results[future_response['server']] = {}
-                self.results[future_response['server']]['status'] = response.status_code
-                self.results[future_response['server']]['response'] = response.json()['response']
+                response = future_response.result()
             except AttributeError:
-                if isinstance(future_response["data"], requests.exceptions.ConnectionError):
+                if isinstance(future_response, requests.exceptions.ConnectionError):
                     self.status.append(404)
-                if isinstance(future_response["data"], requests.exceptions.Timeout):
+                if isinstance(future_response, requests.exceptions.Timeout):
                     self.status.append(504)
+
                 continue
             except requests.exceptions.ConnectionError:
                 self.status.append(404)
-                self.results[future_response['server']] = {}
-                self.results[future_response['server']]['status'] = 404
-                self.results[future_response['server']]['response'] = 'Connection Error. Peer server may be down.'
+                self.message.append('Connection Error. Peer server may be down.')
                 continue
 
             except requests.exceptions.Timeout:
                 self.status.append(504)
-                self.results[future_response['server']] = {}
-                self.results[future_response['server']]['status'] = 404
-                self.results[future_response['server']]['response'] = 'Peer server timed out, it may be down.'
+                self.message.append('Peer server timed out, it may be down.')
+                
                 continue
+
+            # If the call was successful append the results
+            if response.status_code in [200, 201, 405]:
+                try:
+                    """
+                    Each Response will be in the form on a ResponseObject
+                        {"status": [], "results": [], "service": "name"}
+                    Gather the data within each "results" and append it to
+                    the main one.
+                    """
+
+                    self.results.extend(response.json()["results"])
+                    self.status.append(response.status_code)
+
+                except KeyError:
+                    # No "results"
+                    self.logger.warn(KeyError)
+                    self.status.append(500)
+                    self.results.append(
+                        {"Error": "Malformed Response Object: No 'results'"})
+                    pass
+
+                except ValueError:
+                    # JSON decoding failure
+                    self.logger.warn(ValueError)
+                    self.status.append(500)
+                    self.results.append(
+                        {"Error": "Malformed Response Object: No JSON data"})
+                    pass
+
 
         # Return is used for testing individual methods
         return self.results
@@ -287,22 +316,17 @@ class FederationResponse:
 
         args = {"request_type": request, "endpoint_path": endpoint_path, "endpoint_payload": endpoint_payload, "endpoint_service": endpoint_service}
         async_session = FuturesSession(max_workers=10)  # capping max threads
-        future_responses = []
+        responses = []
 
         for url in url_list:
-            future_resp = {}
-            server = self.get_server_from_url(url)
             try:
-                future_resp["server"] = server
-                future_resp["data"] = async_session.post(url,
-                                                    json=args, headers=header, timeout=self.timeout)
-                future_responses.append(future_resp)
+                # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
+                responses.append(async_session.post(url,
+                                                    json=args, headers=header, timeout=self.timeout))
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
-                future_resp["server"] = server
-                future_resp["data"] = e
-                future_responses.append(future_resp)
+                responses.append(e)
 
-        return future_responses
+        return responses
 
     def merge_status(self, statuses):
         """Returns a single status to represent the federated query.
@@ -381,10 +405,13 @@ class FederationResponse:
                                   endpoint_payload=self.endpoint_payload)
 
         status = self.merge_status(self.status)
+        try:
+            # Remove duplicates from a list response due to Federated querying
+            response = {"status": status, "results": sorted(list(set(self.results))), "service": self.endpoint_service}
 
-        if self.federate_check():
-            response = {"results": self.results, "service": self.endpoint_service}
-        else:
-            response = {"response": self.result["response"], "service": self.endpoint_service}
-   
+        except TypeError:
+            # Dealing with dicts objects
+            response = {"status": status, "results": self.results, "service": self.endpoint_service}
+        
         return response, status
+
