@@ -1,5 +1,5 @@
 {
-  "peers": {
+  "servers": {
     "p1": "http://ga4ghdev01.bcgsc.ca:8890/federation/search",
     "p2": "http://ga4ghdev01.bcgsc.ca:8891/federation/search"
   }

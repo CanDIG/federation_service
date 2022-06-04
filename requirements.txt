@@ -7,6 +7,7 @@ bravado-core==5.12.1
 pyyaml>=4.2b1
 pytest==5.0.1
 pytest-cov==2.7.1
+pytest-html==3.1.1
 requests==2.22.0
 requests-futures==1.0.0
 swagger-ui-bundle==0.0.5

@@ -9,6 +9,32 @@ info:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 paths:
+  /servers:
+    get:
+      description: get a list of services registered on the node.
+      operationId: candig_federation.api.operations.get_registered_servers
+      responses:
+        '200':
+          description: Successful query
+        '403':
+          description: Authorization Error
+        '404':
+          description: Services not found
+        '500':
+          description: Internal Error
+  /services:
+    get:
+      description: get a list of services registered on the node.
+      operationId: candig_federation.api.operations.get_registered_services
+      responses:
+        '200':
+          description: Successful query
+        '403':
+          description: Authorization Error
+        '404':
+          description: Services not found
+        '500':
+          description: Internal Error
   /search:
     # get:
     #   summary: send query to a microservice

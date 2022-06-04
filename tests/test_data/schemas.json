@@ -1,10 +1,10 @@
 {
-  "peers": {
-    "title": "Peer Schema",
-    "description": "Basic structure to read in known peers",
+  "servers": {
+    "title": "Peer Server Schema",
+    "description": "Basic structure to read in known servers",
     "type": "object",
     "properties": {
-        "peers": {
+        "servers": {
           "type": "object",
           "additionalProperties": {"type": "string"}
         }
