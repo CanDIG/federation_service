@@ -140,7 +140,7 @@ class FederationResponse:
             return
         except AttributeError as e:
             self.status.append(500)
-            print(e)
+            self.message.append(e)
             return
 
     def federate_check(self):
@@ -205,7 +205,7 @@ class FederationResponse:
             
         except AttributeError as e:
             self.status.append(500)
-            print(e)
+            self.message.append(e)
             return
 
     def handle_server_request(self, request, endpoint_path, endpoint_payload, endpoint_service, header):
