@@ -26,7 +26,10 @@ RUN apk add --no-cache \
   curl-dev \
   yaml-dev \
   libressl-dev \
+  pcre-dev \
   git
+
+RUN addgroup candig
 
 COPY . /app/federation_service
 WORKDIR /app/federation_service
