@@ -6,6 +6,7 @@ MockResponseInternal: Responses which are accessed in within handle_server_reque
 
 import json
 
+
 class MockResponse:
     def __init__(self, json_data, status_code, headers={}):
         self.json_data = json_data
@@ -30,11 +31,10 @@ class MockResponseInternal:
         self.status_code = status_code
         self.headers = {'X-Source': '2222'}
 
-
     def json(self):
         return {"results": self.json_data,
                 "status": self.status_code}
-    
+
     def headers(self):
         return self.headers
 
@@ -62,25 +62,24 @@ THREE = {
 
 
 exampleHeaders = testHeader({
-        "Content-Type": "application/json",
-        "Host": "ga4ghdev01.bcgsc.ca:8890",
-        "User-Agent": "python-requests/2.22.0",
-        "Accept": "application/json",
-        "Accept-Encoding": "gzip, deflate",
-        "Authorization": "Bearer eyJhbGciOiJSUzI1NiIsI",
-        "Federation": "false"
-    })
+    "Content-Type": "application/json",
+    "Host": "ga4ghdev01.bcgsc.ca:8890",
+    "User-Agent": "python-requests/2.22.0",
+    "Accept": "application/json",
+    "Accept-Encoding": "gzip, deflate",
+    "Authorization": "Bearer eyJhbGciOiJSUzI1NiIsI",
+    "Federation": "false"
+})
 
 fedHeader = testHeader({
-        "Content-Type": "application/json",
-        "Host": "ga4ghdev01.bcgsc.ca:8890",
-        "User-Agent": "python-requests/2.22.0",
-        "Accept": "application/json",
-        "Accept-Encoding": "gzip, deflate",
-        "Authorization": "Bearer eyJhbGciOiJSUzI1NiIsI",
-        "Federation": "true"
-    })
-
+    "Content-Type": "application/json",
+    "Host": "ga4ghdev01.bcgsc.ca:8890",
+    "User-Agent": "python-requests/2.22.0",
+    "Accept": "application/json",
+    "Accept-Encoding": "gzip, deflate",
+    "Authorization": "Bearer eyJhbGciOiJSUzI1NiIsI",
+    "Federation": "true"
+})
 
 
 TP = {
@@ -111,7 +110,6 @@ AP = {
     "v2": {"projects": {"key1": "value1"}},
     "v3": {"projects": {"keyA": "valueB"}},
 }
-
 
 
 PostListM1 = {
@@ -185,3 +183,57 @@ PR = {
     "iPLV3": MockResponseInternal([PostListV3], 200)
 }
 
+katsu = {
+    'results':
+    [
+        {
+            'count': 1,
+            'next': None,
+            'previous': None,
+            'results': [
+                {
+                    'contact_info': '',
+                    'created': '2022-04-11T14:26:51.047777Z',
+                    'data_use':
+                    {
+                        'consent_code':
+                        {
+                            'primary_category':
+                            {
+                                'code': 'HMB'
+                            },
+                            'secondary_categories':
+                            [
+                                {
+                                    'code': 'RU'
+                                }
+                            ]
+                        },
+                        'data_use_requirements': [
+                            {
+                                'code': 'COL'
+                            }
+                        ]
+                    },
+                    'description': '',
+                    'identifier': '65402684-8ee4-40a1-8e91-f85049633b9c',
+                    'linked_field_sets': [],
+                    'n_of_tables': 2,
+                    'project': '4e7b4e69-f2ea-4728-8ddc-915682a7f4b9',
+                    'table_ownership': [
+                        {
+                            'service_artifact': 'metadata',
+                            'service_id': 'ca.c3g.chord:metadata',
+                            'table_id': '799eddf3-07fc-4d24-aacb-06f1a6f16a29'
+                        },
+                        {
+                            'service_artifact': 'metadata',
+                            'service_id': 'ca.c3g.chord:metadata',
+                            'table_id': '1f547393-ccf7-4a16-ad11-835b843138de'
+                        }
+                    ],
+                    'title': 'mcode', 'updated': '2022-04-13T16:59:12.794724Z', 'version': 'version_2022-04-11 14:26:50.982911+00:00'}
+            ]
+        }
+    ], 'service': 'katsu', 'status': 200
+}
