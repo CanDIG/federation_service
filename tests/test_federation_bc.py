@@ -6,11 +6,15 @@ the README and update the fixtures with your own URL and ports.
 """
 
 import json
+import os
 
 import pytest
 import requests
 
 from tests.test_data.test_structs import katsu
+
+if os.environ.get("TRAVIS") == "true":
+    pytest.skip("Skipping these tests during CI", allow_module_level=True)
 
 def sort_dict(dict):
     """
@@ -20,6 +24,7 @@ def sort_dict(dict):
     sorted_dict = {key: dict[key] for key in sorted_keys}
     return sorted_dict
 
+# Update these fixtures with your own server address/ports
 @pytest.fixture
 def url():
     return "http://ga4ghdev01.bcgsc.ca"
@@ -29,7 +34,6 @@ def ports():
     return ["8891", "8892"]
 
 ## Tests Start Here
-
 def test_servers(url, ports):
     """
     Test peer server URLs are returned properly.
@@ -55,16 +59,16 @@ def test_services(url, ports):
     assert sort_dict(r1.json()) == sort_dict(r2.json()), \
            "Services should be the same in every instance"
     assert sort_dict(r1.json()) == sort_dict(r2.json()) == sort_dict(j["services"]), \
-           "The response's service URLs don't match services.json"
+           "The returned service URLs don't match services.json"
 
 
 def test_search(url, ports):
     """
-    Test unfederated query (single node).
+    Test unfederated query (single server).
     """
     url = f"{url}:{ports[0]}/federation/search"
     headers = {
-        "Content-Type": "application/json", 
+        "Content-Type": "application/json",
         "federation": "false"
         }
     payload = {
@@ -74,4 +78,6 @@ def test_search(url, ports):
         "endpoint_service": "katsu"
         }
     r = requests.post(url, headers=headers, json=payload)
+    assert r.json()["service"] == "katsu"
+    assert r.json()["status"] == 200
     assert r.json() == katsu
