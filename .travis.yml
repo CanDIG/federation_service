@@ -8,6 +8,3 @@ install:
 
 script:
   - pytest --cov=candig_federation tests/ -vv
-
-env:
-  - TRAVIS=true
