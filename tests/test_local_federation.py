@@ -101,5 +101,5 @@ def test_search(server, ports):
         "The returned service doesn't match the request."
     assert r3.json()["status"] == r4.json()["status"] == 200, \
         "The request wasn't successful."
-    assert len(r1.json()['results']) * 2 == len(r3.json()['results']),
+    assert len(r1.json()['results']) * 2 == len(r3.json()['results']), \
         "Federated results should be double of the unfederated results."
