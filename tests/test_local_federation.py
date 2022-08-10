@@ -2,7 +2,8 @@
 These integration tests are skipped during CI since they test API responses
 from peer servers that are run locally. If you want to run these, start two
 uwsgi federation instances in different ports following the instructions on
-the README and update the fixtures with your own URL and ports.
+the README and update the fixtures with your own URL and ports. The tests 
+are set up to work with two nodes, but you can modify the code to add more.
 """
 
 import json
@@ -10,8 +11,6 @@ import os
 
 import pytest
 import requests
-
-from tests.test_data.test_structs import katsu
 
 # Skip tests in this module when running in Travis CI
 pytestmark = pytest.mark.skipif(os.environ.get("TRAVIS") == "true",
@@ -35,8 +34,7 @@ def sort_dict(dict):
     Sort dictionaries alphabetically by keys.
     """
     sorted_keys = sorted(dict.keys())
-    sorted_dict = {key: dict[key] for key in sorted_keys}
-    return sorted_dict
+    return {key: dict[key] for key in sorted_keys}
 
 
 # Tests Start Here
@@ -49,8 +47,6 @@ def test_servers(server, ports):
     with open("./configs/servers.json") as j:
         j = json.load(j)
 
-    assert sort_dict(r1.json()) == sort_dict(r2.json()), \
-        "Peer servers should be the same in every instance"
     assert sort_dict(r1.json()) == sort_dict(r2.json()) == sort_dict(j["servers"]), \
         "The returned server URLs don't match servers.json"
 
@@ -62,19 +58,17 @@ def test_services(server, ports):
     with open("./configs/services.json") as j:
         j = json.load(j)
 
-    assert sort_dict(r1.json()) == sort_dict(r2.json()), \
-        "Services should be the same in every instance"
     assert sort_dict(r1.json()) == sort_dict(r2.json()) == sort_dict(j["services"]), \
         "The returned service URLs don't match services.json"
 
 
 def test_search(server, ports):
     """
-    Test unfederated query (single server).
+    Test unfederated and federated queries.
     """
     r = []  # Responses
     headers = {
-        "Content-Type": "application/json",
+        "content-type": "application/json",
         "federation": "false"
     }
     payload = {
@@ -83,15 +77,29 @@ def test_search(server, ports):
         "endpoint_payload": {},
         "endpoint_service": "katsu"
     }
-    for port in ports:
-        url = f"{server}:{port}/federation/search"
-        print(url)
-        r.append(requests.post(url, headers=headers, json=payload))
-    
-    print(r)
-    print(r[0].json())
-    print(r[1].json())
+    r1 = requests.post(f"{server}:{ports[0]}/federation/search",
+                       headers=headers, json=payload)
+    r2 = requests.post(f"{server}:{ports[1]}/federation/search",
+                       headers=headers, json=payload)
 
-    assert r[0].json()["service"] == r[1].json()["service"] == "katsu"
-    assert r[0].json()["status"] == r[1].json()["status"] == 200
-    assert r[0].json() == r[1].json() == katsu
+    # Test unfederated queries
+    assert r1.json()["service"] == r2.json()["service"] == "katsu", \
+        "The returned service doesn't match the request."
+    assert r1.json()["status"] == r2.json()["status"] == 200, \
+        "The request wasn't successful."
+
+    # Test federated queries
+    headers["federation"] = "true"
+    headers["authorization"] = "\"Bearer\" + token.json()['id_token']"
+
+    r3 = requests.post(f"{server}:{ports[0]}/federation/search",
+    headers=headers, json=payload)
+    r4 = requests.post(f"{server}:{ports[1]}/federation/search",
+    headers=headers, json=payload)
+
+    assert r3.json()["service"] == r4.json()["service"] == "katsu", \
+        "The returned service doesn't match the request."
+    assert r3.json()["status"] == r4.json()["status"] == 200, \
+        "The request wasn't successful."
+    assert len(r1.json()['results']) * 2 == len(r3.json()['results']),
+        "Federated results should be double of the unfederated results."
