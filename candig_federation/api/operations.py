@@ -15,28 +15,16 @@ APP = flask.current_app
 @apilog
 def get_registered_servers():
     """
-    Get a list of registered services.
-    [{"name": "server_name", "url": "http://server_url"}]
+    Get a dictionary of registered peer servers.
     """
-    servers = []
-
-    for name, url in APP.config["servers"].items():
-        servers.append({"name": name, "url": url})
-
-    return servers
+    return APP.config["servers"]
 
 @apilog
 def get_registered_services():
     """
-    Get a list of registered services.
-    [{"name": "service_name", "url": "http://service_url"}]
+    Get a dictionary of registered services.
     """
-    services = []
-
-    for name, url in APP.config["services"].items():
-        services.append({"name": name, "url": url})
-
-    return services
+    return APP.config["services"]
   
 @apilog
 def post_search():

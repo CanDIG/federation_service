@@ -8,3 +8,6 @@ install:
 
 script:
   - pytest --cov=candig_federation tests/ -vv
+
+env:
+  - TRAVIS=true # Used to skip local integration tests in test_local_federation.py

@@ -6,6 +6,7 @@ MockResponseInternal: Responses which are accessed in within handle_server_reque
 
 import json
 
+
 class MockResponse:
     def __init__(self, json_data, status_code, headers={}):
         self.json_data = json_data
@@ -30,11 +31,10 @@ class MockResponseInternal:
         self.status_code = status_code
         self.headers = {'X-Source': '2222'}
 
-
     def json(self):
         return {"results": self.json_data,
                 "status": self.status_code}
-    
+
     def headers(self):
         return self.headers
 
@@ -62,25 +62,24 @@ THREE = {
 
 
 exampleHeaders = testHeader({
-        "Content-Type": "application/json",
-        "Host": "ga4ghdev01.bcgsc.ca:8890",
-        "User-Agent": "python-requests/2.22.0",
-        "Accept": "application/json",
-        "Accept-Encoding": "gzip, deflate",
-        "Authorization": "Bearer eyJhbGciOiJSUzI1NiIsI",
-        "Federation": "false"
-    })
+    "Content-Type": "application/json",
+    "Host": "ga4ghdev01.bcgsc.ca:8890",
+    "User-Agent": "python-requests/2.22.0",
+    "Accept": "application/json",
+    "Accept-Encoding": "gzip, deflate",
+    "Authorization": "Bearer eyJhbGciOiJSUzI1NiIsI",
+    "Federation": "false"
+})
 
 fedHeader = testHeader({
-        "Content-Type": "application/json",
-        "Host": "ga4ghdev01.bcgsc.ca:8890",
-        "User-Agent": "python-requests/2.22.0",
-        "Accept": "application/json",
-        "Accept-Encoding": "gzip, deflate",
-        "Authorization": "Bearer eyJhbGciOiJSUzI1NiIsI",
-        "Federation": "true"
-    })
-
+    "Content-Type": "application/json",
+    "Host": "ga4ghdev01.bcgsc.ca:8890",
+    "User-Agent": "python-requests/2.22.0",
+    "Accept": "application/json",
+    "Accept-Encoding": "gzip, deflate",
+    "Authorization": "Bearer eyJhbGciOiJSUzI1NiIsI",
+    "Federation": "true"
+})
 
 
 TP = {
@@ -111,7 +110,6 @@ AP = {
     "v2": {"projects": {"key1": "value1"}},
     "v3": {"projects": {"keyA": "valueB"}},
 }
-
 
 
 PostListM1 = {
@@ -184,4 +182,3 @@ PR = {
     "PLV3": MockResponse([PostListV3], 200),
     "iPLV3": MockResponseInternal([PostListV3], 200)
 }
-

@@ -79,4 +79,9 @@ Tests can be run with pytest and coverage:
 ```pytest --cov=candig_federation tests/```
 
 To generate a readable html report of the test results, use:
-```pytest --cov=candig_federation tests/ --html=tests_report.html --self-contained-html```
+```pytest --cov=candig_federation tests/ --html=test_report.html --self-contained-html```
+
+
+## Documentation
+
+There is a documentation website available [here](https://candig-federation.readthedocs.io/en/latest/index.html) with detailed information on how federation works and how it's tested.
