@@ -6,10 +6,11 @@ Provides methods to handle both local and federated requests
 
 import json
 import requests
-from flask import current_app
+# from flask import current_app, request
+import flask
 from requests_futures.sessions import FuturesSession
 
-APP = current_app
+APP = flask.current_app
 
 
 class FederationResponse:
@@ -42,6 +43,7 @@ class FederationResponse:
                  timeout=5):
         """Constructor method
         """
+        #self.results = {}
         self.results = []
         self.status = []
         self.message = []
@@ -119,6 +121,7 @@ class FederationResponse:
             self.status.append(resp.status_code)
 
             if isinstance(resp.json(), list):
+                #self.results = resp.json()
                 self.results.extend(resp.json())
                 # self.announce_fed_in(full_path, resp.status_code, resp.json())
             else:
@@ -184,6 +187,7 @@ class FederationResponse:
             self.status.append(resp.status_code)
 
             if isinstance(resp.json(), list):
+                # self.results["data"] = dict(self.results["data"], **resp.json())
                 self.results.extend(resp.json())
                 # self.announce_fed_in(full_path, resp.status_code, resp.json())
 
@@ -231,10 +235,18 @@ class FederationResponse:
         :type header: object
         :return: List of ResponseObjects, this specific return is used only in testing
         """
+        # Get URLs from servers configuration
+        uri_list = {server: f"{data['url']}" for server, data in APP.config["servers"].items()}
+        locations = {server: f"{data['location']}" for server, data in APP.config["servers"].items()}
+        
 
-        uri_list = [f"{server['url']}" for server in APP.config["servers"].values()]
+        # location = [f"{server['url']}" for server in APP.config["servers"].values()]
+        print('locations: ', locations)
+        print('url_list: ', uri_list)
+        print('app_config_servers', APP.config['servers'])
+        
 
-        for future_response in self.async_requests(url_list=uri_list,
+        for future_response in self.async_requests(url_list=uri_list.values(),
                                                    request=request,
                                                    header=header,
                                                    endpoint_payload=endpoint_payload,
@@ -271,8 +283,12 @@ class FederationResponse:
                     Gather the data within each "results" and append it to
                     the main one.
                     """
-
+                    print('\nrequest:', flask.request.url)
+                    location = APP.config['servers']
+                    # print('json_response type: ', type(response.json()))
                     self.results.extend(response.json()["results"])
+                  
+                    # self.results[server] = response.json()["results"]
                     self.status.append(response.status_code)
 
                 except KeyError:
@@ -405,17 +421,25 @@ class FederationResponse:
 
         status = self.merge_status(self.status)
         try:
+            # print('request: ', request.url)
+            print('app_config_servers', APP.config['servers'])
+            # print('location: ', APP.config['servers'][request.url]['location'])
             response = {"status": status,
                         "message": self.message,
                         # Remove duplicates from a list response due to Federated querying
                         "results": sorted(list(set(self.results))),
-                        "service": self.endpoint_service}
+                        "service": self.endpoint_service,
+                        "server": flask.request.url}
+                      #   "location": APP.config['servers'][request.url]['location']}
+                       # "location": APP.app.config['servers'][request.url]['location']}
 
         except TypeError:
             # Dealing with dicts objects
             response = {"status": status,
                         "message": self.message,
                         "results": self.results,
-                        "service": self.endpoint_service}
+                        "service": self.endpoint_service,
+                        "server": flask.request.url}
+                   #     "location": APP.app.config['servers'][request.url]['location']}
 
         return response, status
