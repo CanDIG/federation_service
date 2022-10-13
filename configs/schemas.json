@@ -6,7 +6,10 @@
     "properties": {
         "servers": {
           "type": "object",
-          "additionalProperties": {"type": "string"}
+          "properties": {
+            "url": {"type": "string"},
+            "location": {"type": "array"}
+          }
         }
     }
   },

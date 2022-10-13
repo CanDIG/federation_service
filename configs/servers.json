@@ -1,6 +1,20 @@
 {
   "servers": {
-    "p1": "http://ga4ghdev01.bcgsc.ca:8891/federation/search",
-    "p2": "http://ga4ghdev01.bcgsc.ca:8892/federation/search"
+    "p1": {
+      "url": "http://ga4ghdev01.bcgsc.ca:8891/federation/search",
+      "location": [
+        "BCGSC",
+        "British Columbia",
+        "ca-bc"
+      ]
+    },
+    "p2": {
+      "url": "http://ga4ghdev01.bcgsc.ca:8892/federation/search",
+      "location": [
+        "BCGSC",
+        "British Columbia",
+        "ca-bc"
+      ]
+    }
   }
 }
