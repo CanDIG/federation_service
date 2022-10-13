@@ -232,10 +232,7 @@ class FederationResponse:
         :return: List of ResponseObjects, this specific return is used only in testing
         """
 
-        uri_list = []
-
-        for server in APP.config["servers"].values():
-            uri_list.append("{}".format(server))
+        uri_list = [f"{server['url']}" for server in APP.config["servers"].values()]
 
         for future_response in self.async_requests(url_list=uri_list,
                                                    request=request,
@@ -343,7 +340,6 @@ class FederationResponse:
         :return: Single response code
         :rtype: int
         """
-        print(statuses)
         if len(statuses) == 1:
             return statuses[0]
 
