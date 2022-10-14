@@ -41,16 +41,32 @@ Below is an example of `services.json`
 
 For federation to work, you will need to register both the `host` and its peer servers as `servers` under `config/servers.json`.
 
+In addition, specify the location for your peer servers with the array `["research centre", "province name", "province code"]`.
+
 This may be confusing, as you may think that your `host` does not need to be registered.
 
-For example, if your host federation service is running at `http://0.0.0.0:8890`, and your first 
-peer server federation service is running at `http://0.0.0.0:8891`, your `servers.json` would look like this:
+For example, if your host federation service is running at `http://0.0.0.0:8890` in British Columbia, and your first 
+peer server federation service is running at `http://0.0.0.0:8891` in Ontario, your `servers.json` would look like this:
 
 ```
 {
   "servers": {
-    "p1": "http://ga4ghdev01.bcgsc.ca:8890/federation/search",
-    "p2": "http://ga4ghdev01.bcgsc.ca:8891/federation/search"
+    "p1": {
+      "url": "http:/0.0.0.0:8891/federation/search",
+      "location": [
+        "BCGSC",
+        "British Columbia",
+        "ca-bc"
+      ]
+    },
+    "p2": {
+      "url": "http://0.0.0.0:8892/federation/search",
+      "location": [
+        "UHN",
+        "Ontario",
+        "ca-on"
+      ]
+    }
   }
 }
 ```
@@ -60,7 +76,7 @@ peer server federation service is running at `http://0.0.0.0:8891`, your `server
 You should use `uwsgi` to run the app with the following command for all functionalities to work as expected.
 
 ```
-uwsgi federation.ini --http 0.0.0.0:8080
+uwsgi federation.ini --http 0.0.0.0:8080 --master
 ```
 
 You may also start the server with the following command, but federation queries will not work. The command below is for usually for debugging purposes.
