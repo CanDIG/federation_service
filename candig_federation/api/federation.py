@@ -113,7 +113,6 @@ class FederationResponse:
         try:
             request_handle = requests.Session()
             full_path = "{}/{}".format(url, endpoint_path)
-
             # self.announce_fed_out("GET", url, endpoint_path)
 
             resp = request_handle.get(
@@ -238,14 +237,6 @@ class FederationResponse:
         # Get URLs from servers configuration
         uri_list = {server: f"{data['url']}" for server, data in APP.config["servers"].items()}
         locations = {server: f"{data['location']}" for server, data in APP.config["servers"].items()}
-        
-
-        # location = [f"{server['url']}" for server in APP.config["servers"].values()]
-        print('locations: ', locations)
-        print('url_list: ', uri_list)
-        print('app_config_servers', APP.config['servers'])
-        
-
         for future_response in self.async_requests(url_list=uri_list.values(),
                                                    request=request,
                                                    header=header,
@@ -253,6 +244,8 @@ class FederationResponse:
                                                    endpoint_path=endpoint_path,
                                                    endpoint_service=endpoint_service):
             try:
+                location = future_response["location"]
+                future_response = future_response["response"]
                 response = future_response.result()
             except AttributeError:
                 if isinstance(future_response, requests.exceptions.ConnectionError):
@@ -283,12 +276,9 @@ class FederationResponse:
                     Gather the data within each "results" and append it to
                     the main one.
                     """
-                    print('\nrequest:', flask.request.url)
-                    location = APP.config['servers']
-                    # print('json_response type: ', type(response.json()))
-                    self.results.extend(response.json()["results"])
-                  
-                    # self.results[server] = response.json()["results"]
+                    result = response.json()["results"]
+                    result[0]["location"] = location
+                    self.results.extend(result)
                     self.status.append(response.status_code)
 
                 except KeyError:
@@ -328,7 +318,6 @@ class FederationResponse:
         :type header: object
         :return: List of Futures
         """
-
         args = {"request_type": request, "endpoint_path": endpoint_path,
                 "endpoint_payload": endpoint_payload, "endpoint_service": endpoint_service}
         async_session = FuturesSession(max_workers=10)  # capping max threads
@@ -337,11 +326,16 @@ class FederationResponse:
         for url in url_list:
             try:
                 # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
-                responses.append(async_session.post(url,
-                                                    json=args, headers=header, timeout=self.timeout))
+                response = {}
+                response["response"] = async_session.post(url, json=args, headers=header, timeout=self.timeout)
+                for peer in APP.config["servers"]:
+                    if APP.config["servers"][peer]["url"] == url:
+                        response["location"] = APP.config["servers"][peer]["location"]
+                        break
+                
+                responses.append(response)
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
                 responses.append(e)
-
         return responses
 
     def merge_status(self, statuses):
@@ -421,17 +415,14 @@ class FederationResponse:
 
         status = self.merge_status(self.status)
         try:
-            # print('request: ', request.url)
-            print('app_config_servers', APP.config['servers'])
-            # print('location: ', APP.config['servers'][request.url]['location'])
-            response = {"status": status,
+            response = {"status": status+"test",
                         "message": self.message,
                         # Remove duplicates from a list response due to Federated querying
                         "results": sorted(list(set(self.results))),
                         "service": self.endpoint_service,
-                        "server": flask.request.url}
-                      #   "location": APP.config['servers'][request.url]['location']}
-                       # "location": APP.app.config['servers'][request.url]['location']}
+                        "server": flask.request.url,
+                        "location": self.get_server_from_url
+                        }
 
         except TypeError:
             # Dealing with dicts objects
