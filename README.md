@@ -24,9 +24,9 @@ pip install -r requirements.txt
 The Federation Service requires two JSON configuration files to be placed into the `federation_service/configs` directory. 
 These files are `servers.json` and `services.json`.
 
-#### How to register services
+### How to register services
 
-Below is an example of `services.json`
+Specify the name and URL of your services.Below is an example of `services.json`:
 
 ```
 {
@@ -37,13 +37,14 @@ Below is an example of `services.json`
 }
 ```
 
-#### How to register peer servers
+### How to register peer servers
 
-For federation to work, you will need to register both the `host` and its peer servers as `servers` under `config/servers.json`.
+For federation to work, you will need to register both the `host` and its peer servers as `servers` under `config/servers.json`. This may be confusing, as you may think that your `host` does not need to be registered.
 
-In addition, specify the location for your peer servers with the array `["research centre", "province name", "province code"]`.
+In addition, specify the location for your peer servers with the array `["research centre", "province name", "province code"]`. For compatibility with CanDIG's [data portal](https://github.com/CanDIG/candig-data-portal), use the following province codes:
 
-This may be confusing, as you may think that your `host` does not need to be registered.
+`'ca-ab', 'ca-bc', 'ca-mb', 'ca-nb', 'ca-nl', 'ca-nt', 'ca-ns', 'ca-nu', 'ca-on', 'ca-pe', 'ca-qc', 'ca-sk', 'ca-yt'`
+
 
 For example, if your host federation service is running at `http://0.0.0.0:8890` in British Columbia, and your first 
 peer server federation service is running at `http://0.0.0.0:8891` in Ontario, your `servers.json` would look like this:
@@ -71,15 +72,19 @@ peer server federation service is running at `http://0.0.0.0:8891` in Ontario, y
 }
 ```
 
-### Running
+## Running
 
-You should use `uwsgi` to run the app with the following command for all functionalities to work as expected.
+You should use `uwsgi` to run the app for all functionalities to work as expected. The `--master` flag enables graceful reloading of the server without closing the socket and is useful to apply  any changes to the code while developing. For more details, read the [uwsgi documentation](https://uwsgi-docs.readthedocs.io/en/latest/Management.html).
 
 ```
-uwsgi federation.ini --http 0.0.0.0:8080 --master
+# Run Server
+uwsgi federation.ini --http :8891 --master
+
+# Reload server gracefully, replace <pid> with the uwsgi process ID
+kill -HUP <pid>
 ```
 
-You may also start the server with the following command, but federation queries will not work. The command below is for usually for debugging purposes.
+You may also start the server with the following command, but federation queries will not work. The command below is usually for debugging purposes.
 
 ```
 python -m candig_federation --host 0.0.0.0 --port 8080 --services ./configs/services.json --servers configs/servers.json
@@ -95,9 +100,10 @@ Tests can be run with pytest and coverage:
 ```pytest --cov=candig_federation tests/```
 
 To generate a readable html report of the test results, use:
+
 ```pytest --cov=candig_federation tests/ --html=test_report.html --self-contained-html```
 
 
 ## Documentation
 
-There is a documentation website available [here](https://candig-federation.readthedocs.io/en/latest/index.html) with detailed information on how federation works and how it's tested.
+There is a [documentation website](https://candig-federation.readthedocs.io/en/latest/index.html) with detailed information on how federated queries work and how they are tested.
