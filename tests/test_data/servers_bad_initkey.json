@@ -1,7 +1,6 @@
 {
   "serers": [
     {
-      "name": "p1",
       "url": "http://ga4ghdev01.bcgsc.ca:8892/federation/search",
       "location": [
         "BCGSC",
@@ -10,7 +9,6 @@
       ]
     },
     {
-      "name": "p2",
       "url": "http://ga4ghdev01.bcgsc.ca:8892/federation/search",
       "location": [
         "BCGSC",
