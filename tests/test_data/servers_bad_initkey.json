@@ -1,6 +1,22 @@
 {
-  "pes": {
-    "p1": 234234,
-    "p2": "http://10.9.208.132:8891"
-  }
+  "serers": [
+    {
+      "name": "p1",
+      "url": "http://ga4ghdev01.bcgsc.ca:8892/federation/search",
+      "location": [
+        "BCGSC",
+        "British Columbia",
+        "ca-bc"
+      ]
+    },
+    {
+      "name": "p2",
+      "url": "http://ga4ghdev01.bcgsc.ca:8892/federation/search",
+      "location": [
+        "BCGSC",
+        "British Columbia",
+        "ca-bc"
+      ]
+    }
+  ]
 }

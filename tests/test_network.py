@@ -9,7 +9,7 @@ import logging
 
 import pytest
 
-sys.path.append("{}/{}".format(os.getcwd(), "candig_federation"))
+sys.path.append(f"{os.getcwd()}/{'candig_federation'}")
 
 sys.path.append(os.getcwd())
 
@@ -20,7 +20,7 @@ VALID_SERVERS = "./tests/test_data/servers.json"
 INVALID_SERVER_VAL = "./tests/test_data/servers_bad_value.json"
 INVALID_SERVER_KEY = "./tests/test_data/servers_bad_initkey.json"
 
-VALID_SCHEMA = "./tests/test_data/schemas.json"
+VALID_SCHEMA = "./configs/schemas.json"
 INVALID_SCHEMA = "notschemas"
 
 
@@ -70,4 +70,4 @@ def test_valid_schema_location_getSchemaDict():
 
 def test_valid_schema_parseConfigs():
     servers = network.parse_configs("servers", VALID_SERVERS, VALID_SCHEMA)
-    assert servers["p1"] == "http://10.9.208.132:8890"
+    assert servers[0]["url"] == "http://ga4ghdev01.bcgsc.ca:8891/federation/search"
