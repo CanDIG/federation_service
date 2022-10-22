@@ -17,8 +17,6 @@ pytestmark = pytest.mark.skipif(os.environ.get("TRAVIS") == "true",
                                 reason="These integration tests only run with local instances running (not CI server).")
 
 # Update these fixtures with your own server address/ports
-
-
 @ pytest.fixture
 def server():
     return "http://ga4ghdev01.bcgsc.ca"
@@ -47,13 +45,17 @@ def test_servers(server, ports):
     with open("./configs/servers.json") as j:
         j = json.load(j)
         servers = j["servers"]
+    print('r1:', r1.json())
+    print('j:', j["servers"])
 
-    assert sort_dict(r1.json()) == sort_dict(r2.json()) == sort_dict(servers), \
+    assert r1.json() == r2.json() == servers, \
         "The returned server URLs don't match servers.json"
 
 
 def test_services(server, ports):
-    """Test services URLs are returned properly."""
+    """
+    Test service URLs are returned properly.
+    """
     r1 = requests.get(f"{server}:{ports[0]}/federation/services")
     r2 = requests.get(f"{server}:{ports[1]}/federation/services")
     with open("./configs/services.json") as j:
