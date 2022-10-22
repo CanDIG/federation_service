@@ -57,8 +57,8 @@ def post_search():
         endpoint_path = data["endpoint_path"]
         if endpoint_path[0] == "/":
             return {
-                    "response": ("Invalid endpoint_path: {}. "
-                    "Please remove the / at the beginning: ".format(endpoint_path)),
+                    "response": (f"Invalid endpoint_path: {endpoint_path}. "
+                    "Please remove the / at the beginning: "),
                     "status": 400,
                     "service": "ErrorHandling"
                     }, 400
@@ -73,6 +73,7 @@ def post_search():
                                                 request_dict=flask.request,
                                                 endpoint_service=endpoint_service
                                                 )
+                                                
         return federation_response.get_response_object()
 
     except KeyError:
