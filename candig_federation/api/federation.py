@@ -235,9 +235,9 @@ class FederationResponse:
         :return: List of ResponseObjects, this specific return is used only in testing
         """
         # Get URLs from servers configuration
-        uri_list = {server: f"{data['url']}" for server, data in APP.config["servers"].items()}
-        locations = {server: f"{data['location']}" for server, data in APP.config["servers"].items()}
-        for future_response in self.async_requests(url_list=uri_list.values(),
+        urls = [server['url'] for server in APP.config["servers"]]
+
+        for future_response in self.async_requests(url_list=urls,
                                                    request=request,
                                                    header=header,
                                                    endpoint_payload=endpoint_payload,
@@ -305,7 +305,7 @@ class FederationResponse:
         futures are returned back to and handled by handle_server_requests()
 
 
-        :param url_list: List of
+        :param url_list: List of peer server URLs
         :param request: The type of HTTP request to federate, either GET or POST. PUT TBD
         :type request: str
         :param endpoint_path: Specific API endpoint of CanDIG service to be queried, may contain query string if GET
@@ -322,20 +322,24 @@ class FederationResponse:
                 "endpoint_payload": endpoint_payload, "endpoint_service": endpoint_service}
         async_session = FuturesSession(max_workers=10)  # capping max threads
         responses = []
+        servers = APP.config["servers"]
 
         for url in url_list:
             try:
                 # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
                 response = {}
                 response["response"] = async_session.post(url, json=args, headers=header, timeout=self.timeout)
-                for peer in APP.config["servers"]:
-                    if APP.config["servers"][peer]["url"] == url:
-                        response["location"] = APP.config["servers"][peer]["location"]
+
+                for i, server in enumerate(servers):
+                    if server["url"] == url:
+                        response["location"] = APP.config["servers"][i]["location"]
                         break
                 
                 responses.append(response)
+            
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
                 responses.append(e)
+        
         return responses
 
     def merge_status(self, statuses):
@@ -415,13 +419,11 @@ class FederationResponse:
 
         status = self.merge_status(self.status)
         try:
-            response = {"status": status+"test",
+            response = {"status": status,
                         "message": self.message,
                         # Remove duplicates from a list response due to Federated querying
                         "results": sorted(list(set(self.results))),
                         "service": self.endpoint_service,
-                        "server": flask.request.url,
-                        "location": self.get_server_from_url
                         }
 
         except TypeError:
@@ -429,8 +431,7 @@ class FederationResponse:
             response = {"status": status,
                         "message": self.message,
                         "results": self.results,
-                        "service": self.endpoint_service,
-                        "server": flask.request.url}
-                   #     "location": APP.app.config['servers'][request.url]['location']}
+                        "service": self.endpoint_service
+            }
 
         return response, status
