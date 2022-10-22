@@ -51,24 +51,24 @@ peer server federation service is running at `http://0.0.0.0:8891` in Ontario, y
 
 ```
 {
-  "servers": {
-    "p1": {
-      "url": "http:/0.0.0.0:8891/federation/search",
+  "servers": [
+    {
+      "url": "http://ga4ghdev01.bcgsc.ca:8891/federation/search",
       "location": [
         "BCGSC",
         "British Columbia",
         "ca-bc"
       ]
     },
-    "p2": {
-      "url": "http://0.0.0.0:8892/federation/search",
+    {
+      "url": "http://ga4ghdev01.bcgsc.ca:8892/federation/search",
       "location": [
         "UHN",
         "Ontario",
         "ca-on"
       ]
     }
-  }
+  ]
 }
 ```
 
@@ -97,11 +97,15 @@ Once the service is running, a Swagger UI can be accessed at : `/federation/ui`
 
 Tests can be run with pytest and coverage:
 
-```pytest --cov=candig_federation tests/```
+```
+pytest --cov=candig_federation tests/
+```
 
 To generate a readable html report of the test results, use:
 
-```pytest --cov=candig_federation tests/ --html=test_report.html --self-contained-html```
+```
+pytest --cov=candig_federation tests/ --html=test_report.html --self-contained-html
+```
 
 
 ## Documentation
