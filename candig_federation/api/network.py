@@ -38,13 +38,13 @@ def parse_configs(schema_type, file_path, schema_path, logger=None):
     except jsonschema.ValidationError:
         if logger:
             logger.warning("{} object in {} "
-                           "did not validate against the"
+                           "did not validate against the "
                            "schema. Please recheck file.".
                            format(schema_type, file_path))
             exit()
         else:
             raise jsonschema.ValidationError("{} object in {} "
-                                             "did not validate against the"
+                                             "did not validate against the "
                                              "schema. Please recheck file.".
                                              format(schema_type, file_path))
     except KeyError:

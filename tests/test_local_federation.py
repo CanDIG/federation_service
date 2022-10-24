@@ -14,11 +14,9 @@ import requests
 
 # Skip tests in this module when running in Travis CI
 pytestmark = pytest.mark.skipif(os.environ.get("TRAVIS") == "true",
-                                reason="These integration tests only work with local instances running.")
+                                reason="These integration tests only run with local instances running (not CI server).")
 
 # Update these fixtures with your own server address/ports
-
-
 @ pytest.fixture
 def server():
     return "http://ga4ghdev01.bcgsc.ca"
@@ -46,19 +44,25 @@ def test_servers(server, ports):
     r2 = requests.get(f"{server}:{ports[1]}/federation/servers")
     with open("./configs/servers.json") as j:
         j = json.load(j)
+        servers = j["servers"]
+    print('r1:', r1.json())
+    print('j:', j["servers"])
 
-    assert sort_dict(r1.json()) == sort_dict(r2.json()) == sort_dict(j["servers"]), \
+    assert r1.json() == r2.json() == servers, \
         "The returned server URLs don't match servers.json"
 
 
 def test_services(server, ports):
-    """Test services URLs are returned properly."""
+    """
+    Test service URLs are returned properly.
+    """
     r1 = requests.get(f"{server}:{ports[0]}/federation/services")
     r2 = requests.get(f"{server}:{ports[1]}/federation/services")
     with open("./configs/services.json") as j:
         j = json.load(j)
+        services = j["services"]
 
-    assert sort_dict(r1.json()) == sort_dict(r2.json()) == sort_dict(j["services"]), \
+    assert sort_dict(r1.json()) == sort_dict(r2.json()) == sort_dict(services), \
         "The returned service URLs don't match services.json"
 
 

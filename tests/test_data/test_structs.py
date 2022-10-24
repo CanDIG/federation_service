@@ -50,15 +50,21 @@ class testHeader():
         return self.headers
 
 
-TWO = {
-    "p1": "http://10.9.208.132:6000",
-    "p2": "http://10.9.208.132:8000"
-}
-THREE = {
-    "p1": "http://10.9.208.132:6000",
-    "p2": "http://10.9.208.132:8000",
-    "p3": "http://10.9.208.132:9000"
-}
+TWO = [
+    {"url": "http://10.9.208.132:6000",
+     "location": "loc1"},
+    {"url": "http://10.9.208.132:8000",
+     "location": "loc2"}
+]
+
+THREE = [
+    {"url": "http://10.9.208.132:6000",
+     "location": "loc1"},
+    {"url": "http://10.9.208.132:8000",
+     "location": "loc2"},
+    {"url": "http://10.9.208.132:9000",
+     "location": "loc3"}
+]
 
 
 exampleHeaders = testHeader({
@@ -94,7 +100,6 @@ TP = {
     "Tyk3": "10.9.208.132:9000",
     "path": "rnaget/projects",
     "service": "TestService",
-
 }
 
 AP = {
@@ -106,9 +111,10 @@ AP = {
     "i3": MockResponseInternal([{"projects": {"keyA": "valueB"}}], 200),
     "timeout": MockResponseInternal({}, 408),
     "fail": MockResponse(None, 404),
-    "v1": {"projects": {"k1": "v1", "k2": "v2"}},
-    "v2": {"projects": {"key1": "value1"}},
-    "v3": {"projects": {"keyA": "valueB"}},
+    "v1": {"projects": {"k1": "v1", "k2": "v2"}, "location": "loc1"},
+    "v2": {"projects": {"key1": "value1"}, "location": "loc2"},
+    "v3": {"projects": {"keyA": "valueB"}, "location": "loc3"},
+    "j1": {"projects": {"k1": "v1", "k2": "v2"}}
 }
 
 

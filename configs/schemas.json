@@ -1,22 +1,38 @@
 {
   "servers": {
-    "title": "Peer Server Schema",
-    "description": "Basic structure to read in known peer servers",
     "type": "object",
     "properties": {
-        "servers": {
+      "servers": {
+        "title": "Peer Server Schema",
+        "description": "Basic structure to read in known peer servers",
+        "type": "array",
+        "items": {
           "type": "object",
-          "additionalProperties": {"type": "string"}
+          "required": [
+            "url",
+            "location"
+          ],
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "location": {
+              "type": "array"
+            }
+          }
         }
+      }
     }
   },
   "services": {
     "type": "object",
     "properties": {
-        "services": {
-          "type": "object",
-          "additionalProperties": {"type": "string"}
+      "services": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
         }
+      }
     }
   }
 }

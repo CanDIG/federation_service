@@ -245,11 +245,9 @@ def test_valid_noFed_get(mock_requests, client):
     with client:
         FR = get_federation_response("GET")
         RO, Status = FR.get_response_object()
-        print(RO)
-        print(Status)
-        print('results', FR.results)
+
         assert RO["status"] == 200
-        assert RO["results"]  == [AP["v1"]]
+        assert RO["results"] == [AP["j1"]]
 
 
 @patch('candig_federation.api.federation.requests.Session.post', side_effect=mocked_service_post)
@@ -316,7 +314,7 @@ def test_valid_asyncRequests_two_servers_get(mock_requests, client):
                                  endpoint_payload="",
                                  header=TP["Headers"],
                                  endpoint_service=TP["service"])
-
+        resp = [r["response"] for r in resp]
         Success = list(filter(lambda x: x == 200, map(lambda a: a.status_code, resp)))
 
         assert len(resp) == 2
@@ -335,7 +333,7 @@ def test_valid_asyncRequests_two_servers_post(mock_requests, client):
                                  endpoint_payload="",
                                  header=TP["Headers"],
                                  endpoint_service=TP["service"])
-
+        resp = [r["response"] for r in resp]
         Success = list(filter(lambda x: x == 200, map(lambda a: a.status_code, resp)))
 
         assert len(resp) == 2
