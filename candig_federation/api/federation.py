@@ -6,7 +6,6 @@ Provides methods to handle both local and federated requests
 
 import json
 import requests
-# from flask import current_app, request
 import flask
 from requests_futures.sessions import FuturesSession
 
@@ -43,7 +42,6 @@ class FederationResponse:
                  timeout=5):
         """Constructor method
         """
-        #self.results = {}
         self.results = []
         self.status = []
         self.message = []
@@ -243,28 +241,28 @@ class FederationResponse:
                                                    endpoint_payload=endpoint_payload,
                                                    endpoint_path=endpoint_path,
                                                    endpoint_service=endpoint_service):
+            location = future_response["location"]
             try:
-                location = future_response["location"]
                 future_response = future_response["response"]
                 response = future_response.result()
+            
             except AttributeError:
                 if isinstance(future_response, requests.exceptions.ConnectionError):
                     self.status.append(404)
-                    self.message.append('Connection Error. Peer server may be down.')
+                    self.message.append(f'Connection Error. Peer server may be down. Location:{ location[0]}, {location[1]}')
                 if isinstance(future_response, requests.exceptions.Timeout):
                     self.status.append(504)
-                    self.message.append('Peer server timed out, it may be down.')
-
+                    self.message.append(f'Peer server timed out, it may be down. Location: {location[0]}, {location[1]}')
                 continue
+
             except requests.exceptions.ConnectionError:
                 self.status.append(404)
-                self.message.append('Connection Error. Peer server may be down.')
+                self.message.append(f'Connection Error. Peer server may be down. Location: {location[0]}, {location[1]}')
                 continue
 
             except requests.exceptions.Timeout:
                 self.status.append(504)
-                self.message.append('Peer server timed out, it may be down.')
-
+                self.message.append(f'Peer server timed out, it may be down. Location: {location[0]}, {location[1]}')
                 continue
 
             # If the call was successful append the results
@@ -280,6 +278,7 @@ class FederationResponse:
                     result[0]["location"] = location
                     self.results.extend(result)
                     self.status.append(response.status_code)
+                    self.message.append(f'Success! Location: {location[0]}, {location[1]}')
 
                 except KeyError:
                     # No "results"
@@ -332,7 +331,7 @@ class FederationResponse:
 
                 for i, server in enumerate(servers):
                     if server["url"] == url:
-                        response["location"] = APP.config["servers"][i]["location"]
+                        response["location"] = servers[i]["location"]
                         break
                 
                 responses.append(response)
