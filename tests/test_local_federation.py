@@ -45,8 +45,6 @@ def test_servers(server, ports):
     with open("./configs/servers.json") as j:
         j = json.load(j)
         servers = j["servers"]
-    print('r1:', r1.json())
-    print('j:', j["servers"])
 
     assert r1.json() == r2.json() == servers, \
         "The returned server URLs don't match servers.json"
