@@ -32,4 +32,4 @@ of the test results:
 
 .. code-block:: bash
 
-    $ pytest --cov=candig_federation tests/ --html=test_report.html --self-contained-html
+    $ pytest tests/ --cov=candig_federation --html=test_report.html --self-contained-html

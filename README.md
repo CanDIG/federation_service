@@ -104,7 +104,7 @@ pytest --cov=candig_federation tests/
 To generate a readable html report of the test results, use:
 
 ```
-pytest --cov=candig_federation tests/ --html=test_report.html --self-contained-html
+pytest tests/ --cov=candig_federation --html=test_report.html --self-contained-html
 ```
 
 
