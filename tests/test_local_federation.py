@@ -1,9 +1,12 @@
 """
 These integration tests are skipped during CI since they test API responses
-from peer servers that are run locally. If you want to run these, start two
+from peer servers that are run locally and services that you may or may not
+have access to, so edit your services.json file accordingly. 
+
+If you want to run these, start two
 uwsgi federation instances in different ports following the instructions on
 the README and update the fixtures with your own URL and ports. The tests 
-are set up to work with two nodes, but you can modify the code to add more.
+are set up to work with two nodes.
 """
 
 import json
@@ -20,7 +23,6 @@ pytestmark = pytest.mark.skipif(os.environ.get("TRAVIS") == "true",
 @ pytest.fixture
 def server():
     return "http://ga4ghdev01.bcgsc.ca"
-
 
 @ pytest.fixture
 def ports():
@@ -104,4 +106,4 @@ def test_search(server, ports):
     assert r3.json()["status"] == r4.json()["status"] == 200, \
         "The request wasn't successful."
     assert len(r1.json()['results']) * 2 == len(r3.json()['results']), \
-        "Federated results should be double of the unfederated results."
+        "Federated results should be double the length of the unfederated results."
