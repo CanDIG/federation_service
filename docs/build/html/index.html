@@ -5,10 +5,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Welcome to CanDIG Federation’s documentation! &mdash; CanDIG Federation 0.1 documentation</title>
+  <title>Welcome to CanDIG Federation’s documentation! &mdash; CanDIG Federation Service 0.5.5 documentation</title>
   
 
   
@@ -21,10 +22,12 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -33,6 +36,8 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Installation" href="install.html" /> 
@@ -49,7 +54,7 @@
           
 
           
-            <a href="#" class="icon icon-home"> CanDIG Federation
+            <a href="#" class="icon icon-home"> CanDIG Federation Service
           
 
           
@@ -84,8 +89,10 @@
 <li class="toctree-l1"><a class="reference internal" href="run.html">Starting Federation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="run.html#incoming-requests">Incoming Requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="run.html#request-flow">Request Flow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="candig_federation.html">candig_federation package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">candig_federation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Sending a Request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html#why-no-get">Why No GET?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing the Federation Service</a></li>
 </ul>
 
             
@@ -100,7 +107,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">CanDIG Federation</a>
+          <a href="#">CanDIG Federation Service</a>
         
       </nav>
 
@@ -150,8 +157,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="welcome-to-candig-federation-s-documentation">
-<h1>Welcome to CanDIG Federation’s documentation!<a class="headerlink" href="#welcome-to-candig-federation-s-documentation" title="Permalink to this headline">¶</a></h1>
+  <section id="welcome-to-candig-federation-s-documentation">
+<h1>Welcome to CanDIG Federation’s documentation!<a class="headerlink" href="#welcome-to-candig-federation-s-documentation" title="Permalink to this heading">¶</a></h1>
 <p>The Federation service is a one of the services which make up the CanDIG v2 platform. It acts as an entry
 point for all incoming requests made to CanDIG, passing it along to the specified service, federating the request among the
 nodes in the CanDIG network and aggregating all the responses.</p>
@@ -171,28 +178,15 @@ Pytest and Travis-CI.</p>
 <li class="toctree-l1"><a class="reference internal" href="run.html">Starting Federation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="run.html#incoming-requests">Incoming Requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="run.html#request-flow">Request Flow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="candig_federation.html">candig_federation package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="candig_federation.api.html">API package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="candig_federation.api.html#module-candig_federation.api.operations">Operations Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="candig_federation.api.html#module-candig_federation.api.federation">Federation Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="candig_federation.api.html#module-candig_federation.api.logging">Logging Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="candig_federation.api.html#api-definition">API Definition</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">candig_federation</a><ul class="simple">
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Sending a Request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html#why-no-get">Why No GET?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing the Federation Service</a></li>
 </ul>
 </div>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
-</ul>
-</div>
+</section>
 
 
            </div>
@@ -212,7 +206,7 @@ Pytest and Travis-CI.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2020, Dashaylan Naidoo
+        &copy; Copyright 2022, Dashaylan Naidoo, Javier Castillo-Arnemann
 
     </p>
   </div>

@@ -5,10 +5,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Starting Federation &mdash; CanDIG Federation 0.1 documentation</title>
+  <title>Starting Federation &mdash; CanDIG Federation Service 0.5.5 documentation</title>
   
 
   
@@ -21,10 +22,12 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -33,9 +36,11 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="candig_federation package" href="candig_federation.html" />
+    <link rel="next" title="candig_federation" href="modules.html" />
     <link rel="prev" title="Installation" href="install.html" /> 
 </head>
 
@@ -50,7 +55,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> CanDIG Federation
+            <a href="index.html" class="icon icon-home"> CanDIG Federation Service
           
 
           
@@ -85,8 +90,10 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Starting Federation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#incoming-requests">Incoming Requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#request-flow">Request Flow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="candig_federation.html">candig_federation package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">candig_federation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Sending a Request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html#why-no-get">Why No GET?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing the Federation Service</a></li>
 </ul>
 
             
@@ -101,7 +108,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">CanDIG Federation</a>
+          <a href="index.html">CanDIG Federation Service</a>
         
       </nav>
 
@@ -151,8 +158,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="starting-federation">
-<h1>Starting Federation<a class="headerlink" href="#starting-federation" title="Permalink to this headline">¶</a></h1>
+  <section id="starting-federation">
+<h1>Starting Federation<a class="headerlink" href="#starting-federation" title="Permalink to this heading">¶</a></h1>
 <p>There are two options for running the Federation service.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python -m candig_federation
 </pre></div>
@@ -170,9 +177,9 @@ as the initial node receiving the request. An instance spawned utilizing uWSGI i
 </div>
 <p>This command utilizes uWSGI to run the service as is controlled through the <cite>federation.ini</cite> configuration file. For request aggregation
 to function, uWSGI needs to be started with at least two processes.</p>
-</div>
-<div class="section" id="incoming-requests">
-<h1>Incoming Requests<a class="headerlink" href="#incoming-requests" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="incoming-requests">
+<h1>Incoming Requests<a class="headerlink" href="#incoming-requests" title="Permalink to this heading">¶</a></h1>
 <p>Requests received by Federation are automatically federated throughout the CanDIG network. This federation system is controlled through
 a header <code class="docutils literal notranslate"><span class="pre">federation</span></code> flag. It is assumed be <code class="docutils literal notranslate"><span class="pre">'true'</span></code> unless the header is explicitly added to the request and set to <code class="docutils literal notranslate"><span class="pre">'false'</span></code>.</p>
 <p>Requests should also contain an <code class="docutils literal notranslate"><span class="pre">Authorization</span></code> header following the format listed. This token is obtained from the Tyk API Gateway.
@@ -185,14 +192,14 @@ While the Federation service itself does not perform authentication checking, th
 <span class="p">}</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="request-flow">
-<span id="id1"></span><h1>Request Flow<a class="headerlink" href="#request-flow" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="request-flow">
+<span id="id1"></span><h1>Request Flow<a class="headerlink" href="#request-flow" title="Permalink to this heading">¶</a></h1>
 <p>A request receieved by Federation will follow one of two paths, dependent on the <code class="docutils literal notranslate"><span class="pre">federation</span></code> header.</p>
 <p><code class="docutils literal notranslate"><span class="pre">'false'</span></code>: The Federation service will reroute the request to the desired service. Upon receiving a response from the service,
 Federation will continue to send it back so that it ends up at the original requester.</p>
-<p><code class="docutils literal notranslate"><span class="pre">'true'</span></code>: The Federation service will federate the request to all of its known peers, <strong>changing the</strong> <code class="docutils literal notranslate"><span class="pre">federation</span></code> <strong>flag to</strong> <code class="docutils literal notranslate"><span class="pre">'false'</span></code>. Upon receiving a response from each of its
-peers, the Federation service will aggregate all the responses and return a combined response back to the requester.</p>
+<p><code class="docutils literal notranslate"><span class="pre">'true'</span></code>: The Federation service will federate the request to all of its known peer servers, <strong>changing the</strong> <code class="docutils literal notranslate"><span class="pre">federation</span></code> <strong>flag to</strong> <code class="docutils literal notranslate"><span class="pre">'false'</span></code>. Upon receiving a response from each of its
+peer servers, the Federation service will aggregate all the responses and return a combined response back to the requester.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The case of <code class="docutils literal notranslate"><span class="pre">federation:</span> <span class="pre">'true'</span></code> means that Federation will send a request to <strong>itself</strong>, which is why uWSGI needs to be running the service. Multiple processes
@@ -200,7 +207,7 @@ of the initial Federation service need to be running in order to handle the seco
 <p>This was the request flow decided upon during technical meetings in order to keep the service is uniform as possible with regards to request handling.</p>
 </div>
 <img alt="_images/federation_flow.png" src="_images/federation_flow.png" />
-</div>
+</section>
 
 
            </div>
@@ -210,7 +217,7 @@ of the initial Federation service need to be running in order to handle the seco
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="candig_federation.html" class="btn btn-neutral float-right" title="candig_federation package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="modules.html" class="btn btn-neutral float-right" title="candig_federation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="install.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -222,7 +229,7 @@ of the initial Federation service need to be running in order to handle the seco
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2020, Dashaylan Naidoo
+        &copy; Copyright 2022, Dashaylan Naidoo, Javier Castillo-Arnemann
 
     </p>
   </div>

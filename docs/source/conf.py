@@ -20,7 +20,7 @@ print(sys.path)
 # -- Project information -----------------------------------------------------
 
 project = 'CanDIG Federation Service'
-copyright = '2020, Dashaylan Naidoo'
+copyright = '2022, Dashaylan Naidoo, Javier Castillo-Arnemann'
 author = 'Dashaylan Naidoo, Javier Castillo-Arnemann'
 
 # The full version, including alpha/beta/rc tags

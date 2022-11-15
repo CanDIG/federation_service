@@ -14,12 +14,7 @@ nodes in the CanDIG network and aggregating all the responses.
 It is based off CanDIG's `Python Model Service`__, an OpenAPI stack utilizing Connexion, SQLAlchemy, Bravado-core,
 Pytest and Travis-CI.
 
-
-
-
-
 .. __: https://github.com/CanDIG/python_model_service
-
 
 
 .. toctree::
@@ -32,12 +27,3 @@ Pytest and Travis-CI.
    examples
    testing
 
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
