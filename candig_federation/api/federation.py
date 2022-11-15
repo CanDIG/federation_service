@@ -215,7 +215,7 @@ class FederationResponse:
         Make peer server data requests and update the results and status for a FederationResponse
 
         If a response from a peer server is received, it will be a Response Object with key pairs
-            {"status": [], "results":[], "service": "name" }
+            {"status": [], "message": [], "results": [], "service": "name" }
 
         The data structures within results are still unknown/undefined at this time, so
         just append everything instead of attempting to aggregate internal structs.
@@ -270,7 +270,7 @@ class FederationResponse:
                 try:
                     """
                     Each Response will be in the form on a ResponseObject
-                        {"status": [], "results": [], "service": "name"}
+                        {"status": [],"message": [], results": [], "service": "name"}
                     Gather the data within each "results" and append it to
                     the main one.
                     """

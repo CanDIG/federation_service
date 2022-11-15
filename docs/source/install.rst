@@ -59,7 +59,7 @@ Valid instances of both files are required in order to start the federation serv
 
 Each peer server is listed in a ``servers.json`` configuration file should correspond with the Tyk API Gateway for each CanDIG node,
 including this node where federation service is running. In addition, specify the location for your peer servers with 
-the array ``["research centre", "province name", "province code"]``. For compatibility with CanDIG's `data portal <https://github.com/CanDIG/candig-data-portal>`__, 
+the array ``["research centre", "province name", "province code"]``. For compatibility with CanDIG's `data portal <https://github.com/CanDIG/candig-data-portal>`_, 
 use the following province codes: 'ca-ab', 'ca-bc', 'ca-mb', 'ca-nb', 'ca-nl', 'ca-nt', 'ca-ns', 'ca-nu', 'ca-on', 'ca-pe', 'ca-qc', 'ca-sk', 'ca-yt'
 
 For example, if your host federation service is running at ``http://0.0.0.0:8890`` in British Columbia, and your first 
@@ -87,7 +87,7 @@ peer server federation service is running at ``http://0.0.0.0:8891`` in Ontario,
       }
     ]
   }
-
+https://uwsgi-docs.readthedocs.io/en/latest/Configuration.html
 In ``services.json``, each service should correspond to a CanDIG service accessible by the federation service. Due to the way request parsing works,
 it's important to use the same service key name as its base API path.
 
@@ -104,7 +104,9 @@ it's important to use the same service key name as its base API path.
 uWSGI Configuration
 ^^^^^^^^^^^^^^^^^^^
 
-The ``federation.ini`` file located in the top level of the directory controls uWSGI and should work as-is. The ``%d`` special variable indicates the directory containing this configuration file.
+The ``federation.ini`` file located in the top level of the directory controls uWSGI and should work as-is. 
+The ``%d`` special variable indicates the directory containing this configuration file. For more information
+on how to customize the configuration, you should read the uwsgi `documentation <https://uwsgi-docs.readthedocs.io/en/latest/Configuration.html>`_.
 
 .. code-block:: ini
 
