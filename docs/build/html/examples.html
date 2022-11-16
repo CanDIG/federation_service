@@ -5,10 +5,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Sending a Request &mdash; CanDIG Federation 0.1 documentation</title>
+  <title>Sending a Request &mdash; CanDIG Federation Service 0.5.5 documentation</title>
   
 
   
@@ -21,10 +22,12 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -33,9 +36,12 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="API package" href="candig_federation.api.html" /> 
+    <link rel="next" title="Testing the Federation Service" href="testing.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="candig_federation.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -49,7 +55,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> CanDIG Federation
+            <a href="index.html" class="icon icon-home"> CanDIG Federation Service
           
 
           
@@ -84,8 +90,10 @@
 <li class="toctree-l1"><a class="reference internal" href="run.html">Starting Federation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="run.html#incoming-requests">Incoming Requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="run.html#request-flow">Request Flow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="candig_federation.html">candig_federation package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">candig_federation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Sending a Request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#why-no-get">Why No GET?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing the Federation Service</a></li>
 </ul>
 
             
@@ -100,7 +108,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">CanDIG Federation</a>
+          <a href="index.html">CanDIG Federation Service</a>
         
       </nav>
 
@@ -150,79 +158,31 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="sending-a-request">
-<h1>Sending a Request<a class="headerlink" href="#sending-a-request" title="Permalink to this headline">¶</a></h1>
+  <section id="sending-a-request">
+<h1>Sending a Request<a class="headerlink" href="#sending-a-request" title="Permalink to this heading">¶</a></h1>
 <p>There are a number of ways to send requests to the Federation service, ranging from
-simple cURL commands, to programs such as Insomnia or Postman. Throughout development,
-the simplest and most modular method was to just create a wrapper function around the
-Requests package and invoke that whenever a path needed to be queried.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">requests</span>
-
-<span class="c1"># Wrapper function that directly communicates with Federation</span>
-
-<span class="k">def</span> <span class="nf">send_post_request</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-    <span class="n">url</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;http://federationaddress.com/federation/search&quot;</span><span class="p">,</span>
-        <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;http://federationaddress2.com/federation/search&quot;</span><span class="p">}</span>
-
-    <span class="n">jsondata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;request_type&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">,</span><span class="s2">&quot;endpoint_path&quot;</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span> <span class="s2">&quot;endpoint_payload&quot;</span><span class="p">:</span> <span class="n">payload</span><span class="p">}</span>
-    <span class="n">request_handle</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
-    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;accept&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;content-type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;federation&quot;</span><span class="p">:</span> <span class="s1">&#39;false&#39;</span><span class="p">,</span>
-        <span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="s2">&quot;Bearer &quot;</span> <span class="o">+</span> <span class="s2">&quot;iZTFhLTRiZDItODdk&quot;</span>
-    <span class="p">}</span>
-
-    <span class="k">return</span> <span class="n">request_handle</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">[</span><span class="n">dest</span><span class="p">],</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">jsondata</span><span class="p">)</span>
-
-
-<span class="c1"># Wrapper function that includes Tyk authentication/gateway services</span>
-
-<span class="k">def</span> <span class="nf">send_post_request</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-    <span class="n">url</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;http://tykgatewayaddress.com/federation&quot;</span><span class="p">,</span>
-        <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;http://tykgatewayaddress.com/federation2&quot;</span><span class="p">}</span>
-
-    <span class="n">jsondata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;request_type&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">,</span><span class="s2">&quot;endpoint_path&quot;</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span> <span class="s2">&quot;endpoint_payload&quot;</span><span class="p">:</span> <span class="n">payload</span><span class="p">}</span>
-    <span class="n">request_handle</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
-    <span class="n">creds</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;CanDIG&quot;</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="s2">&quot;IsGreat&quot;</span><span class="p">}</span>
-    <span class="n">token</span> <span class="o">=</span> <span class="n">request_handle</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;http://tykgatewayaddress.com/auth/token&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">creds</span><span class="p">)</span>
-    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;accept&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;content-type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;federation&quot;</span><span class="p">:</span> <span class="s1">&#39;false&#39;</span><span class="p">,</span>
-        <span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="s2">&quot;Bearer &quot;</span> <span class="o">+</span> <span class="n">token</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;id_token&#39;</span><span class="p">]</span>
-    <span class="p">}</span>
-
-    <span class="k">return</span> <span class="n">request_handle</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">[</span><span class="n">dest</span><span class="p">],</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">jsondata</span><span class="p">)</span>
-</pre></div>
+simple cURL commands, to programs such as Insomnia or Postman. Regardless of method, the POST
+request being sent out needs to have four parameters:</p>
+<div class="line-block">
+<div class="line"><strong>request_type</strong>: This needs to be either GET or POST, and will tell the federation service what type of request to forward on to the microservice.</div>
 </div>
-<p>With this function, it’s simple to query any downstream service:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
-<span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;247e28c3-7940-4420-8a4f-fb3c152d4cc2&quot;</span><span class="p">,</span>
-<span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.4&quot;</span><span class="p">,</span>
-<span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;magenta&quot;</span><span class="p">],</span>
-<span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Example&quot;</span><span class="p">,</span>
-<span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="s2">&quot;ontologies&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;duo&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;terms&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;DUO:0000026&quot;</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;DUO:0000011&quot;</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;DUO:0000027&quot;</span><span class="p">}]</span>
-        <span class="p">}</span>
-    <span class="p">]</span>
-<span class="p">}</span>
-
-<span class="n">send_post_request</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="s2">&quot;datasets&quot;</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
-
-<span class="n">send_post_request</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="s2">&quot;datasets/search/ontologies&quot;</span><span class="p">)</span>
-
-<span class="n">send_post_request</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="s2">&quot;datasets/search?ontologies=DUO:0000027&quot;</span><span class="p">)</span>
-
-<span class="n">send_post_request</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="s2">&quot;datasets/247e28c3794044208a4ffb3c152d4cc2&quot;</span><span class="p">)</span>
-</pre></div>
+<div class="line-block">
+<div class="line"><strong>endpoint_service</strong>: This should be a name matching a key in the services.json configuration file.</div>
 </div>
+<div class="line-block">
+<div class="line"><strong>endpoint_path</strong>: The microservice endpoint being queried without any initial backslash, as the Federation service will add one in when constructing the full path to the microservice.</div>
 </div>
+<div class="line-block">
+<div class="line"><strong>endpoint_payload</strong>: Any additional arguments needed to be past on to microservice endpoints. Should be an empty object ({}) if nothing is required.</div>
+</div>
+</section>
+<section id="why-no-get">
+<h1>Why No GET?<a class="headerlink" href="#why-no-get" title="Permalink to this heading">¶</a></h1>
+<p>A question that may come to mind when looking at these examples is why specify GET or POST within a POST request_handle
+rather than just sending a GET request directly to be passed on? This was the case at first, but it quickly became convoluted
+to pass complex search queries as strings formatted as dictionaries or json objects. Utilizing the POST body to pass on all the
+endpoint arguments to a GET request makes it much easier from both a user and coding standpoint.</p>
+</section>
 
 
            </div>
@@ -232,8 +192,10 @@ Requests package and invoke that whenever a path needed to be queried.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="testing.html" class="btn btn-neutral float-right" title="Testing the Federation Service" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-        <a href="candig_federation.api.html" class="btn btn-neutral float-left" title="API package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+        <a href="candig_federation.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -242,7 +204,7 @@ Requests package and invoke that whenever a path needed to be queried.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2020, Dashaylan Naidoo
+        &copy; Copyright 2022, Dashaylan Naidoo, Javier Castillo-Arnemann
 
     </p>
   </div>

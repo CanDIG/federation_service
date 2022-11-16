@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -9,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; CanDIG Federation 0.1 documentation</title>
+  <title>Index &mdash; CanDIG Federation Service 0.5.5 documentation</title>
   
 
   
@@ -22,10 +21,12 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -34,6 +35,8 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
 </head>
@@ -49,7 +52,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> CanDIG Federation
+            <a href="index.html" class="icon icon-home"> CanDIG Federation Service
           
 
           
@@ -84,8 +87,10 @@
 <li class="toctree-l1"><a class="reference internal" href="run.html">Starting Federation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="run.html#incoming-requests">Incoming Requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="run.html#request-flow">Request Flow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="candig_federation.html">candig_federation package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">candig_federation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Sending a Request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html#why-no-get">Why No GET?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing the Federation Service</a></li>
 </ul>
 
             
@@ -100,7 +105,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">CanDIG Federation</a>
+          <a href="index.html">CanDIG Federation Service</a>
         
       </nav>
 
@@ -183,14 +188,29 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="candig_federation.api.html#module-candig_federation.api.federation">candig_federation.api.federation (module)</a>
+      <li>
+    candig_federation.api.federation
+
+      <ul>
+        <li><a href="candig_federation.api.html#module-candig_federation.api.federation">module</a>
 </li>
+      </ul></li>
+      <li>
+    candig_federation.api.logging
+
+      <ul>
+        <li><a href="candig_federation.api.html#module-candig_federation.api.logging">module</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="candig_federation.api.html#module-candig_federation.api.logging">candig_federation.api.logging (module)</a>
+      <li>
+    candig_federation.api.operations
+
+      <ul>
+        <li><a href="candig_federation.api.html#module-candig_federation.api.operations">module</a>
 </li>
-      <li><a href="candig_federation.api.html#module-candig_federation.api.operations">candig_federation.api.operations (module)</a>
-</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -219,10 +239,16 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.get_response_object">get_response_object() (candig_federation.api.federation.FederationResponse method)</a>
+      <li><a href="candig_federation.api.html#candig_federation.api.operations.get_registered_servers">get_registered_servers() (in module candig_federation.api.operations)</a>
+</li>
+      <li><a href="candig_federation.api.html#candig_federation.api.operations.get_registered_services">get_registered_services() (in module candig_federation.api.operations)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.get_response_object">get_response_object() (candig_federation.api.federation.FederationResponse method)</a>
+</li>
+      <li><a href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.get_server_from_url">get_server_from_url() (candig_federation.api.federation.FederationResponse method)</a>
+</li>
       <li><a href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.get_service">get_service() (candig_federation.api.federation.FederationResponse method)</a>
 </li>
   </ul></td>
@@ -231,7 +257,7 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.handle_peer_request">handle_peer_request() (candig_federation.api.federation.FederationResponse method)</a>
+      <li><a href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.handle_server_request">handle_server_request() (candig_federation.api.federation.FederationResponse method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -249,6 +275,17 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.merge_status">merge_status() (candig_federation.api.federation.FederationResponse method)</a>
 </li>
+      <li>
+    module
+
+      <ul>
+        <li><a href="candig_federation.api.html#module-candig_federation.api.federation">candig_federation.api.federation</a>
+</li>
+        <li><a href="candig_federation.api.html#module-candig_federation.api.logging">candig_federation.api.logging</a>
+</li>
+        <li><a href="candig_federation.api.html#module-candig_federation.api.operations">candig_federation.api.operations</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -284,7 +321,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2020, Dashaylan Naidoo
+        &copy; Copyright 2022, Dashaylan Naidoo, Javier Castillo-Arnemann
 
     </p>
   </div>

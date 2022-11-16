@@ -19,12 +19,12 @@ print(sys.path)
 
 # -- Project information -----------------------------------------------------
 
-project = 'CanDIG Federation'
-copyright = '2020, Dashaylan Naidoo'
-author = 'Dashaylan Naidoo'
+project = 'CanDIG Federation Service'
+copyright = '2022, Dashaylan Naidoo, Javier Castillo-Arnemann'
+author = 'Dashaylan Naidoo, Javier Castillo-Arnemann'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = '0.5.5'
 
 
 # -- General configuration ---------------------------------------------------

@@ -31,6 +31,3 @@ Logging Module
    :show-inheritance:
 
 
-API Definition
----------------
-

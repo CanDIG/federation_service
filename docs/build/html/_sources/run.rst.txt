@@ -55,8 +55,8 @@ A request receieved by Federation will follow one of two paths, dependent on the
 ``'false'``: The Federation service will reroute the request to the desired service. Upon receiving a response from the service,
 Federation will continue to send it back so that it ends up at the original requester.
 
-``'true'``: The Federation service will federate the request to all of its known peers, **changing the** ``federation`` **flag to** ``'false'``. Upon receiving a response from each of its
-peers, the Federation service will aggregate all the responses and return a combined response back to the requester.
+``'true'``: The Federation service will federate the request to all of its known peer servers, **changing the** ``federation`` **flag to** ``'false'``. Upon receiving a response from each of its
+peer servers, the Federation service will aggregate all the responses and return a combined response back to the requester.
 
 .. note::
 
