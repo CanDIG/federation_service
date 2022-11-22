@@ -9,7 +9,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>&lt;no title&gt; &mdash; CanDIG Federation Service 0.5.5 documentation</title>
+  <title>candig_federation package &mdash; CanDIG Federation Service 0.5.5 documentation</title>
   
 
   
@@ -40,7 +40,7 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Sending a Request" href="examples.html" />
+    <link rel="next" title="API package" href="candig_federation.api.html" />
     <link rel="prev" title="candig_federation" href="modules.html" /> 
 </head>
 
@@ -85,12 +85,18 @@
               
             
             
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="run.html">Starting Federation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="run.html#incoming-requests">Incoming Requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="run.html#request-flow">Request Flow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">candig_federation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">candig_federation</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">candig_federation package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="candig_federation.api.html">API package</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Sending a Request</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html#why-no-get">Why No GET?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing the Federation Service</a></li>
@@ -141,7 +147,7 @@
         
           <li><a href="modules.html">candig_federation</a> &raquo;</li>
         
-      <li>&lt;no title&gt;</li>
+      <li>candig_federation package</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -160,7 +166,51 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  
+  <section id="candig-federation-package">
+<h1>candig_federation package<a class="headerlink" href="#candig-federation-package" title="Permalink to this heading">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">candig_federation</span></code> package contains all the working code of the Federation service. This is split
+between an <code class="docutils literal notranslate"><span class="pre">api</span></code> package and a <code class="docutils literal notranslate"><span class="pre">__main__.py</span></code> driver module to run the service.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="candig_federation.api.html">API package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="candig_federation.api.html#module-candig_federation.api.operations">Operations Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="candig_federation.api.html#candig_federation.api.operations.get_registered_servers"><code class="docutils literal notranslate"><span class="pre">get_registered_servers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="candig_federation.api.html#candig_federation.api.operations.get_registered_services"><code class="docutils literal notranslate"><span class="pre">get_registered_services()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="candig_federation.api.html#candig_federation.api.operations.post_search"><code class="docutils literal notranslate"><span class="pre">post_search()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="candig_federation.api.html#module-candig_federation.api.federation">Federation Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="candig_federation.api.html#candig_federation.api.federation.FederationResponse"><code class="docutils literal notranslate"><span class="pre">FederationResponse</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.announce_fed_in"><code class="docutils literal notranslate"><span class="pre">FederationResponse.announce_fed_in()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.announce_fed_out"><code class="docutils literal notranslate"><span class="pre">FederationResponse.announce_fed_out()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.async_requests"><code class="docutils literal notranslate"><span class="pre">FederationResponse.async_requests()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.federate_check"><code class="docutils literal notranslate"><span class="pre">FederationResponse.federate_check()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.get_response_object"><code class="docutils literal notranslate"><span class="pre">FederationResponse.get_response_object()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.get_server_from_url"><code class="docutils literal notranslate"><span class="pre">FederationResponse.get_server_from_url()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.get_service"><code class="docutils literal notranslate"><span class="pre">FederationResponse.get_service()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.handle_server_request"><code class="docutils literal notranslate"><span class="pre">FederationResponse.handle_server_request()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.merge_status"><code class="docutils literal notranslate"><span class="pre">FederationResponse.merge_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="candig_federation.api.html#candig_federation.api.federation.FederationResponse.post_service"><code class="docutils literal notranslate"><span class="pre">FederationResponse.post_service()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="candig_federation.api.html#module-candig_federation.api.logging">Logging Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="candig_federation.api.html#candig_federation.api.logging.FieldEncoder"><code class="docutils literal notranslate"><span class="pre">FieldEncoder</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="candig_federation.api.html#candig_federation.api.logging.FieldEncoder.default"><code class="docutils literal notranslate"><span class="pre">FieldEncoder.default()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="candig_federation.api.html#candig_federation.api.logging.apilog"><code class="docutils literal notranslate"><span class="pre">apilog()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="candig_federation.api.html#candig_federation.api.logging.logger"><code class="docutils literal notranslate"><span class="pre">logger()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="candig_federation.api.html#candig_federation.api.logging.structured_log"><code class="docutils literal notranslate"><span class="pre">structured_log()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
 
            </div>
            
@@ -169,7 +219,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="examples.html" class="btn btn-neutral float-right" title="Sending a Request" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="candig_federation.api.html" class="btn btn-neutral float-right" title="API package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="modules.html" class="btn btn-neutral float-left" title="candig_federation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

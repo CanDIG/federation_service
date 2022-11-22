@@ -110,4 +110,4 @@ pytest tests/ --cov=candig_federation --html=test_report.html --self-contained-h
 
 ## Documentation
 
-There is a [documentation website](https://candig-federation.readthedocs.io/en/latest/index.html) with detailed information on how federated queries work and how they are tested.
+There is a [documentation website](https://federation-service.readthedocs.io/en/latest) with detailed information on how federated queries work and how they are tested.
