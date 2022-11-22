@@ -12,7 +12,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../candig_federation'))
+sys.path.insert(0, os.path.abspath('../..'))
 sys.path.append(os.path.join(os.path.dirname(__name__), '..'))
 
 print(sys.path)

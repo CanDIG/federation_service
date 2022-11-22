@@ -87,7 +87,7 @@ peer server federation service is running at ``http://0.0.0.0:8891`` in Ontario,
       }
     ]
   }
-https://uwsgi-docs.readthedocs.io/en/latest/Configuration.html
+
 In ``services.json``, each service should correspond to a CanDIG service accessible by the federation service. Due to the way request parsing works,
 it's important to use the same service key name as its base API path.
 

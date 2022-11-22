@@ -15,14 +15,14 @@ APP = flask.current_app
 @apilog
 def get_registered_servers():
     """
-    Get a dictionary of registered peer servers.
+    :return: Dictionary of registered peer servers.
     """
     return APP.config["servers"]
 
 @apilog
 def get_registered_services():
     """
-    Get a dictionary of registered services.
+    :return: Dictionary of registered services.
     """
     return APP.config["services"]
   
