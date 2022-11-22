@@ -5,7 +5,6 @@ Methods to handle incoming requests passed from Tyk
 
 import json
 import flask
-import sys
 from candig_federation.api.logging import apilog
 from candig_federation.api.federation import FederationResponse
 
