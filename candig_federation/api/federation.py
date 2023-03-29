@@ -241,7 +241,7 @@ class FederationResponse:
             try:
                 future_response = future_response["response"]
                 response = future_response.result()
-            
+
             except AttributeError:
                 if isinstance(future_response, requests.exceptions.ConnectionError):
                     self.status.append(404)
@@ -327,10 +327,10 @@ class FederationResponse:
                 response["location"] = server["location"]
 
                 responses.append(response)
-            
+
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
                 responses.append(e)
-        
+
         return responses
 
     def merge_status(self, statuses):
