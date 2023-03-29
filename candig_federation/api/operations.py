@@ -64,7 +64,7 @@ def post_search():
 
         endpoint_payload = data["endpoint_payload"]
         endpoint_service = data["endpoint_service"]
-        microservice_URL = APP.config['services'][endpoint_service]
+        microservice_URL = get_registered_services().[endpoint_service]
         federation_response = FederationResponse(url=microservice_URL,
                                                 request=request_type,
                                                 endpoint_path=endpoint_path,
@@ -85,7 +85,7 @@ def post_search():
            "response": ("Invalid service name: {}. "
            "Please make sure that the service requested matches a registered service: "
            "{} "
-           .format(endpoint_service, list(APP.config['services'].keys()))),
+           .format(endpoint_service, list(get_registered_services().keys()))),
            "status": 404,
            "service": "ErrorHandling"
            }, 404
