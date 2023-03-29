@@ -24,7 +24,7 @@ def get_registered_services():
     :return: Dictionary of registered services.
     """
     return APP.config["services"]
-  
+
 @apilog
 def post_search():
     """
@@ -34,7 +34,7 @@ def post_search():
     following the endpoint_path conventions set in get_search().
     The endpoint_payload is microservice specific but will typically be a
     JSON object of sorts.
-    
+
     :return: response_object
     response_object: json string
     Merged responses from the federation nodes. response_object structure:
@@ -72,13 +72,13 @@ def post_search():
                                                 request_dict=flask.request,
                                                 endpoint_service=endpoint_service
                                                 )
-                                                
+
         return federation_response.get_response_object()
 
     except KeyError:
-        """     
+        """
         Due to Connexion parsing the args prior this code running, it will be assumed that we
-        have a valid request_type, endpoint_path and endpoint_payload. A KeyError occuring here 
+        have a valid request_type, endpoint_path and endpoint_payload. A KeyError occuring here
         will be due to the service dictionary receiving an invalid key.
         """
     return {
