@@ -53,6 +53,7 @@ class FederationResponse:
         self.return_mimetype = return_mimetype
         self.request_dict = request_dict
         self.logger = APP.logger
+        self.servers = APP.config['servers']
 
         try:
             self.token = self.request_dict.headers['Authorization']
@@ -153,17 +154,6 @@ class FederationResponse:
             return False
         else:
             return True
-
-    def get_server_from_url(self, server_url):
-        """
-        Returns the server name from the server_url
-        :param server_url: URL of service
-        :type server_url: str
-        :return: str
-        """
-        for server, url in APP.config["servers"].items():
-            if url == server_url:
-                return server
 
     def post_service(self, url, endpoint_path, endpoint_payload):
         """
@@ -317,9 +307,8 @@ class FederationResponse:
                 "endpoint_payload": endpoint_payload, "endpoint_service": endpoint_service}
         async_session = FuturesSession(max_workers=10)  # capping max threads
         responses = []
-        servers = APP.config["servers"]
 
-        for server in servers:
+        for server in self.servers:
             try:
                 # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
                 response = {}
