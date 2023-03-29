@@ -232,11 +232,7 @@ class FederationResponse:
         :type header: object
         :return: List of ResponseObjects, this specific return is used only in testing
         """
-        # Get URLs from servers configuration
-        urls = [server['url'] for server in APP.config["servers"]]
-
-        for future_response in self.async_requests(url_list=urls,
-                                                   request=request,
+        for future_response in self.async_requests(request=request,
                                                    header=header,
                                                    endpoint_payload=endpoint_payload,
                                                    endpoint_path=endpoint_path,
@@ -299,7 +295,7 @@ class FederationResponse:
         # Return is used for testing individual methods
         return self.results
 
-    def async_requests(self, url_list, request, endpoint_path, endpoint_payload, endpoint_service, header):
+    def async_requests(self, request, endpoint_path, endpoint_payload, endpoint_service, header):
         """Send requests to each CanDIG node in the network asynchronously using FutureSession. The
         futures are returned back to and handled by handle_server_requests()
 
@@ -323,17 +319,13 @@ class FederationResponse:
         responses = []
         servers = APP.config["servers"]
 
-        for url in url_list:
+        for server in servers:
             try:
                 # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
                 response = {}
-                response["response"] = async_session.post(url, json=args, headers=header, timeout=self.timeout)
+                response["response"] = async_session.post(server['url'], json=args, headers=header, timeout=self.timeout)
+                response["location"] = server["location"]
 
-                for i, server in enumerate(servers):
-                    if server["url"] == url:
-                        response["location"] = servers[i]["location"]
-                        break
-                
                 responses.append(response)
             
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
