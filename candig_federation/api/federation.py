@@ -312,7 +312,8 @@ class FederationResponse:
             try:
                 # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
                 response = {}
-                response["response"] = async_session.post(server['url'], json=args, headers=header, timeout=self.timeout)
+                url = f"{server['url']}/federation/search"
+                response["response"] = async_session.post(url, json=args, headers=header, timeout=self.timeout)
                 response["location"] = server["location"]
 
                 responses.append(response)
