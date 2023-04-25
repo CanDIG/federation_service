@@ -31,9 +31,12 @@ RUN apk add --no-cache \
 
 RUN addgroup candig
 
-COPY . /app/federation_service
-WORKDIR /app/federation_service
+COPY requirements.txt /app/federation_service/requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r /app/federation_service/requirements.txt
+
+COPY . /app/federation_service
+
+WORKDIR /app/federation_service
 
 ENTRYPOINT ["python", "-m", "candig_federation"]
