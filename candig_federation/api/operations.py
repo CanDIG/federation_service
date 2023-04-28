@@ -34,6 +34,8 @@ def add_server():
     """
     :return: Server added.
     """
+    if not is_site_admin(request):
+        return {"message": "User is not authorized to POST"}, 403
     new_server = connexion.request.json
     register_server(new_server)
     return get_registered_servers()[new_server['id']], 200
@@ -55,6 +57,8 @@ def delete_server(id_):
     """
     :return: Server deleted.
     """
+    if not is_site_admin(request):
+        return {"message": "User is not authorized to POST"}, 403
     result = unregister_server(id_)
     return result, 200
 
@@ -81,6 +85,8 @@ def add_service():
     """
     :return: Service added.
     """
+    if not is_site_admin(request):
+        return {"message": "User is not authorized to POST"}, 403
     new_service = connexion.request.json
     register_service(new_service)
     return get_registered_services()[new_service['id']], 200
@@ -92,6 +98,8 @@ def delete_service(id_):
     """
     :return: Service deleted.
     """
+    if not is_site_admin(request):
+        return {"message": "User is not authorized to POST"}, 403
     result = unregister_service(id_)
     return result, 200
 
