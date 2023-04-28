@@ -6,11 +6,10 @@ Provides methods to handle both local and federated requests
 
 import json
 import requests
-import flask
+from flask import current_app
 from requests_futures.sessions import FuturesSession
 from candig_federation.api.network import get_registered_servers, get_registered_services
 
-APP = flask.current_app
 
 class FederationResponse:
     """
@@ -52,7 +51,7 @@ class FederationResponse:
         self.endpoint_service = endpoint_service
         self.return_mimetype = return_mimetype
         self.request_dict = request_dict
-        self.logger = APP.logger
+        self.logger = current_app.logger
         self.servers = get_registered_servers()
 
         try:

@@ -58,10 +58,6 @@ def main(args=None):
     with open(APP.app.config["server_file"], "w") as f:
         f.write("{}")
 
-    # Self and Local don't actually need to be mapped anymore with the new broadcast logic
-    APP.app.config["self"] = "http://{}:{}".format(args.host, args.port)
-
-
     return APP, args.port
 
 def configure_app():
@@ -91,5 +87,5 @@ CORS(application)
 
 
 if __name__ == '__main__':
-    APPLICATION.app.logger.info("federation_service running at {}".format(APPLICATION.app.config["self"]))
+    APPLICATION.app.logger.info("federation_service running at {}".format("http://{}:{}".format(args.host, args.port)))
     APPLICATION.run(port=PORT)
