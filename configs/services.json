@@ -1,6 +1,0 @@
-{
-  "services": {
-    "katsu": "http://ga4ghdev01.bcgsc.ca:4000",
-    "candig-server": "https://app05.herokuapp.com"
-  }
-}
