@@ -39,4 +39,6 @@ COPY . /app/federation_service
 
 WORKDIR /app/federation_service
 
-ENTRYPOINT ["python", "-m", "candig_federation"]
+RUN mkdir /app/federation_service/config
+
+ENTRYPOINT ["bash", "entrypoint.sh"]
