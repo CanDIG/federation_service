@@ -51,12 +51,14 @@ def main(args=None):
     APP.app.logger.setLevel(numeric_loglevel)
 
     APP.app.config["service_file"] = os.path.abspath("config/services.json")
-    with open(APP.app.config["service_file"], "w") as f:
-        f.write("{}")
+    if not os.path.exists(APP.app.config["service_file"]):
+        with open(APP.app.config["service_file"], "w") as f:
+            f.write("{}")
 
     APP.app.config["server_file"] = os.path.abspath("config/servers.json")
-    with open(APP.app.config["server_file"], "w") as f:
-        f.write("{}")
+    if not os.path.exists(APP.app.config["server_file"]):
+        with open(APP.app.config["server_file"], "w") as f:
+            f.write("{}")
 
     return APP, args.port
 
