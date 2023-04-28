@@ -50,11 +50,11 @@ def main(args=None):
     APP.app.logger.addHandler(log_handler)
     APP.app.logger.setLevel(numeric_loglevel)
 
-    APP.app.config["service_file"] = os.path.abspath("config/services.json")
+    APP.app.config["service_file"] = os.path.abspath("configs/services.json")
     with open(APP.app.config["service_file"], "w") as f:
         f.write("{}")
 
-    APP.app.config["server_file"] = os.path.abspath("config/servers.json")
+    APP.app.config["server_file"] = os.path.abspath("configs/servers.json")
     with open(APP.app.config["server_file"], "w") as f:
         f.write("{}")
 
