@@ -9,8 +9,9 @@ import argparse
 import logging
 
 import connexion
-from prometheus_flask_exporter import PrometheusMetrics
+# from prometheus_flask_exporter import PrometheusMetrics
 from flask_cors import CORS
+import os.path
 
 
 from candig_federation.api import network
@@ -49,17 +50,17 @@ def main(args=None):
     APP.app.logger.addHandler(log_handler)
     APP.app.logger.setLevel(numeric_loglevel)
 
-    # Peer Servers Setup
+    APP.app.config["service_file"] = os.path.abspath("config/services.json")
+    with open(APP.app.config["service_file"], "w") as f:
+        f.write("{}")
 
-    APP.app.config["servers"] = network.parse_configs("servers", args.servers,
-                                                    args.schemas, APP.app.logger)
+    APP.app.config["server_file"] = os.path.abspath("config/servers.json")
+    with open(APP.app.config["server_file"], "w") as f:
+        f.write("{}")
 
     # Self and Local don't actually need to be mapped anymore with the new broadcast logic
     APP.app.config["self"] = "http://{}:{}".format(args.host, args.port)
 
-    # Service Parse
-    APP.app.config["services"] = network.parse_configs("services", args.services,
-                                                       args.schemas, APP.app.logger)
 
     return APP, args.port
 
@@ -76,7 +77,6 @@ def configure_app():
     api_def = './api/federation.yaml'
 
     app.add_api(api_def, strict_validation=True, validate_responses=True)
-
     return app
 
 
@@ -86,7 +86,7 @@ APPLICATION, PORT = main()
 # expose flask app for uwsgi
 
 application = APPLICATION.app
-metrics = PrometheusMetrics(application)
+# metrics = PrometheusMetrics(application)
 CORS(application)
 
 
