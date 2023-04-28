@@ -9,6 +9,13 @@ info:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 paths:
+  /service-info:
+    get:
+      description: Return server info about this instance
+      operationId: candig_federation.api.operations.service_info
+      responses:
+        '200':
+          description: Successful query
   /servers:
     get:
       description: List registered servers.

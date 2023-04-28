@@ -14,12 +14,18 @@ app = Flask(__name__)
 
 
 @apilog
+def service_info():
     """
-    :return: Dictionary of registered peer servers.
+    :return: Our own server.
     """
+    return list(get_registered_servers().values())[0], 200
+
 
 @apilog
 def list_servers():
+    """
+    :return: Dictionary of registered peer servers.
+    """
     return list(get_registered_servers().values()), 200
 
 
