@@ -2,28 +2,93 @@
 Methods to handle incoming requests passed from Tyk
 """
 
-
-import json
-import flask
+from candig_federation.api.authz import is_site_admin
+import connexion
+from flask import request, Flask
 from candig_federation.api.logging import apilog
 from candig_federation.api.federation import FederationResponse
+from candig_federation.api.network import get_registered_servers, get_registered_services, register_server, register_service, unregister_server, unregister_service
 
-APP = flask.current_app
+
+app = Flask(__name__)
 
 
 @apilog
-def get_registered_servers():
     """
     :return: Dictionary of registered peer servers.
     """
-    return APP.config["servers"]
 
 @apilog
-def get_registered_services():
+def list_servers():
+    return list(get_registered_servers().values()), 200
+
+
+@apilog
+def add_server():
+    """
+    :return: Server added.
+    """
+    new_server = connexion.request.json
+    register_server(new_server)
+    return get_registered_servers()[new_server['id']], 200
+
+
+
+@apilog
+@app.route('/servers/<path:id_>')
+def get_server(id_):
+    """
+    :return: Server requested.
+    """
+    return get_registered_servers()[id_], 200
+
+
+@apilog
+@app.route('/servers/<path:id_>')
+def delete_server(id_):
+    """
+    :return: Server deleted.
+    """
+    result = unregister_server(id_)
+    return result, 200
+
+
+@apilog
+def list_services():
     """
     :return: Dictionary of registered services.
     """
-    return APP.config["services"]
+    return list(get_registered_services().values()), 200
+
+
+@apilog
+@app.route('/services/<path:id_>')
+def get_service(id_):
+    """
+    :return: Service requested.
+    """
+    return get_registered_services()[id_], 200
+
+
+@apilog
+def add_service():
+    """
+    :return: Service added.
+    """
+    new_service = connexion.request.json
+    register_service(new_service)
+    return get_registered_services()[new_service['id']], 200
+
+
+@apilog
+@app.route('/services/<path:id_>')
+def delete_service(id_):
+    """
+    :return: Service deleted.
+    """
+    result = unregister_service(id_)
+    return result, 200
+
 
 @apilog
 def post_search():
@@ -51,7 +116,7 @@ def post_search():
     """
     try:
 
-        data = json.loads(flask.request.data)
+        data = connexion.request.json
         request_type = data["request_type"]
         endpoint_path = data["endpoint_path"]
         if endpoint_path[0] == "/":
@@ -64,12 +129,12 @@ def post_search():
 
         endpoint_payload = data["endpoint_payload"]
         endpoint_service = data["endpoint_service"]
-        microservice_URL = get_registered_services().[endpoint_service]
+        microservice_URL = get_registered_services()[endpoint_service]
         federation_response = FederationResponse(url=microservice_URL,
                                                 request=request_type,
                                                 endpoint_path=endpoint_path,
                                                 endpoint_payload=endpoint_payload,
-                                                request_dict=flask.request,
+                                                request_dict=request,
                                                 endpoint_service=endpoint_service
                                                 )
 

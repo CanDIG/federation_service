@@ -8,9 +8,9 @@ import json
 import requests
 import flask
 from requests_futures.sessions import FuturesSession
+from candig_federation.api.network import get_registered_servers, get_registered_services
 
 APP = flask.current_app
-
 
 class FederationResponse:
     """
@@ -53,7 +53,7 @@ class FederationResponse:
         self.return_mimetype = return_mimetype
         self.request_dict = request_dict
         self.logger = APP.logger
-        self.servers = APP.config['servers']
+        self.servers = get_registered_servers()
 
         try:
             self.token = self.request_dict.headers['Authorization']
@@ -312,7 +312,7 @@ class FederationResponse:
             try:
                 # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
                 response = {}
-                url = f"{server['url']}/federation/search"
+                url = f"{server['url']}/search"
                 response["response"] = async_session.post(url, json=args, headers=header, timeout=self.timeout)
                 response["location"] = server["location"]
 
