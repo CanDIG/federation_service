@@ -138,9 +138,9 @@ class FederationResponse:
             self.message.append('Peer server timed out, it may be down.')
 
             return
-        except AttributeError as e:
+        except Exception as e:
             self.status.append(500)
-            self.message.append(e)
+            self.message.append(f"get_service {str(e)}")
             return
 
     def federate_check(self):
@@ -194,9 +194,9 @@ class FederationResponse:
             self.message.append('Peer server timed out, it may be down.')
             return
 
-        except AttributeError as e:
+        except Exception as e:
             self.status.append(500)
-            self.message.append(e)
+            self.message.append(f"post_service {str(e)}")
             return
 
     def handle_server_request(self, request, endpoint_path, endpoint_payload, endpoint_service, header):
@@ -307,7 +307,7 @@ class FederationResponse:
         async_session = FuturesSession(max_workers=10)  # capping max threads
         responses = []
 
-        for server in self.servers:
+        for server in self.servers.values():
             try:
                 # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
                 response = {}
