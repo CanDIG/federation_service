@@ -143,7 +143,7 @@ def post_search():
 
         endpoint_payload = data["endpoint_payload"]
         endpoint_service = data["endpoint_service"]
-        microservice_URL = get_registered_services()[endpoint_service]
+        microservice_URL = get_registered_services()[endpoint_service]['url']
         federation_response = FederationResponse(url=microservice_URL,
                                                 request=request_type,
                                                 endpoint_path=endpoint_path,
