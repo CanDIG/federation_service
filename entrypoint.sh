@@ -2,7 +2,11 @@
 
 set -Euo pipefail
 
-export CANDIG_OPA_SECRET=$(cat /run/secrets/opa-service-token)
+export OPA_SECRET=$(cat /run/secrets/opa-service-token)
+export TYK_SECRET_KEY=$(cat /run/secrets/tyk-secret-key)
+export CANDIG_CLIENT_SECRET=$(cat /run/secrets/client-secret)
+
+
 
 if [[ -f "initial_setup" ]]; then
     rm initial_setup

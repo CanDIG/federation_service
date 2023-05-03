@@ -36,7 +36,25 @@ paths:
         content:
           'application/json':
             schema:
-              $ref: "#/components/schemas/Server"
+              type: object
+              required:
+                - server
+                - authentication
+              properties:
+                server:
+                  $ref: "#/components/schemas/Server"
+                authentication:
+                  type: object
+                  required:
+                    - token
+                    - issuer
+                  properties:
+                    issuer:
+                      type: string
+                      description: Issuer associated with the OIDC token.
+                    token:
+                      type: string
+                      description: OIDC access token issued to a user from the issuer. Can be expired, as long as it's verifiable with the current public key.
       responses:
         '200':
           description: OK

@@ -37,9 +37,11 @@ def add_server():
     if not is_site_admin(request):
         return {"message": "User is not authorized to POST"}, 403
     new_server = connexion.request.json
-    register_server(new_server)
-    return get_registered_servers()[new_server['id']], 200
-
+    try:
+        register_server(new_server)
+        return get_registered_servers()[new_server['server']['id']], 200
+    except Exception as e:
+        return {"message": f"Couldn't add server: {type(e)} {str(e)}"}, 500
 
 
 @apilog

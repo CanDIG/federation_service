@@ -5,6 +5,7 @@ Provides parsing methods to initialize the server's peer to peer/service connect
 import os
 import json
 from flask import current_app
+from candig_federation.api import authz
 
 
 def get_registered_servers():
@@ -18,10 +19,23 @@ def get_registered_servers():
 def register_server(obj):
     servers = get_registered_servers()
     if servers is not None:
-        servers[obj['id']] = obj
+        servers[obj['server']['id']] = obj['server']
+
+    try:
+        token = obj['authentication']['token']
+        issuer = obj['authentication']['issuer']
+
+        authz.add_provider_to_tyk(token, issuer)
+    except Exception as e:
+        raise Exception(f"Failed to register server with tyk: {type(e)} {str(e)}")
+    try:
+        authz.add_provider_to_opa(token, issuer)
+    except Exception as e:
+        raise Exception(f"Failed to register server with opa: {type(e)} {str(e)}")
+
     with open(current_app.config['server_file'], 'w') as f:
         f.write(json.dumps(servers))
-    return obj
+    return obj['server']
 
 
 def unregister_server(server_id):
