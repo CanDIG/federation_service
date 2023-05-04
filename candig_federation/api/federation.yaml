@@ -8,6 +8,8 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+  - url: /v1
 paths:
   /service-info:
     get:
@@ -205,8 +207,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PostObject'
-servers:
-  - url: /federation
 components:
   parameters:
     server_id:
