@@ -18,8 +18,16 @@ def get_registered_servers():
 
 def register_server(obj):
     servers = get_registered_servers()
+    new_server = obj['server']
     if servers is not None:
-        servers[obj['server']['id']] = obj['server']
+        # check to see if it's already here:
+        found = False
+        for s in servers.values():
+            if json.dumps(s, sort_keys=True) == json.dumps(new_server, sort_keys=True):
+                found = True
+        if found:
+            return None
+        servers[new_server['id']] = new_server
 
     try:
         token = obj['authentication']['token']

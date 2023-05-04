@@ -38,7 +38,8 @@ def add_server():
         return {"message": "User is not authorized to POST"}, 403
     new_server = connexion.request.json
     try:
-        register_server(new_server)
+        if register_server(new_server) is None:
+            return {"message": f"Server {new_server['server']['id']} already present"}, 204
         return get_registered_servers()[new_server['server']['id']], 200
     except Exception as e:
         return {"message": f"Couldn't add server: {type(e)} {str(e)}"}, 500
