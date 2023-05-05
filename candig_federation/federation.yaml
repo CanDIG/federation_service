@@ -14,14 +14,14 @@ paths:
   /service-info:
     get:
       description: Return server info about this instance
-      operationId: candig_federation.api.operations.service_info
+      operationId: operations.service_info
       responses:
         '200':
           description: Successful query
   /servers:
     get:
       description: List registered servers.
-      operationId: candig_federation.api.operations.list_servers
+      operationId: operations.list_servers
       responses:
         '200':
           description: Successful query
@@ -33,7 +33,7 @@ paths:
           description: Internal Error
     post:
       description: Add a server to the federation.
-      operationId: candig_federation.api.operations.add_server
+      operationId: operations.add_server
       requestBody:
         content:
           'application/json':
@@ -73,7 +73,7 @@ paths:
       - $ref: "#/components/parameters/server_id"
     get:
       description: Get a server
-      operationId: candig_federation.api.operations.get_server
+      operationId: operations.get_server
       responses:
         '200':
           description: Successful query
@@ -85,7 +85,7 @@ paths:
           description: Internal Error
     delete:
       description: Unregister a server
-      operationId: candig_federation.api.operations.delete_server
+      operationId: operations.delete_server
       responses:
         '200':
           description: Server unregistered successfully
@@ -98,7 +98,7 @@ paths:
   /services:
     get:
       description: List registered services.
-      operationId: candig_federation.api.operations.list_services
+      operationId: operations.list_services
       responses:
         '200':
           description: Successful query
@@ -110,7 +110,7 @@ paths:
           description: Internal Error
     post:
       description: Add a service to the federation.
-      operationId: candig_federation.api.operations.add_service
+      operationId: operations.add_service
       requestBody:
         content:
           'application/json':
@@ -132,7 +132,7 @@ paths:
       - $ref: "#/components/parameters/service_id"
     get:
       description: Get a service
-      operationId: candig_federation.api.operations.get_service
+      operationId: operations.get_service
       responses:
         '200':
           description: Successful query
@@ -144,7 +144,7 @@ paths:
           description: Internal Error
     delete:
       description: Unregister a service
-      operationId: candig_federation.api.operations.delete_service
+      operationId: operations.delete_service
       responses:
         '200':
           description: Service unregistered successfully
@@ -160,7 +160,7 @@ paths:
     #   description: >
     #     Entry point for Tyk to pass GET requests to CanDIG microservices.
     #     Federation broadcasting defined by 'federation' header.
-    #   operationId: candig_federation.api.operations.get_search
+    #   operationId: operations.get_search
     #   parameters:
     #     - $ref: '#/components/parameters/endpoint_path'
     #     - $ref: '#/components/parameters/endpoint_payload'
@@ -184,7 +184,7 @@ paths:
       description: >
         Entry point for Tyk to pass ALL requests to CanDIG microservices.
         Federation broadcasting defined by 'federation' header.
-      operationId: candig_federation.api.operations.post_search
+      operationId: operations.post_search
       parameters:
         - $ref: '#/components/parameters/Federation'
       responses:

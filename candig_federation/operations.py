@@ -2,12 +2,12 @@
 Methods to handle incoming requests passed from Tyk
 """
 
-from candig_federation.api.authz import is_site_admin
+from authz import is_site_admin
 import connexion
 from flask import request, Flask
-from candig_federation.api.logging import apilog
-from candig_federation.api.federation import FederationResponse
-from candig_federation.api.network import get_registered_servers, get_registered_services, register_server, register_service, unregister_server, unregister_service
+from apilog import apilog
+from federation import FederationResponse
+from network import get_registered_servers, get_registered_services, register_server, register_service, unregister_server, unregister_service
 
 
 app = Flask(__name__)

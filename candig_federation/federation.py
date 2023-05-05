@@ -8,7 +8,7 @@ import json
 import requests
 from flask import current_app
 from requests_futures.sessions import FuturesSession
-from candig_federation.api.network import get_registered_servers, get_registered_services
+from network import get_registered_servers, get_registered_services
 
 
 class FederationResponse:

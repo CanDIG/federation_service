@@ -5,7 +5,7 @@ Provides parsing methods to initialize the server's peer to peer/service connect
 import os
 import json
 from flask import current_app
-from candig_federation.api import authz
+import authz
 
 
 def get_registered_servers():
