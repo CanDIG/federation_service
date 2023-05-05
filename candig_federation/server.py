@@ -6,15 +6,14 @@ Driver program for service
 
 import sys
 import argparse
-import logging
-
 import connexion
 # from prometheus_flask_exporter import PrometheusMetrics
 from flask_cors import CORS
 import os.path
 
 
-from candig_federation.api import network
+import network
+import logging
 
 
 def main(args=None):
@@ -29,12 +28,9 @@ def main(args=None):
     parser = argparse.ArgumentParser('Run federation service')
     parser.add_argument('--port', default=8890)
     parser.add_argument('--host', default='ga4ghdev01.bcgsc.ca')
-    parser.add_argument('--logfile', default="./log/federation.log")
+    parser.add_argument('--logfile', default="../log/federation.log")
     parser.add_argument('--loglevel', default='INFO',
                         choices=['DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'])
-    parser.add_argument('--services', default="./configs/services.json")
-    parser.add_argument('--servers', default="./configs/servers.json")
-    parser.add_argument('--schemas', default="./configs/schemas.json")
 
 
 
@@ -50,12 +46,12 @@ def main(args=None):
     APP.app.logger.addHandler(log_handler)
     APP.app.logger.setLevel(numeric_loglevel)
 
-    APP.app.config["service_file"] = os.path.abspath("config/services.json")
+    APP.app.config["service_file"] = os.path.abspath("../config/services.json")
     if not os.path.exists(APP.app.config["service_file"]):
         with open(APP.app.config["service_file"], "w") as f:
             f.write("{}")
 
-    APP.app.config["server_file"] = os.path.abspath("config/servers.json")
+    APP.app.config["server_file"] = os.path.abspath("../config/servers.json")
     if not os.path.exists(APP.app.config["server_file"]):
         with open(APP.app.config["server_file"], "w") as f:
             f.write("{}")
@@ -72,7 +68,7 @@ def configure_app():
     app = connexion.FlaskApp(__name__, server='tornado', options={"swagger_url": "/"})
 
 
-    api_def = './api/federation.yaml'
+    api_def = 'federation.yaml'
 
     app.add_api(api_def, strict_validation=True, validate_responses=True)
     return app
