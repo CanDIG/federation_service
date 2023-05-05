@@ -31,14 +31,14 @@ RUN apk add --no-cache \
 
 RUN addgroup candig
 
-COPY requirements.txt /app/federation_service/requirements.txt
+COPY requirements.txt /app/federation/requirements.txt
 
-RUN pip install --no-cache-dir -r /app/federation_service/requirements.txt
+RUN pip install --no-cache-dir -r /app/federation/requirements.txt
 
-COPY . /app/federation_service
+COPY . /app/federation
 
-WORKDIR /app/federation_service
+WORKDIR /app/federation
 
-RUN mkdir /app/federation_service/config
+RUN mkdir /app/federation/config
 
 ENTRYPOINT ["bash", "entrypoint.sh"]
