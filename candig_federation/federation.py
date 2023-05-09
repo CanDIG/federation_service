@@ -265,9 +265,9 @@ class FederationResponse:
                     self.status.append(response.status_code)
                     self.message.append(f'Success! Location: {location["name"]}, {location["province"]}')
 
-                except KeyError:
+                except KeyError as e:
                     # No "results"
-                    self.logger.warn(KeyError)
+                    self.logger.warn(f"KeyError: {str(e)}")
                     self.status.append(500)
                     self.results.append(
                         {"Error": "Malformed Response Object: No 'results'"})
