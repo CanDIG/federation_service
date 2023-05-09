@@ -1,0 +1,22 @@
+{
+    "rnaget": {
+        "id": "rnaget",
+        "url": "http://10.9.208.132:8890",
+        "version": "v2.0.0"
+    },
+    "datasets": {
+        "id": "datasets",
+        "url": "http://10.9.208.132:19712",
+        "version": "v2.0.1"
+    },
+    "datasetsP": {
+        "id": "datasetsP",
+        "url": "https://ff345ede-96fd-4357-bc44-80ba503591b3.mock.pstmn.io",
+        "version": "v2.0.1"
+    },
+    "TestService": {
+        "id": "TestService",
+        "url": "http://10.9.208.132:9999",
+        "version": "v2.0.1"
+    }
+}

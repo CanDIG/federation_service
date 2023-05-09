@@ -20,12 +20,7 @@ from tests.test_data.test_structs import *
 
 APP = main()
 
-APP.app.config["services"] = {
-    "rnaget": 'http://{}:{}'.format(TP["URI"], TP["PORT0"]),
-    "datasets": "http://10.9.208.132:19712",
-    "datasetsP": "https://ff345ede-96fd-4357-bc44-80ba503591b3.mock.pstmn.io",
-    "TestService": "http://10.9.208.132:9999"
-}
+APP.app.config["service_file"] = os.path.abspath("tests/test_data/services.json")
 
 
 @pytest.fixture()
