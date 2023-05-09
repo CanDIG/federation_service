@@ -263,7 +263,7 @@ class FederationResponse:
                     result[0]["location"] = location
                     self.results.extend(result)
                     self.status.append(response.status_code)
-                    self.message.append(f'Success! Location: {location[0]}, {location[1]}')
+                    self.message.append(f'Success! Location: {location["name"]}, {location["province"]}')
 
                 except KeyError:
                     # No "results"
