@@ -13,10 +13,12 @@ sys.path.append("{}/{}".format(os.getcwd(), "candig_federation"))
 
 sys.path.append(os.getcwd())
 
-from candig_federation.__main__ import APP
-from candig_federation.api.federation import FederationResponse
-from candig_federation.api import operations
+from server import main
+from federation import FederationResponse
+import operations
 from tests.test_data.test_structs import *
+
+APP = main()
 
 APP.app.config["services"] = {
     "rnaget": 'http://{}:{}'.format(TP["URI"], TP["PORT0"]),
@@ -24,7 +26,6 @@ APP.app.config["services"] = {
     "datasetsP": "https://ff345ede-96fd-4357-bc44-80ba503591b3.mock.pstmn.io",
     "TestService": "http://10.9.208.132:9999"
 }
-APP.app.config["local"] = "http://10.9.208.132:6000"
 
 
 @pytest.fixture()
@@ -239,9 +240,9 @@ def mocked_async_local_TimeOUt_p1_Timeout_requests_post(*args, **kwargs):
 
 # Test basic service requests --------------------------------------------------------------------
 
-@patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
+@patch('federation.requests.Session.get', side_effect=mocked_service_get)
 def test_valid_noFed_get(mock_requests, client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         FR = get_federation_response("GET")
         RO, Status = FR.get_response_object()
@@ -250,9 +251,9 @@ def test_valid_noFed_get(mock_requests, client):
         assert RO["results"] == [AP["j1"]]
 
 
-@patch('candig_federation.api.federation.requests.Session.post', side_effect=mocked_service_post)
+@patch('federation.requests.Session.post', side_effect=mocked_service_post)
 def test_valid_noFed_post(mock_requests, client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         FR = get_federation_response("POST")
         RO, Status = FR.get_response_object()
@@ -261,9 +262,9 @@ def test_valid_noFed_post(mock_requests, client):
 
 # Test basic service errors --------------------------------------------------------------------
 
-@patch('candig_federation.api.federation.requests.Session.get', side_effect=exceptions.ConnectionError)
+@patch('federation.requests.Session.get', side_effect=exceptions.ConnectionError)
 def test_invalid_noFed_get(mock_requests, client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         FR = get_federation_response("GET")
         RO, Status = FR.get_response_object()
@@ -271,9 +272,9 @@ def test_invalid_noFed_get(mock_requests, client):
         assert RO["results"] == []
 
 
-@patch('candig_federation.api.federation.requests.Session.post', side_effect=exceptions.ConnectionError)
+@patch('federation.requests.Session.post', side_effect=exceptions.ConnectionError)
 def test_invalid_noFed_post(mock_requests, client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         FR = get_federation_response("POST")
         RO, Status = FR.get_response_object()
@@ -281,9 +282,9 @@ def test_invalid_noFed_post(mock_requests, client):
         assert RO["results"] == []
 
 
-@patch('candig_federation.api.federation.requests.Session.get', side_effect=exceptions.Timeout)
+@patch('federation.requests.Session.get', side_effect=exceptions.Timeout)
 def test_timeout_noFed_get(mock_requests, client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         FR = get_federation_response("GET")
         RO, Status = FR.get_response_object()
@@ -291,9 +292,9 @@ def test_timeout_noFed_get(mock_requests, client):
         assert RO["results"] == []
 
 
-@patch('candig_federation.api.federation.requests.Session.post', side_effect=exceptions.Timeout)
+@patch('federation.requests.Session.post', side_effect=exceptions.Timeout)
 def test_timeout_noFed_post(mock_requests, client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         FR = get_federation_response("POST")
         RO, Status = FR.get_response_object()
@@ -302,14 +303,12 @@ def test_timeout_noFed_post(mock_requests, client):
 
 # Test the async request function --------------------------------------------------------------------
 
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_get)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_get)
 def test_valid_asyncRequests_two_servers_get(mock_requests, client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         FR = get_federation_response("POST", "Federate")
-        resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
-                                           "http://{}".format(TP["Tyk2"])],
-                                 request='GET',
+        resp = FR.async_requests(request='GET',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
                                  header=TP["Headers"],
@@ -321,14 +320,12 @@ def test_valid_asyncRequests_two_servers_get(mock_requests, client):
         assert Success == [200, 200]
 
 
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_post)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_post)
 def test_valid_asyncRequests_two_servers_post(mock_requests, client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         FR = get_federation_response("POST")
-        resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
-                                           "http://{}".format(TP["Tyk2"])],
-                                 request='POST',
+        resp = FR.async_requests(request='POST',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
                                  header=TP["Headers"],
@@ -340,14 +337,12 @@ def test_valid_asyncRequests_two_servers_post(mock_requests, client):
         assert Success == [200, 200]
 
 
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=exceptions.ConnectionError)
+@patch('federation.FuturesSession.post', side_effect=exceptions.ConnectionError)
 def test_invalid_asyncRequests_two_servers_get(mock_requests, client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         FR = get_federation_response("POST")
-        resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
-                                           "http://{}".format(TP["Tyk2"])],
-                                 request='GET',
+        resp = FR.async_requests(request='GET',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
                                  header=TP["Headers"],
@@ -361,14 +356,12 @@ def test_invalid_asyncRequests_two_servers_get(mock_requests, client):
         assert ConnErrs == [True, True]
 
 
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=exceptions.ConnectionError)
+@patch('federation.FuturesSession.post', side_effect=exceptions.ConnectionError)
 def test_invalid_asyncRequests_two_servers_post(mock_requests, client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         FR = get_federation_response("POST")
-        resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
-                                           "http://{}".format(TP["Tyk2"])],
-                                 request='POST',
+        resp = FR.async_requests(request='POST',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
                                  header=TP["Headers"],
@@ -380,14 +373,12 @@ def test_invalid_asyncRequests_two_servers_post(mock_requests, client):
         assert Success == [True, True]
 
 
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=exceptions.Timeout)
+@patch('federation.FuturesSession.post', side_effect=exceptions.Timeout)
 def test_timeout_asyncRequests_two_servers_post(mock_requests, client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         FR = get_federation_response("POST")
-        resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
-                                           "http://{}".format(TP["Tyk2"])],
-                                 request='POST',
+        resp = FR.async_requests(request='POST',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
                                  header=TP["Headers"],
@@ -399,14 +390,12 @@ def test_timeout_asyncRequests_two_servers_post(mock_requests, client):
         assert Success == [True, True]
 
 
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=exceptions.Timeout)
+@patch('federation.FuturesSession.post', side_effect=exceptions.Timeout)
 def test_timeout_asyncRequests_two_servers_get(mock_requests, client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         FR = get_federation_response("GET")
-        resp = FR.async_requests(url_list=["http://{}".format(TP["Tyk1"]),
-                                           "http://{}".format(TP["Tyk2"])],
-                                 request='GET',
+        resp = FR.async_requests(request='GET',
                                  endpoint_path=TP["path"],
                                  endpoint_payload="",
                                  header=TP["Headers"],
@@ -421,10 +410,10 @@ def test_timeout_asyncRequests_two_servers_get(mock_requests, client):
 
 # Test Federation with one server --------------------------------------------------------------------
 
-@patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_get)
+@patch('federation.requests.Session.get', side_effect=mocked_service_get)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_get)
 def test_valid_ServerRequest_one_server_get(mock_requests, mock_session, client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         FR = get_federation_response("GET", "Federate")
         RO, Status = FR.get_response_object()
@@ -433,10 +422,10 @@ def test_valid_ServerRequest_one_server_get(mock_requests, mock_session, client)
         assert RO["results"] == [AP["v1"], AP["v2"]]
 
 
-@patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_get)
+@patch('federation.requests.Session.get', side_effect=mocked_service_get)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_get)
 def test_valid_federated_query_one_server_get(mock_requests, mock_session, client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -452,10 +441,10 @@ def test_valid_federated_query_one_server_get(mock_requests, mock_session, clien
             assert RO["results"] == [AP["v1"], AP["v2"]]
 
 
-@patch('candig_federation.api.federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_post)
+@patch('federation.requests.Session.post', side_effect=mocked_service_post)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_post)
 def test_valid_ServerRequest_one_server_post(mock_session, mock_requests, client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         FR = get_federation_response("POST", "Federate")
         RO, Status = FR.get_response_object()
@@ -464,10 +453,10 @@ def test_valid_ServerRequest_one_server_post(mock_session, mock_requests, client
         assert RO["results"] == [PostListV1, PostListV2]
 
 
-@patch('candig_federation.api.federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_post)
+@patch('federation.requests.Session.post', side_effect=mocked_service_post)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_post)
 def test_valid_federated_query_one_server_post(mock_requests, mock_session, client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -483,10 +472,10 @@ def test_valid_federated_query_one_server_post(mock_requests, mock_session, clie
 
 # Test Federation with one server, have "local" error -------------------------------------------------
 
-@patch('candig_federation.api.federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_requests_post)
+@patch('federation.requests.Session.post', side_effect=mocked_service_post)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_requests_post)
 def test_valid_federated_local_ConnErr_one_server_post(mock_session,  client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -500,10 +489,10 @@ def test_valid_federated_local_ConnErr_one_server_post(mock_session,  client):
             assert RO["results"] == [PostListV2]
 
 
-@patch('candig_federation.api.federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_timeout_requests_post)
+@patch('federation.requests.Session.post', side_effect=mocked_service_post)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_local_timeout_requests_post)
 def test_valid_federated_local_TimeOut_one_server_post(mock_session,  client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -517,10 +506,10 @@ def test_valid_federated_local_TimeOut_one_server_post(mock_session,  client):
             assert RO["results"] == [PostListV2]
 
 
-@patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_timeout_requests_get)
+@patch('federation.requests.Session.get', side_effect=mocked_service_get)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_local_timeout_requests_get)
 def test_valid_federated_local_TimeOut_one_server_get(mock_requests, mock_session, client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -534,10 +523,10 @@ def test_valid_federated_local_TimeOut_one_server_get(mock_requests, mock_sessio
             assert RO["results"] == [AP["v2"]]
 
 
-@patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_requests_get)
+@patch('federation.requests.Session.get', side_effect=mocked_service_get)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_requests_get)
 def test_valid_federated_local_ConnErr_one_server_get(mock_requests, mock_session, client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path"   : TP["path"],
@@ -554,10 +543,10 @@ def test_valid_federated_local_ConnErr_one_server_get(mock_requests, mock_sessio
 
 # Test Federation with one server, have server error out --------------------------------------------------
 
-@patch('candig_federation.api.federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_p1_ConnErr_requests_post)
+@patch('federation.requests.Session.post', side_effect=mocked_service_post)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_p1_ConnErr_requests_post)
 def test_ConnErr_federated_valid_local_one_server_post(mock_session,  client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -571,10 +560,10 @@ def test_ConnErr_federated_valid_local_one_server_post(mock_session,  client):
             assert RO["results"] == [PostListV1]
 
 
-@patch('candig_federation.api.federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_p1_timeout_requests_post)
+@patch('federation.requests.Session.post', side_effect=mocked_service_post)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_p1_timeout_requests_post)
 def test_TimeOut_federated_valid_local_one_server_post(mock_session,  client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -588,10 +577,10 @@ def test_TimeOut_federated_valid_local_one_server_post(mock_session,  client):
             assert RO["results"] == [PostListV1]
 
 
-@patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_p1_ConnErr_requests_get)
+@patch('federation.requests.Session.get', side_effect=mocked_service_get)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_p1_ConnErr_requests_get)
 def test_ConnErr_federated_valid_local_one_server_get(mock_requests, mock_session, client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -605,10 +594,10 @@ def test_ConnErr_federated_valid_local_one_server_get(mock_requests, mock_sessio
             assert RO["results"] == [AP["v1"]]
 
 
-@patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_p1_ConnErr_requests_get)
+@patch('federation.requests.Session.get', side_effect=mocked_service_get)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_p1_ConnErr_requests_get)
 def test_TimeOut_federated_valid_local_one_server_get(mock_requests, mock_session, client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -624,10 +613,10 @@ def test_TimeOut_federated_valid_local_one_server_get(mock_requests, mock_sessio
 # Test Federation with two nodes and local -----------------------------------------------------
 
 
-@patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_get)
+@patch('federation.requests.Session.get', side_effect=mocked_service_get)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_get)
 def test_valid_ServerRequest_two_server_get(mock_requests, mock_session, client):
-    APP.app.config["servers"] = THREE
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         FR = get_federation_response("GET", "Federate")
         RO, Status = FR.get_response_object()
@@ -636,10 +625,10 @@ def test_valid_ServerRequest_two_server_get(mock_requests, mock_session, client)
         assert RO["results"] == [AP["v1"], AP["v2"], AP["v3"]]
 
 
-@patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_get)
+@patch('federation.requests.Session.get', side_effect=mocked_service_get)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_get)
 def test_valid_federated_query_two_server_get(mock_requests, mock_session, client):
-    APP.app.config["servers"] = THREE
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -654,10 +643,10 @@ def test_valid_federated_query_two_server_get(mock_requests, mock_session, clien
             assert RO["results"] == [AP["v1"], AP["v2"], AP["v3"]]
 
 
-@patch('candig_federation.api.federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_post)
+@patch('federation.requests.Session.post', side_effect=mocked_service_post)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_post)
 def test_valid_ServerRequest_two_server_post(mock_session, mock_requests, client):
-    APP.app.config["servers"] = THREE
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         FR = get_federation_response("POST", "Federate")
         RO, Status = FR.get_response_object()
@@ -666,10 +655,10 @@ def test_valid_ServerRequest_two_server_post(mock_session, mock_requests, client
         assert RO["results"] == [PostListV1, PostListV2, PostListV3]
 
 
-@patch('candig_federation.api.federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_post)
+@patch('federation.requests.Session.post', side_effect=mocked_service_post)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_post)
 def test_valid_federated_query_two_server_post(mock_requests, mock_session, client):
-    APP.app.config["servers"] = THREE
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -685,10 +674,10 @@ def test_valid_federated_query_two_server_post(mock_requests, mock_session, clie
 
 # Test Federation with two nodes and local error -----------------------------------------------------
 
-@patch('candig_federation.api.federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_requests_post)
+@patch('federation.requests.Session.post', side_effect=mocked_service_post)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_requests_post)
 def test_valid_federated_local_ConnErr_two_server_post(mock_session,  client):
-    APP.app.config["servers"] = THREE
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -702,10 +691,10 @@ def test_valid_federated_local_ConnErr_two_server_post(mock_session,  client):
             assert RO["results"] == [PostListV2, PostListV3]
 
 
-@patch('candig_federation.api.federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_timeout_requests_post)
+@patch('federation.requests.Session.post', side_effect=mocked_service_post)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_local_timeout_requests_post)
 def test_valid_federated_local_TimeOut_two_server_post(mock_session,  client):
-    APP.app.config["servers"] = THREE
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -719,10 +708,10 @@ def test_valid_federated_local_TimeOut_two_server_post(mock_session,  client):
             assert RO["results"] == [PostListV2, PostListV3]
 
 
-@patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_requests_get)
+@patch('federation.requests.Session.get', side_effect=mocked_service_get)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_requests_get)
 def test_valid_federated_local_ConnErr_two_server_get(mock_requests, mock_session, client):
-    APP.app.config["servers"] = THREE
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -736,10 +725,10 @@ def test_valid_federated_local_ConnErr_two_server_get(mock_requests, mock_sessio
             assert RO["results"] == [AP["v2"], AP["v3"]]
 
 
-@patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_timeout_requests_get)
+@patch('federation.requests.Session.get', side_effect=mocked_service_get)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_local_timeout_requests_get)
 def test_valid_federated_local_TimeOut_two_server_get(mock_requests, mock_session, client):
-    APP.app.config["servers"] = THREE
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -755,10 +744,10 @@ def test_valid_federated_local_TimeOut_two_server_get(mock_requests, mock_sessio
 
 # Test Federation with two nodes (One timeout) and local Error -----------------------------------------------------
 
-@patch('candig_federation.api.federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_p1_Timeout_requests_post)
+@patch('federation.requests.Session.post', side_effect=mocked_service_post)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_p1_Timeout_requests_post)
 def test_one_TimeOut_federated_local_ConnErr_two_server_post(mock_session,  client):
-    APP.app.config["servers"] = THREE
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -772,10 +761,10 @@ def test_one_TimeOut_federated_local_ConnErr_two_server_post(mock_session,  clie
             assert RO["results"] == [PostListV3]
 
 
-@patch('candig_federation.api.federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_TimeOUt_p1_Timeout_requests_post)
+@patch('federation.requests.Session.post', side_effect=mocked_service_post)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_local_TimeOUt_p1_Timeout_requests_post)
 def test_one_TimeOut_federated_local_TimeOut_two_server_post(mock_session,  client):
-    APP.app.config["servers"] = THREE
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -789,10 +778,10 @@ def test_one_TimeOut_federated_local_TimeOut_two_server_post(mock_session,  clie
             assert RO["results"] == [PostListV3]
 
 
-@patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_p1_Timeout_requests_get)
+@patch('federation.requests.Session.get', side_effect=mocked_service_get)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_p1_Timeout_requests_get)
 def test_one_TimeOut_federated_local_ConnErr_two_server_get(mock_requests, mock_session, client):
-    APP.app.config["servers"] = THREE
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -806,10 +795,10 @@ def test_one_TimeOut_federated_local_ConnErr_two_server_get(mock_requests, mock_
             assert RO["results"] == [AP["v3"]]
 
 
-@patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_local_TimeOut_p1_Timeout_requests_get)
+@patch('federation.requests.Session.get', side_effect=mocked_service_get)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_local_TimeOut_p1_Timeout_requests_get)
 def test_one_TimeOut_federated_local_TimeOut_two_server_get(mock_requests, mock_session, client):
-    APP.app.config["servers"] = THREE
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -825,10 +814,10 @@ def test_one_TimeOut_federated_local_TimeOut_two_server_get(mock_requests, mock_
 
 # Test Federation with two nodes (One timeout) and local valid -----------------------------------------------------
 
-@patch('candig_federation.api.federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_p1_timeout_requests_post)
+@patch('federation.requests.Session.post', side_effect=mocked_service_post)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_p1_timeout_requests_post)
 def test_one_TimeOut_federated_valid_two_server_post(mock_session,  client):
-    APP.app.config["servers"] = THREE
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -842,10 +831,10 @@ def test_one_TimeOut_federated_valid_two_server_post(mock_session,  client):
             assert RO["results"] == [PostListV1, PostListV3]
 
 
-@patch('candig_federation.api.federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_p1_timeout_requests_post)
+@patch('federation.requests.Session.post', side_effect=mocked_service_post)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_p1_timeout_requests_post)
 def test_one_TimeOut_federated_local_valid_two_server_post(mock_session,  client):
-    APP.app.config["servers"] = THREE
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -859,10 +848,10 @@ def test_one_TimeOut_federated_local_valid_two_server_post(mock_session,  client
             assert RO["results"] == [PostListV1, PostListV3]
 
 
-@patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_p1_timeout_requests_get)
+@patch('federation.requests.Session.get', side_effect=mocked_service_get)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_p1_timeout_requests_get)
 def test_one_TimeOut_federated_local_valid_two_server_get(mock_requests, mock_session, client):
-    APP.app.config["servers"] = THREE
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": TP["path"],
@@ -876,10 +865,10 @@ def test_one_TimeOut_federated_local_valid_two_server_get(mock_requests, mock_se
             assert RO["results"] == [AP["v1"], AP["v3"]]
 
 
-@patch('candig_federation.api.federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('candig_federation.api.federation.FuturesSession.post', side_effect=mocked_async_requests_get)
+@patch('federation.requests.Session.get', side_effect=mocked_service_get)
+@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_get)
 def test_invalid_backslash_endpoint_start(mock_requests, mock_session, client):
-    APP.app.config["servers"] = TWO
+    APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"endpoint_path": "/fail/this/path",

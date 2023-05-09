@@ -4,43 +4,25 @@
 Driver program for service
 """
 
-import sys
-import argparse
 import connexion
 # from prometheus_flask_exporter import PrometheusMetrics
 from flask_cors import CORS
 import os.path
-
-
 import network
 import logging
 
 
-def main(args=None):
+def main():
     """
     Main Routine
 
     Parse all the args and set up server and service dictionaries
     """
-    if args is None:
-        args = sys.argv[1:]
-
-    parser = argparse.ArgumentParser('Run federation service')
-    parser.add_argument('--port', default=8890)
-    parser.add_argument('--host', default='ga4ghdev01.bcgsc.ca')
-    parser.add_argument('--logfile', default="../log/federation.log")
-    parser.add_argument('--loglevel', default='INFO',
-                        choices=['DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'])
-
-
-
-    # known args used to supply command line args to pytest without raising an error here
-    args, _ = parser.parse_known_args()
 
     # Logging configuration
 
-    log_handler = logging.FileHandler(args.logfile)
-    numeric_loglevel = getattr(logging, args.loglevel.upper())
+    log_handler = logging.FileHandler("../config/federation.log")
+    numeric_loglevel = getattr(logging, "INFO")
     log_handler.setLevel(numeric_loglevel)
 
     APP.app.logger.addHandler(log_handler)
@@ -56,7 +38,7 @@ def main(args=None):
         with open(APP.app.config["server_file"], "w") as f:
             f.write("{}")
 
-    return APP, args.port
+    return APP
 
 def configure_app():
     """
@@ -75,7 +57,7 @@ def configure_app():
 
 
 APP = configure_app()
-APPLICATION, PORT = main()
+APPLICATION = main()
 
 # expose flask app for uwsgi
 
@@ -85,5 +67,4 @@ CORS(application)
 
 
 if __name__ == '__main__':
-    APPLICATION.app.logger.info("federation_service running at {}".format("http://{}:{}".format(args.host, args.port)))
-    APPLICATION.run(port=PORT)
+    APPLICATION.run()
