@@ -94,9 +94,9 @@ AP = {
     "i3": MockResponseInternal([{"projects": {"keyA": "valueB"}}], 200),
     "timeout": MockResponseInternal({}, 408),
     "fail": MockResponse(None, 404),
-    "v1": {"projects": {"k1": "v1", "k2": "v2"}, "location": "loc1"},
-    "v2": {"projects": {"key1": "value1"}, "location": "loc2"},
-    "v3": {"projects": {"keyA": "valueB"}, "location": "loc3"},
+    "v1": {"projects": {"k1": "v1", "k2": "v2"}, "location": {"name": "loc1", "province": "ON", "province-code": "ca-on"}},
+    "v2": {"projects": {"key1": "value1"}, "location": {"name": "loc2", "province": "ON", "province-code": "ca-on"}},
+    "v3": {"projects": {"keyA": "valueB"}, "location":{"name": "loc3", "province": "ON", "province-code": "ca-on"}},
     "j1": {"projects": {"k1": "v1", "k2": "v2"}}
 }
 
