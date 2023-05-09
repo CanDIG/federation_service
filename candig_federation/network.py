@@ -29,17 +29,20 @@ def register_server(obj):
             return None
         servers[new_server['id']] = new_server
 
-    try:
-        token = obj['authentication']['token']
-        issuer = obj['authentication']['issuer']
+    if 'testing' in obj['authentication']:
+        new_server['testing'] = True
+    else:
+        try:
+            token = obj['authentication']['token']
+            issuer = obj['authentication']['issuer']
 
-        authz.add_provider_to_tyk(token, issuer)
-    except Exception as e:
-        raise Exception(f"Failed to register server with tyk: {type(e)} {str(e)}")
-    try:
-        authz.add_provider_to_opa(token, issuer)
-    except Exception as e:
-        raise Exception(f"Failed to register server with opa: {type(e)} {str(e)}")
+            authz.add_provider_to_tyk(token, issuer)
+        except Exception as e:
+            raise Exception(f"Failed to register server with tyk: {type(e)} {str(e)}")
+        try:
+            authz.add_provider_to_opa(token, issuer)
+        except Exception as e:
+            raise Exception(f"Failed to register server with opa: {type(e)} {str(e)}")
 
     with open(current_app.config['server_file'], 'w') as f:
         f.write(json.dumps(servers))

@@ -46,17 +46,27 @@ paths:
                 server:
                   $ref: "#/components/schemas/Server"
                 authentication:
-                  type: object
-                  required:
-                    - token
-                    - issuer
-                  properties:
-                    issuer:
-                      type: string
-                      description: Issuer associated with the OIDC token.
-                    token:
-                      type: string
-                      description: OIDC access token issued to a user from the issuer. Can be expired, as long as it's verifiable with the current public key.
+                  oneOf:
+                    - type: object
+                      title: CanDIGv2 authentication
+                      required:
+                        - token
+                        - issuer
+                      properties:
+                        issuer:
+                          type: string
+                          description: Issuer associated with the OIDC token.
+                        token:
+                          type: string
+                          description: OIDC access token issued to a user from the issuer. Can be expired, as long as it's verifiable with the current public key.
+                    - type: object
+                      title: Testing server
+                      required:
+                        - testing
+                      properties:
+                        testing:
+                          type: boolean
+                          description: if present and True, this is a request to register a testing server
       responses:
         '200':
           description: OK
@@ -318,6 +328,9 @@ components:
             province-code:
               type: string
               example: ca-on
+        testing:
+          type: boolean
+          description: if True, this is only registered as a test server in Federation, not in CanDIG overall
     Service:
       description: A local CanDIG service that can be queried by the federation service
       type: object
