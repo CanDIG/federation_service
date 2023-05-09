@@ -50,23 +50,6 @@ class testHeader():
         return self.headers
 
 
-TWO = [
-    {"url": "http://10.9.208.132:6000",
-     "location": "loc1"},
-    {"url": "http://10.9.208.132:8000",
-     "location": "loc2"}
-]
-
-THREE = [
-    {"url": "http://10.9.208.132:6000",
-     "location": "loc1"},
-    {"url": "http://10.9.208.132:8000",
-     "location": "loc2"},
-    {"url": "http://10.9.208.132:9000",
-     "location": "loc3"}
-]
-
-
 exampleHeaders = testHeader({
     "Content-Type": "application/json",
     "Host": "ga4ghdev01.bcgsc.ca:8890",
@@ -95,9 +78,9 @@ TP = {
     "PORT2": "8892",
     "Headers": exampleHeaders,
     "Federate": fedHeader,
-    "Tyk1": "10.9.208.132:6000",
-    "Tyk2": "10.9.208.132:8000",
-    "Tyk3": "10.9.208.132:9000",
+    "Tyk1": "10.9.208.132:6000/search",
+    "Tyk2": "10.9.208.132:8000/search",
+    "Tyk3": "10.9.208.132:9000/search",
     "path": "rnaget/projects",
     "service": "TestService",
 }
