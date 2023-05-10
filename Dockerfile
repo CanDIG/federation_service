@@ -40,5 +40,6 @@ COPY . /app/federation
 WORKDIR /app/federation
 
 RUN mkdir /app/federation/config
+RUN mkdir /app/config
 
 ENTRYPOINT ["bash", "entrypoint.sh"]
