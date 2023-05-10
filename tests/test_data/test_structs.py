@@ -12,6 +12,7 @@ class MockResponse:
         self.json_data = json_data
         self.status_code = status_code
         self.headers = {'X-Source': '2222'}
+        self.text = "response"
 
     def json(self):
         return self.json_data
@@ -30,6 +31,7 @@ class MockResponseInternal:
         self.json_data = json_data
         self.status_code = status_code
         self.headers = {'X-Source': '2222'}
+        self.text = "response"
 
     def json(self):
         return {"results": self.json_data,
