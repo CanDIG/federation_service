@@ -265,21 +265,17 @@ class FederationResponse:
                     self.status.append(response.status_code)
                     self.message.append(f'Success! Location: {location["name"]}, {location["province"]}')
 
-                except KeyError as e:
+                except Exception as e:
                     # No "results"
-                    self.logger.warn(f"KeyError: {str(e)}")
+                    self.logger.warn(f"{type(e)}: {str(e)}")
                     self.status.append(500)
                     self.results.append(
-                        {"Error": "Malformed Response Object: No 'results'"})
+                        {"Error": f"{type(e)}: {str(e)}"})
                     pass
+            else:
+                self.status.append(response.status_code)
+                self.message.append({"Error": f"{response.status_code}: {response.text}"})
 
-                except ValueError:
-                    # JSON decoding failure
-                    self.logger.warn(ValueError)
-                    self.status.append(500)
-                    self.results.append(
-                        {"Error": "Malformed Response Object: No JSON data"})
-                    pass
 
         # Return is used for testing individual methods
         return self.results
