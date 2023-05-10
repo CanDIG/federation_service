@@ -10,30 +10,32 @@ from flask_cors import CORS
 import os.path
 import network
 import logging
+import os
 
 
 def main():
     """
     Main Routine
 
-    Parse all the args and set up server and service dictionaries
+    Set up server and service dictionaries
     """
 
+    CONFIG_DIR = os.getenv("CONFIG_DIR", "../config")
     # Logging configuration
 
-    log_handler = logging.FileHandler("../config/federation.log")
+    log_handler = logging.FileHandler(f"{CONFIG_DIR}/federation.log")
     numeric_loglevel = getattr(logging, "INFO")
     log_handler.setLevel(numeric_loglevel)
 
     APP.app.logger.addHandler(log_handler)
     APP.app.logger.setLevel(numeric_loglevel)
 
-    APP.app.config["service_file"] = os.path.abspath("../config/services.json")
+    APP.app.config["service_file"] = os.path.abspath(f"{CONFIG_DIR}/services.json")
     if not os.path.exists(APP.app.config["service_file"]):
         with open(APP.app.config["service_file"], "w") as f:
             f.write("{}")
 
-    APP.app.config["server_file"] = os.path.abspath("../config/servers.json")
+    APP.app.config["server_file"] = os.path.abspath(f"{CONFIG_DIR}/servers.json")
     if not os.path.exists(APP.app.config["server_file"]):
         with open(APP.app.config["server_file"], "w") as f:
             f.write("{}")
@@ -48,11 +50,7 @@ def configure_app():
     testing files to access application context
     """
     app = connexion.FlaskApp(__name__, options={"swagger_url": "/"})
-
-
-    api_def = 'federation.yaml'
-
-    app.add_api(api_def, strict_validation=True, validate_responses=True)
+    app.add_api('federation.yaml', strict_validation=True, validate_responses=True)
     return app
 
 
