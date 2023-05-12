@@ -31,201 +31,201 @@ def client():
 
 def get_federation_response(request_type, headers="Headers"):
 
-    return FederationResponse(url="http://{}:{}".format(TP['URI'], TP['PORT0']),
+    return FederationResponse(
                         request=request_type,
                         endpoint_payload="",
-                        endpoint_path=TP["path"],
-                        request_dict=TP[headers],
-                        endpoint_service=TP["service"])
+                        endpoint_path=TestParams["path"],
+                        request_dict=TestParams[headers],
+                        endpoint_service=TestParams["service"])
 
 
 
 # Taken from https://stackoverflow.com/questions/15753390/how-can-i-mock-requests-and-the-response
 def mocked_service_get(*args, **kwargs):
-    if args[0] == 'http://{}:{}/rnaget/projects'.format(TP["URI"], TP["PORT0"]):
-        return AP["s1"]
-    if args[0] == 'http://{}:{}/rnaget/projects'.format(TP["URI"], TP["PORT1"]):
-        return AP["s2"]
-    if args[0] == 'http://{}:{}/rnaget/projects'.format(TP["URI"], TP["PORT2"]):
-        return AP["s3"]
+    if args[0] == 'http://{}:{}/rnaget/projects'.format(TestParams["URI"], TestParams["PORT0"]):
+        return GetResponse["s1"]
+    if args[0] == 'http://{}:{}/rnaget/projects'.format(TestParams["URI"], TestParams["PORT1"]):
+        return GetResponse["s2"]
+    if args[0] == 'http://{}:{}/rnaget/projects'.format(TestParams["URI"], TestParams["PORT2"]):
+        return GetResponse["s3"]
 
-    return AP["fail"]
+    return GetResponse["fail"]
 
 
 def mocked_service_post(*args, **kwargs):
-    if args[0] == 'http://{}:{}/rnaget/projects'.format(TP["URI"], TP["PORT0"]):
-        return PR["PLV1"]
-    if args[0] == 'http://{}:{}/rnaget/projects'.format(TP["URI"], TP["PORT1"]):
-        return PR["PLV2"]
-    if args[0] == 'http://{}:{}/rnaget/projects'.format(TP["URI"], TP["PORT2"]):
-        return PR["PLV3"]
+    if args[0] == 'http://{}:{}/rnaget/projects'.format(TestParams["URI"], TestParams["PORT0"]):
+        return PostResponse["PLV1"]
+    if args[0] == 'http://{}:{}/rnaget/projects'.format(TestParams["URI"], TestParams["PORT1"]):
+        return PostResponse["PLV2"]
+    if args[0] == 'http://{}:{}/rnaget/projects'.format(TestParams["URI"], TestParams["PORT2"]):
+        return PostResponse["PLV3"]
 
-    return AP["fail"]
+    return GetResponse["fail"]
 
 
 # The returns from async requests need to be futures, so a second class is used to represent that
 
 def mocked_async_requests_get(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
-        return AP["i1"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
-        return AP["i2"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
-        return AP["i3"]
+    if args[0] == 'http://{}'.format(TestParams["Tyk1"]):
+        return GetResponse["i1"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk2"]):
+        return GetResponse["i2"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk3"]):
+        return GetResponse["i3"]
 
-    return AP["fail"]
+    return GetResponse["fail"]
 
 
 def mocked_async_requests_post(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
-        return PR["iPLV1"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
-        return PR["iPLV2"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
-        return PR["iPLV3"]
+    if args[0] == 'http://{}'.format(TestParams["Tyk1"]):
+        return PostResponse["iPLV1"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk2"]):
+        return PostResponse["iPLV2"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk3"]):
+        return PostResponse["iPLV3"]
 
-    return AP["fail"]
+    return GetResponse["fail"]
 
 # Mocked async requests that simulate "server" node failing (Timeout)
 
 def mocked_async_p1_timeout_requests_get(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
-        return AP["i1"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
-        return AP["timeout"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
-        return AP["i3"]
+    if args[0] == 'http://{}'.format(TestParams["Tyk1"]):
+        return GetResponse["i1"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk2"]):
+        return GetResponse["timeout"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk3"]):
+        return GetResponse["i3"]
 
-    return AP["fail"]
+    return GetResponse["fail"]
 
 
 def mocked_async_p1_timeout_requests_post(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
-        return PR["iPLV1"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
-        return AP["timeout"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
-        return PR["iPLV3"]
+    if args[0] == 'http://{}'.format(TestParams["Tyk1"]):
+        return PostResponse["iPLV1"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk2"]):
+        return GetResponse["timeout"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk3"]):
+        return PostResponse["iPLV3"]
 
-    return AP["fail"]
+    return GetResponse["fail"]
 
 
 # Mocked async requests that simulate "local" node failing (Timeout)
 
 def mocked_async_local_timeout_requests_get(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
-        return AP["timeout"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
-        return AP["i2"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
-        return AP["i3"]
+    if args[0] == 'http://{}'.format(TestParams["Tyk1"]):
+        return GetResponse["timeout"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk2"]):
+        return GetResponse["i2"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk3"]):
+        return GetResponse["i3"]
 
-    return AP["fail"]
+    return GetResponse["fail"]
 
 
 def mocked_async_local_timeout_requests_post(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
-        return AP["timeout"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
-        return PR["iPLV2"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
-        return PR["iPLV3"]
+    if args[0] == 'http://{}'.format(TestParams["Tyk1"]):
+        return PostResponse["timeout"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk2"]):
+        return PostResponse["iPLV2"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk3"]):
+        return PostResponse["iPLV3"]
 
-    return AP["fail"]
+    return GetResponse["fail"]
 
 
 # Mocked async requests that simulate "server" node failing (Connection Error)
 
 def mocked_async_p1_ConnErr_requests_get(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
-        return AP["i1"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
-        return AP["fail"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
-        return AP["i3"]
+    if args[0] == 'http://{}'.format(TestParams["Tyk1"]):
+        return GetResponse["i1"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk2"]):
+        return GetResponse["fail"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk3"]):
+        return GetResponse["i3"]
 
-    return AP["fail"]
+    return GetResponse["fail"]
 
 
 def mocked_async_p1_ConnErr_requests_post(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
-        return PR["iPLV1"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
-        return AP["fail"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
-        return PR["iPLV3"]
+    if args[0] == 'http://{}'.format(TestParams["Tyk1"]):
+        return PostResponse["iPLV1"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk2"]):
+        return PostResponse["fail"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk3"]):
+        return PostResponse["iPLV3"]
 
-    return AP["fail"]
+    return GetResponse["fail"]
 
 
 # Mocked async requests that simulate "local" node failing (Connection Error)
 
 def mocked_async_local_ConnErr_requests_get(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
-        return AP["fail"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
-        return AP["i2"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
-        return AP["i3"]
+    if args[0] == 'http://{}'.format(TestParams["Tyk1"]):
+        return GetResponse["fail"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk2"]):
+        return GetResponse["i2"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk3"]):
+        return GetResponse["i3"]
 
-    return AP["fail"]
+    return GetResponse["fail"]
 
 
 def mocked_async_local_ConnErr_requests_post(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
-        return AP["fail"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
-        return PR["iPLV2"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
-        return PR["iPLV3"]
+    if args[0] == 'http://{}'.format(TestParams["Tyk1"]):
+        return PostResponse["fail"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk2"]):
+        return PostResponse["iPLV2"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk3"]):
+        return PostResponse["iPLV3"]
 
-    return AP["fail"]
+    return GetResponse["fail"]
 
 # Mocked async requests that simulate "local" node failing (Connection Error) and one server TimeOut
 
 def mocked_async_local_ConnErr_p1_Timeout_requests_get(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
-        return AP["fail"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
-        return AP["timeout"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
-        return AP["i3"]
+    if args[0] == 'http://{}'.format(TestParams["Tyk1"]):
+        return GetResponse["fail"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk2"]):
+        return GetResponse["timeout"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk3"]):
+        return GetResponse["i3"]
 
-    return AP["fail"]
+    return GetResponse["fail"]
 
 
 def mocked_async_local_ConnErr_p1_Timeout_requests_post(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
-        return AP["fail"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
-        return AP["timeout"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
-        return PR["iPLV3"]
+    if args[0] == 'http://{}'.format(TestParams["Tyk1"]):
+        return GetResponse["fail"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk2"]):
+        return GetResponse["timeout"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk3"]):
+        return PostResponse["iPLV3"]
 
-    return AP["fail"]
+    return GetResponse["fail"]
 
 # Mocked async requests that simulate "local" node failing (TimeOut) and one server TimeOut
 
 def mocked_async_local_TimeOut_p1_Timeout_requests_get(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
-        return AP["timeout"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
-        return AP["timeout"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
-        return AP["i3"]
+    if args[0] == 'http://{}'.format(TestParams["Tyk1"]):
+        return GetResponse["timeout"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk2"]):
+        return GetResponse["timeout"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk3"]):
+        return GetResponse["i3"]
 
-    return AP["fail"]
+    return GetResponse["fail"]
 
 
 def mocked_async_local_TimeOUt_p1_Timeout_requests_post(*args, **kwargs):
-    if args[0] == 'http://{}'.format(TP["Tyk1"]):
-        return AP["timeout"]
-    elif args[0] == 'http://{}'.format(TP["Tyk2"]):
-        return AP["timeout"]
-    elif args[0] == 'http://{}'.format(TP["Tyk3"]):
-        return PR["iPLV3"]
+    if args[0] == 'http://{}'.format(TestParams["Tyk1"]):
+        return GetResponse["timeout"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk2"]):
+        return GetResponse["timeout"]
+    elif args[0] == 'http://{}'.format(TestParams["Tyk3"]):
+        return PostResponse["iPLV3"]
 
-    return AP["fail"]
+    return GetResponse["fail"]
 
 
 
@@ -243,7 +243,7 @@ def test_valid_noFed_get(mock_requests, client):
         RO, Status = FR.get_response_object()
 
         assert RO["status"] == 200
-        assert RO["results"] == [AP["j1"]]
+        assert RO["results"] == GetResponse["j1"]
 
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
@@ -253,7 +253,7 @@ def test_valid_noFed_post(mock_requests, client):
         FR = get_federation_response("POST")
         RO, Status = FR.get_response_object()
         assert RO["status"] == 200
-        assert RO["results"] == [PostListV1]
+        assert RO["results"] == PostListV1
 
 # Test basic service errors --------------------------------------------------------------------
 
@@ -264,7 +264,7 @@ def test_invalid_noFed_get(mock_requests, client):
         FR = get_federation_response("GET")
         RO, Status = FR.get_response_object()
         assert RO["status"] == 404
-        assert RO["results"] == []
+        assert RO["results"] == {}
 
 
 @patch('federation.requests.Session.post', side_effect=exceptions.ConnectionError)
@@ -274,7 +274,7 @@ def test_invalid_noFed_post(mock_requests, client):
         FR = get_federation_response("POST")
         RO, Status = FR.get_response_object()
         assert RO["status"] == 404
-        assert RO["results"] == []
+        assert RO["results"] == {}
 
 
 @patch('federation.requests.Session.get', side_effect=exceptions.Timeout)
@@ -284,7 +284,7 @@ def test_timeout_noFed_get(mock_requests, client):
         FR = get_federation_response("GET")
         RO, Status = FR.get_response_object()
         assert RO["status"] == 504
-        assert RO["results"] == []
+        assert RO["results"] == {}
 
 
 @patch('federation.requests.Session.post', side_effect=exceptions.Timeout)
@@ -294,7 +294,7 @@ def test_timeout_noFed_post(mock_requests, client):
         FR = get_federation_response("POST")
         RO, Status = FR.get_response_object()
         assert RO["status"] == 504
-        assert RO["results"] == []
+        assert RO["results"] == {}
 
 # Test the async request function --------------------------------------------------------------------
 
@@ -304,11 +304,11 @@ def test_valid_asyncRequests_two_servers_get(mock_requests, client):
     with client:
         FR = get_federation_response("POST", "Federate")
         resp = FR.async_requests(request='GET',
-                                 endpoint_path=TP["path"],
+                                 endpoint_path=TestParams["path"],
                                  endpoint_payload="",
-                                 header=TP["Headers"],
-                                 endpoint_service=TP["service"])
-        resp = [r["response"] for r in resp]
+                                 header=TestParams["Headers"],
+                                 endpoint_service=TestParams["service"])
+        resp = [r["response"] for r in resp.values()]
         Success = list(filter(lambda x: x == 200, map(lambda a: a.status_code, resp)))
 
         assert len(resp) == 2
@@ -321,11 +321,11 @@ def test_valid_asyncRequests_two_servers_post(mock_requests, client):
     with client:
         FR = get_federation_response("POST")
         resp = FR.async_requests(request='POST',
-                                 endpoint_path=TP["path"],
+                                 endpoint_path=TestParams["path"],
                                  endpoint_payload="",
-                                 header=TP["Headers"],
-                                 endpoint_service=TP["service"])
-        resp = [r["response"] for r in resp]
+                                 header=TestParams["Headers"],
+                                 endpoint_service=TestParams["service"])
+        resp = [r["response"] for r in resp.values()]
         Success = list(filter(lambda x: x == 200, map(lambda a: a.status_code, resp)))
 
         assert len(resp) == 2
@@ -338,12 +338,11 @@ def test_invalid_asyncRequests_two_servers_get(mock_requests, client):
     with client:
         FR = get_federation_response("POST")
         resp = FR.async_requests(request='GET',
-                                 endpoint_path=TP["path"],
+                                 endpoint_path=TestParams["path"],
                                  endpoint_payload="",
-                                 header=TP["Headers"],
-                                 endpoint_service=TP["service"])
-
-        ConnErrs = list(map(lambda a: isinstance(a, exceptions.ConnectionError), resp))
+                                 header=TestParams["Headers"],
+                                 endpoint_service=TestParams["service"])
+        ConnErrs = list(map(lambda a: "ConnectionError" in str(a), resp.values()))
 
         # Error should just be propagated through since handle_server_request will address it
 
@@ -357,12 +356,12 @@ def test_invalid_asyncRequests_two_servers_post(mock_requests, client):
     with client:
         FR = get_federation_response("POST")
         resp = FR.async_requests(request='POST',
-                                 endpoint_path=TP["path"],
+                                 endpoint_path=TestParams["path"],
                                  endpoint_payload="",
-                                 header=TP["Headers"],
-                                 endpoint_service=TP["service"])
+                                 header=TestParams["Headers"],
+                                 endpoint_service=TestParams["service"])
 
-        Success = list(map(lambda a: isinstance(a, exceptions.ConnectionError), resp))
+        Success = list(map(lambda a: "ConnectionError" in str(a), resp.values()))
 
         assert len(resp) == 2
         assert Success == [True, True]
@@ -374,12 +373,12 @@ def test_timeout_asyncRequests_two_servers_post(mock_requests, client):
     with client:
         FR = get_federation_response("POST")
         resp = FR.async_requests(request='POST',
-                                 endpoint_path=TP["path"],
+                                 endpoint_path=TestParams["path"],
                                  endpoint_payload="",
-                                 header=TP["Headers"],
-                                 endpoint_service=TP["service"])
+                                 header=TestParams["Headers"],
+                                 endpoint_service=TestParams["service"])
 
-        Success = list(map(lambda a: isinstance(a, exceptions.Timeout), resp))
+        Success = list(map(lambda a: "Timeout" in str(a), resp.values()))
 
         assert len(resp) == 2
         assert Success == [True, True]
@@ -391,12 +390,12 @@ def test_timeout_asyncRequests_two_servers_get(mock_requests, client):
     with client:
         FR = get_federation_response("GET")
         resp = FR.async_requests(request='GET',
-                                 endpoint_path=TP["path"],
+                                 endpoint_path=TestParams["path"],
                                  endpoint_payload="",
-                                 header=TP["Headers"],
-                                 endpoint_service=TP["service"])
+                                 header=TestParams["Headers"],
+                                 endpoint_service=TestParams["service"])
 
-        TimeoutErrs = list(map(lambda a: isinstance(a, exceptions.Timeout), resp))
+        TimeoutErrs = list(map(lambda a: "Timeout" in str(a), resp.values()))
 
         # Error should just be propagated through since handle_server_request will address it
 
@@ -412,9 +411,10 @@ def test_valid_ServerRequest_one_server_get(mock_requests, mock_session, client)
     with client:
         FR = get_federation_response("GET", "Federate")
         RO, Status = FR.get_response_object()
-
-        assert RO["status"] == 200
-        assert RO["results"] == [AP["v1"], AP["v2"]]
+        assert Status == 200
+        for server in RO:
+            loc = server["location"]["name"]
+            assert server["results"] == GetResponse[loc]['results']
 
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
@@ -423,17 +423,19 @@ def test_valid_federated_query_one_server_get(mock_requests, mock_session, clien
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "GET",
-                                 "endpoint_service": TP["service"]
+                                 "endpoint_service": TestParams["service"]
                 }),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
+            RO, Status = operations.post_search()
 
-            assert RO["status"] == 200
-            assert RO["results"] == [AP["v1"], AP["v2"]]
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                assert server["results"] == GetResponse[loc]['results']
 
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
@@ -444,8 +446,10 @@ def test_valid_ServerRequest_one_server_post(mock_session, mock_requests, client
         FR = get_federation_response("POST", "Federate")
         RO, Status = FR.get_response_object()
 
-        assert RO["status"] == 200
-        assert RO["results"] == [PostListV1, PostListV2]
+        assert Status == 200
+        for server in RO:
+            loc = server["location"]["name"]
+            assert server["results"] == PostResponse[loc]['results']
 
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
@@ -454,16 +458,20 @@ def test_valid_federated_query_one_server_post(mock_requests, mock_session, clie
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "POST",
-                                 "endpoint_service": TP["service"]}),
+                                 "endpoint_service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
+            RO, Status = operations.post_search()
 
-            assert RO["status"] == 200
-            assert RO["results"] == [PostListV1, PostListV2]
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    assert server['results'] == PostResponse[loc]['results']
+
 
 # Test Federation with one server, have "local" error -------------------------------------------------
 
@@ -473,15 +481,19 @@ def test_valid_federated_local_ConnErr_one_server_post(mock_session,  client):
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "POST",
-                                 "endpoint_service": TP["service"]}),
+                                 "endpoint_service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
-            assert RO["status"] == 200
-            assert RO["results"] == [PostListV2]
+            RO, Status = operations.post_search()
+
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    assert server['results'] == PostResponse[loc]['results']
 
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
@@ -490,15 +502,21 @@ def test_valid_federated_local_TimeOut_one_server_post(mock_session,  client):
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "POST",
-                                 "endpoint_service": TP["service"]}),
+                                 "endpoint_service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
-            assert RO["status"] == 200
-            assert RO["results"] == [PostListV2]
+            RO, Status = operations.post_search()
+
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    if server["status"] == 200:
+                        assert server['results'] == PostResponse[loc]['results']
+
 
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
@@ -507,15 +525,19 @@ def test_valid_federated_local_TimeOut_one_server_get(mock_requests, mock_sessio
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "GET",
-                                 "endpoint_service": TP["service"]}),
+                                 "endpoint_service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
-            assert RO["status"] == 200
-            assert RO["results"] == [AP["v2"]]
+            RO, Status = operations.post_search()
+
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    assert server["results"] == GetResponse[loc]['results']
 
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
@@ -524,16 +546,20 @@ def test_valid_federated_local_ConnErr_one_server_get(mock_requests, mock_sessio
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path"   : TP["path"],
+                data=json.dumps({"endpoint_path"   : TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type"    : "GET",
-                                 "endpoint_service": TP["service"]
+                                 "endpoint_service": TestParams["service"]
                                  }),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
-            assert RO["status"] == 200
-            assert RO["results"] == [AP["v2"]]
+            RO, Status = operations.post_search()
+
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    assert server["results"] == GetResponse[loc]['results']
 
 
 # Test Federation with one server, have server error out --------------------------------------------------
@@ -544,16 +570,19 @@ def test_ConnErr_federated_valid_local_one_server_post(mock_session,  client):
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "POST",
-                                 "endpoint_service": TP["service"]}),
+                                 "endpoint_service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
-            assert RO["status"] == 200
-            assert RO["results"] == [PostListV1]
+            RO, Status = operations.post_search()
 
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    assert server["results"] == PostResponse[loc]['results']
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
 @patch('federation.FuturesSession.post', side_effect=mocked_async_p1_timeout_requests_post)
@@ -561,15 +590,19 @@ def test_TimeOut_federated_valid_local_one_server_post(mock_session,  client):
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "POST",
-                                 "endpoint_service": TP["service"]}),
+                                 "endpoint_service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
-            assert RO["status"] == 200
-            assert RO["results"] == [PostListV1]
+            RO, Status = operations.post_search()
+
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    assert server["results"] == PostResponse[loc]['results']
 
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
@@ -578,15 +611,19 @@ def test_ConnErr_federated_valid_local_one_server_get(mock_requests, mock_sessio
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "GET",
-                                 "endpoint_service": TP["service"]}),
+                                 "endpoint_service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
-            assert RO["status"] == 200
-            assert RO["results"] == [AP["v1"]]
+            RO, Status = operations.post_search()
+
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    assert server["results"] == GetResponse[loc]['results']
 
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
@@ -595,15 +632,19 @@ def test_TimeOut_federated_valid_local_one_server_get(mock_requests, mock_sessio
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "GET",
-                                 "endpoint_service": TP["service"]}),
+                                 "endpoint_service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
-            assert RO["status"] == 200
-            assert RO["results"] == [AP["v1"]]
+            RO, Status = operations.post_search()
+
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    assert server["results"] == GetResponse[loc]['results']
 
 # Test Federation with two nodes and local -----------------------------------------------------
 
@@ -616,8 +657,11 @@ def test_valid_ServerRequest_two_server_get(mock_requests, mock_session, client)
         FR = get_federation_response("GET", "Federate")
         RO, Status = FR.get_response_object()
 
-        assert RO["status"] == 200
-        assert RO["results"] == [AP["v1"], AP["v2"], AP["v3"]]
+        assert Status == 200
+        for server in RO:
+            loc = server["location"]["name"]
+            if server["status"] == 200:
+                assert server["results"] == GetResponse[loc]['results']
 
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
@@ -626,16 +670,19 @@ def test_valid_federated_query_two_server_get(mock_requests, mock_session, clien
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "GET",
-                                 "endpoint_service": TP["service"]}),
+                                 "endpoint_service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
+            RO, Status = operations.post_search()
 
-            assert RO["status"] == 200
-            assert RO["results"] == [AP["v1"], AP["v2"], AP["v3"]]
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    assert server["results"] == GetResponse[loc]['results']
 
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
@@ -646,8 +693,11 @@ def test_valid_ServerRequest_two_server_post(mock_session, mock_requests, client
         FR = get_federation_response("POST", "Federate")
         RO, Status = FR.get_response_object()
 
-        assert RO["status"] == 200
-        assert RO["results"] == [PostListV1, PostListV2, PostListV3]
+        assert Status == 200
+        for server in RO:
+            loc = server["location"]["name"]
+            if server["status"] == 200:
+                assert server["results"] == PostResponse[loc]['results']
 
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
@@ -656,16 +706,20 @@ def test_valid_federated_query_two_server_post(mock_requests, mock_session, clie
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "POST",
-                                 "endpoint_service": TP["service"]}),
+                                 "endpoint_service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
+            RO, Status = operations.post_search()
 
-            assert RO["status"] == 200
-            assert RO["results"] == [PostListV1, PostListV2, PostListV3]
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    assert server["results"] == PostResponse[loc]['results']
+
 
 # Test Federation with two nodes and local error -----------------------------------------------------
 
@@ -675,15 +729,19 @@ def test_valid_federated_local_ConnErr_two_server_post(mock_session,  client):
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "POST",
-                                 "endpoint_service": TP["service"]}),
+                                 "endpoint_service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
-            assert RO["status"] == 200
-            assert RO["results"] == [PostListV2, PostListV3]
+            RO, Status = operations.post_search()
+
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    assert server["results"] == PostResponse[loc]['results']
 
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
@@ -692,15 +750,19 @@ def test_valid_federated_local_TimeOut_two_server_post(mock_session,  client):
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "POST",
-                                 "endpoint_service": TP["service"]}),
+                                 "endpoint_service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
-            assert RO["status"] == 200
-            assert RO["results"] == [PostListV2, PostListV3]
+            RO, Status = operations.post_search()
+
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    assert server["results"] == PostResponse[loc]['results']
 
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
@@ -709,15 +771,19 @@ def test_valid_federated_local_ConnErr_two_server_get(mock_requests, mock_sessio
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "GET",
-                                 "endpoint_service": TP["service"]}),
+                                 "endpoint_service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
-            assert RO["status"] == 200
-            assert RO["results"] == [AP["v2"], AP["v3"]]
+            RO, Status = operations.post_search()
+
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    assert server["results"] == GetResponse[loc]['results']
 
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
@@ -726,15 +792,19 @@ def test_valid_federated_local_TimeOut_two_server_get(mock_requests, mock_sessio
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "GET",
-                                 "endpoint_service": TP["service"]}),
+                                 "endpoint_service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
-            assert RO["status"] == 200
-            assert RO["results"] == [AP["v2"], AP["v3"]]
+            RO, Status = operations.post_search()
+
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    assert server["results"] == GetResponse[loc]['results']
 
 
 # Test Federation with two nodes (One timeout) and local Error -----------------------------------------------------
@@ -745,15 +815,19 @@ def test_one_TimeOut_federated_local_ConnErr_two_server_post(mock_session,  clie
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "POST",
-                                 "endpoint_service": TP["service"]}),
+                                 "endpoint_service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
-            assert RO["status"] == 200
-            assert RO["results"] == [PostListV3]
+            RO, Status = operations.post_search()
+
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    assert server["results"] == PostResponse[loc]['results']
 
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
@@ -762,15 +836,19 @@ def test_one_TimeOut_federated_local_TimeOut_two_server_post(mock_session,  clie
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "POST",
-                                 "endpoint_service": TP["service"]}),
+                                 "endpoint_service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
-            assert RO["status"] == 200
-            assert RO["results"] == [PostListV3]
+            RO, Status = operations.post_search()
+
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    assert server["results"] == PostResponse[loc]['results']
 
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
@@ -779,15 +857,19 @@ def test_one_TimeOut_federated_local_ConnErr_two_server_get(mock_requests, mock_
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "GET",
-                                 "endpoint_service": TP["service"]}),
+                                 "endpoint_service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
-            assert RO["status"] == 200
-            assert RO["results"] == [AP["v3"]]
+            RO, Status = operations.post_search()
+
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    assert server["results"] == GetResponse[loc]['results']
 
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
@@ -796,15 +878,19 @@ def test_one_TimeOut_federated_local_TimeOut_two_server_get(mock_requests, mock_
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "GET",
-                                 "endpoint_service": TP["service"]}),
+                                 "endpoint_service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
-            assert RO["status"] == 200
-            assert RO["results"] == [AP["v3"]]
+            RO, Status = operations.post_search()
+
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    assert server["results"] == GetResponse[loc]['results']
 
 
 # Test Federation with two nodes (One timeout) and local valid -----------------------------------------------------
@@ -815,15 +901,19 @@ def test_one_TimeOut_federated_valid_two_server_post(mock_session,  client):
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "POST",
-                                 "endpoint_service": TP["service"]}),
+                                 "endpoint_service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
-            assert RO["status"] == 200
-            assert RO["results"] == [PostListV1, PostListV3]
+            RO, Status = operations.post_search()
+
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    assert server["results"] == PostResponse[loc]['results']
 
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
@@ -832,15 +922,19 @@ def test_one_TimeOut_federated_local_valid_two_server_post(mock_session,  client
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "POST",
-                                 "endpoint_service": TP["service"]}),
+                                 "endpoint_service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
-            assert RO["status"] == 200
-            assert RO["results"] == [PostListV1, PostListV3]
+            RO, Status = operations.post_search()
+
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    assert server["results"] == PostResponse[loc]['results']
 
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
@@ -849,15 +943,19 @@ def test_one_TimeOut_federated_local_valid_two_server_get(mock_requests, mock_se
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TP["path"],
+                data=json.dumps({"endpoint_path": TestParams["path"],
                                  "endpoint_payload": "",
                                  "request_type": "GET",
-                                 "endpoint_service": TP["service"]}),
+                                 "endpoint_service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
-            assert RO["status"] == 200
-            assert RO["results"] == [AP["v1"], AP["v3"]]
+            RO, Status = operations.post_search()
+
+            assert Status == 200
+            for server in RO:
+                loc = server["location"]["name"]
+                if server["status"] == 200:
+                    assert server["results"] == GetResponse[loc]['results']
 
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
@@ -869,10 +967,11 @@ def test_invalid_backslash_endpoint_start(mock_requests, mock_session, client):
                 data=json.dumps({"endpoint_path": "/fail/this/path",
                                  "endpoint_payload": "",
                                  "request_type": "GET",
-                                 "endpoint_service": TP["service"]
+                                 "endpoint_service": TestParams["service"]
                 }),
                 headers=Headers(fedHeader.headers)
         ):
-            RO = operations.post_search()[0]
-            assert RO["status"] == 400
+            RO, Status = operations.post_search()
+
+            assert Status == 400
 
