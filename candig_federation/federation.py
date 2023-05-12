@@ -37,15 +37,14 @@ class FederationResponse:
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=too-many-arguments
 
-    def __init__(self, request, url, endpoint_path, endpoint_payload, request_dict, endpoint_service, return_mimetype='application/json',
+    def __init__(self, request, endpoint_path, endpoint_payload, request_dict, endpoint_service, return_mimetype='application/json',
                  timeout=5):
         """Constructor method
         """
-        self.results = []
-        self.status = []
-        self.message = []
+        self.results = {}
+        self.status = {}
+        self.message = {}
         self.request = request
-        self.url = url
         self.endpoint_path = endpoint_path
         self.endpoint_payload = endpoint_payload
         self.endpoint_service = endpoint_service
@@ -53,6 +52,7 @@ class FederationResponse:
         self.request_dict = request_dict
         self.logger = current_app.logger
         self.servers = get_registered_servers()
+        self.services = get_registered_services()
 
         try:
             self.token = self.request_dict.headers['Authorization']
@@ -98,51 +98,6 @@ class FederationResponse:
             code, source
         )}))
 
-    def get_service(self, url, endpoint_path, endpoint_payload):
-        """
-        Sends a GET request to service specified by url, adds response to self.status and self.results
-
-        :param url: URL of service sending the response
-        :param endpoint_path: Specific API endpoint of CanDIG service to be queried, may contain query string if GET
-        :type endpoint_path: str
-        :param endpoint_payload: Query parameters needed by endpoint specified in endpoint_path
-        :type endpoint_payload: object, {param0=value0, paramN=valueN} for GET
-        """
-        try:
-            request_handle = requests.Session()
-            full_path = "{}/{}".format(url, endpoint_path)
-            # self.announce_fed_out("GET", url, endpoint_path)
-
-            resp = request_handle.get(
-                full_path, headers=self.header, params=endpoint_payload, timeout=self.timeout)
-            self.status.append(resp.status_code)
-
-            if isinstance(resp.json(), list):
-                #self.results = resp.json()
-                self.results.extend(resp.json())
-                # self.announce_fed_in(full_path, resp.status_code, resp.json())
-            else:
-                # Only take the 'data' portion of the Response
-
-                response = [{key: value for key, value in resp.json().items() if key.lower()
-                             not in ['headers', 'url']}]
-                # self.announce_fed_in(full_path, resp.status_code, response)
-                self.results.extend(response)
-
-        except requests.exceptions.ConnectionError:
-            self.status.append(404)
-            self.message.append('Connection Error, peer server may be down.')
-            return
-        except requests.exceptions.Timeout:
-            self.status.append(504)
-            self.message.append('Peer server timed out, it may be down.')
-
-            return
-        except Exception as e:
-            self.status.append(500)
-            self.message.append(f"get_service {str(e)}")
-            return
-
     def federate_check(self):
         """Checks if Federation conditions are met
 
@@ -154,11 +109,43 @@ class FederationResponse:
         else:
             return True
 
-    def post_service(self, url, endpoint_path, endpoint_payload):
+    def get_service(self, service, endpoint_path, endpoint_payload):
         """
-        Sends a POST request to service specified by url, adds response to self.status and self.results
+        Sends a GET request to service, adds response to self.status and self.results
 
-        :param url: URL of service sending the response
+        :param service: name of service sending the response
+        :param endpoint_path: Specific API endpoint of CanDIG service to be queried, may contain query string if GET
+        :type endpoint_path: str
+        :param endpoint_payload: Query parameters needed by endpoint specified in endpoint_path
+        :type endpoint_payload: object, {param0=value0, paramN=valueN} for GET
+        """
+        try:
+            request_handle = requests.Session()
+            full_path = "{}/{}".format(self.services[service]['url'], endpoint_path)
+            # self.announce_fed_out("GET", service, endpoint_path)
+
+            resp = request_handle.get(
+                full_path, headers=self.header, params=endpoint_payload, timeout=self.timeout)
+            self.status = resp.status_code
+            self.results = resp.json()
+        except requests.exceptions.ConnectionError:
+            self.status = 404
+            self.message = 'Connection Error, peer server may be down.'
+            return
+        except requests.exceptions.Timeout:
+            self.status = 504
+            self.message = 'Peer server timed out, it may be down.'
+            return
+        except Exception as e:
+            self.status = 500
+            self.message = f"get_service: {type(e)} {str(e)}"
+            return
+
+    def post_service(self, service, endpoint_path, endpoint_payload):
+        """
+        Sends a POST request to service, adds response to self.status and self.results
+
+        :param service: name of service sending the response
         :param endpoint_path: Specific API endpoint of CanDIG service to be queried, may contain query string if GET
         :type endpoint_path: str
         :param endpoint_payload: Query parameters needed by endpoint specified in endpoint_path
@@ -166,37 +153,23 @@ class FederationResponse:
         """
         try:
             request_handle = requests.Session()
-            full_path = "{}/{}".format(url, endpoint_path)
-            # self.announce_fed_out("POST", url, endpoint_path, endpoint_payload)
+            full_path = "{}/{}".format(self.services[service]['url'], endpoint_path)
+            # self.announce_fed_out("POST", service, endpoint_path, endpoint_payload)
             resp = request_handle.post(
                 full_path, headers=self.header, json=endpoint_payload)
-            self.status.append(resp.status_code)
-
-            if isinstance(resp.json(), list):
-                # self.results["data"] = dict(self.results["data"], **resp.json())
-                self.results.extend(resp.json())
-                # self.announce_fed_in(full_path, resp.status_code, resp.json())
-
-            else:
-                # Only take the 'data' portion of the Response
-                response = [{key: value for key, value in resp.json().items() if key.lower()
-                             not in ['headers', 'url', 'args', 'json']}]
-                # self.announce_fed_in(full_path, resp.status_code, resp.json())
-                self.results.extend(response)
-
+            self.status = resp.status_code
+            self.results = resp.json()
         except requests.exceptions.ConnectionError:
-            self.status.append(404)
-            self.message.append('Connection Error. Peer server may be down.')
+            self.status = 404
+            self.message = 'Connection Error. Peer server may be down.'
             return
-
         except requests.exceptions.Timeout:
-            self.status.append(504)
-            self.message.append('Peer server timed out, it may be down.')
+            self.status = 504
+            self.message = 'Peer server timed out, it may be down.'
             return
-
         except Exception as e:
-            self.status.append(500)
-            self.message.append(f"post_service {str(e)}")
+            self.status = 500
+            self.message = f"post_service: {type(e)} {str(e)}"
             return
 
     def handle_server_request(self, request, endpoint_path, endpoint_payload, endpoint_service, header):
@@ -221,60 +194,50 @@ class FederationResponse:
         :type header: object
         :return: List of ResponseObjects, this specific return is used only in testing
         """
-        for future_response in self.async_requests(request=request,
-                                                   header=header,
-                                                   endpoint_payload=endpoint_payload,
-                                                   endpoint_path=endpoint_path,
-                                                   endpoint_service=endpoint_service):
+        future_responses = self.async_requests(request=request,
+           header=header,
+           endpoint_payload=endpoint_payload,
+           endpoint_path=endpoint_path,
+           endpoint_service=endpoint_service)
+
+        for future_response_id in future_responses.keys():
+            future_response = future_responses[future_response_id]
             location = future_response["location"]
             try:
                 future_response = future_response["response"]
                 response = future_response.result()
 
+                # If the call was successful append the results
+                if response.status_code in [200, 201]:
+                    self.results[future_response_id] = response.json()['results']
+                    self.status[future_response_id] = response.status_code
+                elif response.status_code == 405:
+                    self.status[future_response_id] = response.status_code
+                    self.message[future_response_id] = f"Unauthorized: {response.text}"
+                else:
+                    self.status[future_response_id] = response.status_code
+                    self.message[future_response_id] = f"handle_server_request failed on {future_response_id}, federation = {self.header['Federation']}"
             except AttributeError:
                 if isinstance(future_response, requests.exceptions.ConnectionError):
-                    self.status.append(404)
-                    self.message.append(f'Connection Error. Peer server may be down. Location:{ location[0]}, {location[1]}')
+                    self.status[future_response_id] = 404
+                    self.message[future_response_id] = f'Connection Error. Peer server may be down. Location: {location["name"]}, {location["province"]}'
                 if isinstance(future_response, requests.exceptions.Timeout):
-                    self.status.append(504)
-                    self.message.append(f'Peer server timed out, it may be down. Location: {location[0]}, {location[1]}')
+                    self.status[future_response_id] = 504
+                    self.message[future_response_id] = f'Peer server timed out, it may be down. Location: {location["name"]}, {location["province"]}'
                 continue
-
             except requests.exceptions.ConnectionError:
-                self.status.append(404)
-                self.message.append(f'Connection Error. Peer server may be down. Location: {location[0]}, {location[1]}')
+                self.status[future_response_id] = 404
+                self.message[future_response_id] = f'Connection Error. Peer server may be down. Location: {location["name"]}, {location["province"]}'
                 continue
-
             except requests.exceptions.Timeout:
-                self.status.append(504)
-                self.message.append(f'Peer server timed out, it may be down. Location: {location[0]}, {location[1]}')
+                self.status[future_response_id] = 504
+                self.message[future_response_id] = f'Peer server timed out, it may be down. Location: {location["name"]}, {location["province"]}'
+                continue
+            except Exception as e:
+                self.status[future_response_id] = 500
+                self.message[future_response_id] = f"handle_server_request failed on {future_response_id}, federation = {self.header['Federation']}: {type(e)}: {str(e)} {response.text}"
                 continue
 
-            # If the call was successful append the results
-            if response.status_code in [200, 201, 405]:
-                try:
-                    """
-                    Each Response will be in the form on a ResponseObject
-                        {"status": [],"message": [], results": [], "service": "name"}
-                    Gather the data within each "results" and append it to
-                    the main one.
-                    """
-                    result = response.json()["results"]
-                    result[0]["location"] = location
-                    self.results.extend(result)
-                    self.status.append(response.status_code)
-                    self.message.append(f'Success! Location: {location["name"]}, {location["province"]}')
-
-                except Exception as e:
-                    # No "results"
-                    self.logger.warn(f"{type(e)}: {str(e)}")
-                    self.status.append(500)
-                    self.results.append(
-                        {"Error": f"{type(e)}: {str(e)}"})
-                    pass
-            else:
-                self.status.append(response.status_code)
-                self.message.append({"Error": f"{response.status_code}: {response.text}"})
 
 
         # Return is used for testing individual methods
@@ -301,20 +264,20 @@ class FederationResponse:
         args = {"request_type": request, "endpoint_path": endpoint_path,
                 "endpoint_payload": endpoint_payload, "endpoint_service": endpoint_service}
         async_session = FuturesSession(max_workers=10)  # capping max threads
-        responses = []
+        responses = {}
 
         for server in self.servers.values():
             try:
                 # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
                 response = {}
-                url = f"{server['url']}/search"
+                url = f"{server['url']}/v1/search"
                 response["response"] = async_session.post(url, json=args, headers=header, timeout=self.timeout)
                 response["location"] = server["location"]
 
-                responses.append(response)
+                responses[server['id']] = response
 
-            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
-                responses.append(e)
+            except Exception as e:
+                responses[server['id']] = f"async_requests {server['id']}: {type(e)} {str(e)}"
 
         return responses
 
@@ -377,7 +340,7 @@ class FederationResponse:
                                            header=self.header)
 
             else:
-                self.get_service(url=self.url,
+                self.get_service(service=self.endpoint_service,
                                  endpoint_path=self.endpoint_path,
                                  endpoint_payload=self.endpoint_payload)
         else:
@@ -389,25 +352,43 @@ class FederationResponse:
                                            endpoint_service=self.endpoint_service,
                                            header=self.header)
             else:
-                self.post_service(url=self.url,
+                self.post_service(service=self.endpoint_service,
                                   endpoint_path=self.endpoint_path,
                                   endpoint_payload=self.endpoint_payload)
 
-        status = self.merge_status(self.status)
-        try:
-            response = {"status": status,
-                        "message": self.message,
-                        # Remove duplicates from a list response due to Federated querying
-                        "results": sorted(list(set(self.results))),
-                        "service": self.endpoint_service,
-                        }
+        response = {
+            "status": self.status,
+            "results": self.results,
+            "service": self.endpoint_service
 
-        except TypeError:
-            # Dealing with dicts objects
-            response = {"status": status,
-                        "message": self.message,
-                        "results": self.results,
-                        "service": self.endpoint_service
-            }
+        }
+        status = self.status
 
+        # If status is not an int, this is an aggregate result
+        if "int" not in str(type(self.status)):
+            status = self.merge_status(list(self.status.values()))
+
+            if len(self.message.keys()) > 0:
+                response['message'] = self.message
+            # add locations:
+            response['location'] = {}
+            for server in self.servers:
+                response['location'][server] = self.servers[server]['location']
+
+            # now deconvolute the result to an array:
+            response_array = []
+            # print(json.dumps(response, indent=3))
+            for server in response['location'].keys():
+                r = {
+                    'location': response['location'][server],
+                    'service': response['service']
+                }
+                if server in response['results']:
+                    r['results'] = response['results'][server]
+                if server in response['status']:
+                    r['status'] = response['status'][server]
+                if 'message' in response and server in response['message']:
+                    r['message'] = response['message'][server]
+                response_array.append(r)
+            response = response_array
         return response, status

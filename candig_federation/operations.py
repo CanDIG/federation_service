@@ -146,28 +146,24 @@ def post_search():
 
         endpoint_payload = data["endpoint_payload"]
         endpoint_service = data["endpoint_service"]
-        microservice_URL = get_registered_services()[endpoint_service]['url']
-        federation_response = FederationResponse(url=microservice_URL,
-                                                request=request_type,
-                                                endpoint_path=endpoint_path,
-                                                endpoint_payload=endpoint_payload,
-                                                request_dict=request,
-                                                endpoint_service=endpoint_service
-                                                )
+        federation_response = FederationResponse(
+            request=request_type,
+            endpoint_path=endpoint_path,
+            endpoint_payload=endpoint_payload,
+            request_dict=request,
+            endpoint_service=endpoint_service
+        )
 
         return federation_response.get_response_object()
 
-    except KeyError:
+    except Exception as e:
         """
         Due to Connexion parsing the args prior this code running, it will be assumed that we
         have a valid request_type, endpoint_path and endpoint_payload. A KeyError occuring here
         will be due to the service dictionary receiving an invalid key.
         """
-    return {
-           "response": ("Invalid service name: {}. "
-           "Please make sure that the service requested matches a registered service: "
-           "{} "
-           .format(endpoint_service, list(get_registered_services().keys()))),
-           "status": 404,
-           "service": "ErrorHandling"
-           }, 404
+        return {
+               "response": f"{type(e)} {str(e)}",
+               "status": 404,
+               "service": "ErrorHandling"
+               }, 404

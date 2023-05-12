@@ -198,6 +198,8 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Federation'
       responses:
+        '200':
+          $ref: "#/components/schemas/FederatedResponse"
         '201':
           description: entry created
         '400':
@@ -216,7 +218,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PostObject'
+              $ref: '#/components/schemas/FederatedRequestBody'
 components:
   parameters:
     server_id:
@@ -253,13 +255,14 @@ components:
         items:
           $ref: '#/components/schemas/Parameter'
     Federation:
-      name: Federation
+      name: federation
       description: Flag for federated query. Federation assumed unless false is specified
       in: header
       schema:
         type: boolean
+        default: true
   schemas:
-    PostObject:
+    FederatedRequestBody:
       type: object
       required:
         - request_type
@@ -317,20 +320,22 @@ components:
           description: Base URL of the CanDIG instance
           example: https://candig.uhnresearch.ca
         location:
-          type: object
-          properties:
-            name:
-              type: string
-              example: UHN
-            province:
-              type: string
-              example: Ontario
-            province-code:
-              type: string
-              example: ca-on
+          $ref: "#/components/schemas/Location"
         testing:
           type: boolean
           description: if True, this is only registered as a test server in Federation, not in CanDIG overall
+    Location:
+      type: object
+      properties:
+        name:
+          type: string
+          example: UHN
+        province:
+          type: string
+          example: Ontario
+        province-code:
+          type: string
+          example: ca-on
     Service:
       description: A local CanDIG service that can be queried by the federation service
       type: object
@@ -346,3 +351,31 @@ components:
         version:
           type: string
           description: version of the service
+    ServiceResponse:
+      description: Response to an unfederated service request
+      type: object
+      properties:
+        results:
+          type: object
+          description: result returned from service
+        status:
+          type: number
+        service:
+          type: string
+        location:
+          $ref: "#/components/schemas/Location"
+        message:
+          type: string
+      required:
+        - service
+        - status
+
+    FederatedResponse:
+      description: Response to a search request, either federated or not
+      oneOf:
+        - $ref: "#/components/schemas/ServiceResponse"
+        - type: array
+          description: federated response
+          items:
+            $ref: "#/components/schemas/ServiceResponse"
+
