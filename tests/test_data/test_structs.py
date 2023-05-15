@@ -80,9 +80,9 @@ TestParams = {
     "PORT2": "8892",
     "Headers": exampleHeaders,
     "Federate": fedHeader,
-    "Tyk1": "10.9.208.132:6000/v1/search",
-    "Tyk2": "10.9.208.132:8000/v1/search",
-    "Tyk3": "10.9.208.132:9000/v1/search",
+    "Tyk1": "10.9.208.132:6000/v1/fanout",
+    "Tyk2": "10.9.208.132:8000/v1/fanout",
+    "Tyk3": "10.9.208.132:9000/v1/fanout",
     "path": "rnaget/projects",
     "service": "rnaget",
 }

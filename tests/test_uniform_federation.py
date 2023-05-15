@@ -423,10 +423,10 @@ def test_valid_federated_query_one_server_get(mock_requests, mock_session, clien
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "GET",
-                                 "endpoint_service": TestParams["service"]
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "GET",
+                                 "service": TestParams["service"]
                 }),
                 headers=Headers(fedHeader.headers)
         ):
@@ -458,10 +458,10 @@ def test_valid_federated_query_one_server_post(mock_requests, mock_session, clie
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "POST",
-                                 "endpoint_service": TestParams["service"]}),
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "POST",
+                                 "service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -481,10 +481,10 @@ def test_valid_federated_local_ConnErr_one_server_post(mock_session,  client):
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "POST",
-                                 "endpoint_service": TestParams["service"]}),
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "POST",
+                                 "service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -502,10 +502,10 @@ def test_valid_federated_local_TimeOut_one_server_post(mock_session,  client):
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "POST",
-                                 "endpoint_service": TestParams["service"]}),
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "POST",
+                                 "service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -525,10 +525,10 @@ def test_valid_federated_local_TimeOut_one_server_get(mock_requests, mock_sessio
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "GET",
-                                 "endpoint_service": TestParams["service"]}),
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "GET",
+                                 "service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -546,10 +546,10 @@ def test_valid_federated_local_ConnErr_one_server_get(mock_requests, mock_sessio
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path"   : TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type"    : "GET",
-                                 "endpoint_service": TestParams["service"]
+                data=json.dumps({"path"   : TestParams["path"],
+                                 "payload": "",
+                                 "method"    : "GET",
+                                 "service": TestParams["service"]
                                  }),
                 headers=Headers(fedHeader.headers)
         ):
@@ -570,10 +570,10 @@ def test_ConnErr_federated_valid_local_one_server_post(mock_session,  client):
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "POST",
-                                 "endpoint_service": TestParams["service"]}),
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "POST",
+                                 "service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -590,10 +590,10 @@ def test_TimeOut_federated_valid_local_one_server_post(mock_session,  client):
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "POST",
-                                 "endpoint_service": TestParams["service"]}),
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "POST",
+                                 "service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -611,10 +611,10 @@ def test_ConnErr_federated_valid_local_one_server_get(mock_requests, mock_sessio
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "GET",
-                                 "endpoint_service": TestParams["service"]}),
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "GET",
+                                 "service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -632,10 +632,10 @@ def test_TimeOut_federated_valid_local_one_server_get(mock_requests, mock_sessio
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "GET",
-                                 "endpoint_service": TestParams["service"]}),
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "GET",
+                                 "service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -670,10 +670,10 @@ def test_valid_federated_query_two_server_get(mock_requests, mock_session, clien
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "GET",
-                                 "endpoint_service": TestParams["service"]}),
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "GET",
+                                 "service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -706,10 +706,10 @@ def test_valid_federated_query_two_server_post(mock_requests, mock_session, clie
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "POST",
-                                 "endpoint_service": TestParams["service"]}),
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "POST",
+                                 "service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -729,10 +729,10 @@ def test_valid_federated_local_ConnErr_two_server_post(mock_session,  client):
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "POST",
-                                 "endpoint_service": TestParams["service"]}),
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "POST",
+                                 "service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -750,10 +750,10 @@ def test_valid_federated_local_TimeOut_two_server_post(mock_session,  client):
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "POST",
-                                 "endpoint_service": TestParams["service"]}),
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "POST",
+                                 "service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -771,10 +771,10 @@ def test_valid_federated_local_ConnErr_two_server_get(mock_requests, mock_sessio
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "GET",
-                                 "endpoint_service": TestParams["service"]}),
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "GET",
+                                 "service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -792,10 +792,10 @@ def test_valid_federated_local_TimeOut_two_server_get(mock_requests, mock_sessio
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "GET",
-                                 "endpoint_service": TestParams["service"]}),
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "GET",
+                                 "service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -815,10 +815,10 @@ def test_one_TimeOut_federated_local_ConnErr_two_server_post(mock_session,  clie
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "POST",
-                                 "endpoint_service": TestParams["service"]}),
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "POST",
+                                 "service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -836,10 +836,10 @@ def test_one_TimeOut_federated_local_TimeOut_two_server_post(mock_session,  clie
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "POST",
-                                 "endpoint_service": TestParams["service"]}),
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "POST",
+                                 "service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -857,10 +857,10 @@ def test_one_TimeOut_federated_local_ConnErr_two_server_get(mock_requests, mock_
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "GET",
-                                 "endpoint_service": TestParams["service"]}),
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "GET",
+                                 "service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -878,10 +878,10 @@ def test_one_TimeOut_federated_local_TimeOut_two_server_get(mock_requests, mock_
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "GET",
-                                 "endpoint_service": TestParams["service"]}),
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "GET",
+                                 "service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -901,10 +901,10 @@ def test_one_TimeOut_federated_valid_two_server_post(mock_session,  client):
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "POST",
-                                 "endpoint_service": TestParams["service"]}),
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "POST",
+                                 "service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -922,10 +922,10 @@ def test_one_TimeOut_federated_local_valid_two_server_post(mock_session,  client
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "POST",
-                                 "endpoint_service": TestParams["service"]}),
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "POST",
+                                 "service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -943,10 +943,10 @@ def test_one_TimeOut_federated_local_valid_two_server_get(mock_requests, mock_se
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/three_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": TestParams["path"],
-                                 "endpoint_payload": "",
-                                 "request_type": "GET",
-                                 "endpoint_service": TestParams["service"]}),
+                data=json.dumps({"path": TestParams["path"],
+                                 "payload": "",
+                                 "method": "GET",
+                                 "service": TestParams["service"]}),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -964,10 +964,10 @@ def test_invalid_backslash_endpoint_start(mock_requests, mock_session, client):
     APP.app.config["server_file"] = os.path.abspath("tests/test_data/two_servers.json")
     with client:
         with APP.app.test_request_context(
-                data=json.dumps({"endpoint_path": "/fail/this/path",
-                                 "endpoint_payload": "",
-                                 "request_type": "GET",
-                                 "endpoint_service": TestParams["service"]
+                data=json.dumps({"path": "/fail/this/path",
+                                 "payload": "",
+                                 "method": "GET",
+                                 "service": TestParams["service"]
                 }),
                 headers=Headers(fedHeader.headers)
         ):

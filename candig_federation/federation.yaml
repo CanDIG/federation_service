@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
-  description: Microservice implementation of CanDIG v1 federation
-  version: 0.1.4-oas3
+  description: Microservice implementation of CanDIGv2 federation
+  version: 1.0.0
   title: CanDIG Federation API POC
   contact:
     email: dnaidoo@bcgsc.ca
@@ -89,8 +89,6 @@ paths:
           description: Successful query
         '403':
           description: Authorization Error
-        '404':
-          description: Services not found
         '500':
           description: Internal Error
     delete:
@@ -101,8 +99,6 @@ paths:
           description: Server unregistered successfully
         '403':
           description: Authorization Error
-        '404':
-          description: Services not found
         '500':
           description: Internal Error
   /services:
@@ -114,8 +110,6 @@ paths:
           description: Successful query
         '403':
           description: Authorization Error
-        '404':
-          description: Services not found
         '500':
           description: Internal Error
     post:
@@ -133,8 +127,6 @@ paths:
           description: Service registered successfully
         '403':
           description: Authorization Error
-        '404':
-          description: Services not found
         '500':
           description: Internal Error
   /services/{service_id}:
@@ -148,8 +140,6 @@ paths:
           description: Successful query
         '403':
           description: Authorization Error
-        '404':
-          description: Services not found
         '500':
           description: Internal Error
     delete:
@@ -160,35 +150,9 @@ paths:
           description: Service unregistered successfully
         '403':
           description: Authorization Error
-        '404':
-          description: Services not found
         '500':
           description: Internal Error
-  /search:
-    # get:
-    #   summary: send query to a microservice
-    #   description: >
-    #     Entry point for Tyk to pass GET requests to CanDIG microservices.
-    #     Federation broadcasting defined by 'federation' header.
-    #   operationId: operations.get_search
-    #   parameters:
-    #     - $ref: '#/components/parameters/endpoint_path'
-    #     - $ref: '#/components/parameters/endpoint_payload'
-    #     - $ref: '#/components/parameters/Federation'
-    #   responses:
-    #     '200':
-    #       description: Successful query
-    #     '400':
-    #       description: Bad input parameter
-    #     '403':
-    #       description: Authorization Error
-    #     '404':
-    #       description: Expression not found
-    #     '500':
-    #       description: Internal Error
-    #     '508':
-    #       description: Federation node time out
-
+  /fanout:
     post:
       summary: Send a request to the CanDIG network
       description: >
@@ -196,23 +160,19 @@ paths:
         Federation broadcasting defined by 'federation' header.
       operationId: operations.post_search
       parameters:
-        - $ref: '#/components/parameters/Federation'
+        - $ref: '#/components/parameters/federation'
       responses:
         '200':
           $ref: "#/components/schemas/FederatedResponse"
-        '201':
-          description: entry created
         '400':
           description: 'invalid input, object invalid'
         '403':
           description: Authorization Error
         '404':
           description: Expression not found
-        '409':
-          description: an existing item already exists
         '500':
           description: Internal Error
-        '508':
+        '504':
           description: Federation node time out
       requestBody:
         content:
@@ -235,26 +195,7 @@ components:
       required: true
       schema:
         type: string
-    endpoint_path:
-      name: endpoint_path
-      description: Path to microservice endpoint
-      in: query
-      required: true
-      example: datasets/search
-      schema:
-        type: string
-    endpoint_payload:
-      name: endpoint_payload
-      description: Semicolon separated parameters to pass on
-      in: query
-      required: false
-      example:
-      explode: true
-      schema:
-        type: array
-        items:
-          $ref: '#/components/schemas/Parameter'
-    Federation:
+    federation:
       name: federation
       description: Flag for federated query. Federation assumed unless false is specified
       in: header
@@ -265,45 +206,26 @@ components:
     FederatedRequestBody:
       type: object
       required:
-        - request_type
-        - endpoint_path
-        - endpoint_payload
-        - endpoint_service
+        - method
+        - path
+        - payload
+        - service
       properties:
-        request_type:
+        method:
           type: string
-          pattern: '(^GET$)|(^POST$)'
-        endpoint_path:
+          description: method to be called on the endpoint
+          enum:
+            - GET
+            - POST
+        path:
           type: string
-          example: v2/get
-        endpoint_payload:
+          description: path to be called at the endpoint
+        payload:
           type: object
-        endpoint_service:
+          description: body of the request to be made
+        service:
           type: string
-    Parameter:
-      type: object
-      properties:
-        key:
-          type: string
-        value:
-          anyOf:
-           - type: string
-           - type: array
-             items:
-              type:
-                string
-      example: '"ontologies": ["DUO:0000001", "DUO:0000028"]'
-    Error:
-      type: object
-      required:
-        - message
-        - code
-      properties:
-        code:
-          type: integer
-          format: int32
-        message:
-          type: string
+          description: name of service to be called, e.g. katsu or htsget
     Server:
       description: A federated CanDIG instance in the network
       type: object
@@ -369,7 +291,6 @@ components:
       required:
         - service
         - status
-
     FederatedResponse:
       description: Response to a search request, either federated or not
       oneOf:

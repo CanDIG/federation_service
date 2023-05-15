@@ -261,8 +261,8 @@ class FederationResponse:
         :type header: object
         :return: List of Futures
         """
-        args = {"request_type": request, "endpoint_path": endpoint_path,
-                "endpoint_payload": endpoint_payload, "endpoint_service": endpoint_service}
+        args = {"method": request, "path": endpoint_path,
+                "payload": endpoint_payload, "service": endpoint_service}
         async_session = FuturesSession(max_workers=10)  # capping max threads
         responses = {}
 
@@ -270,7 +270,7 @@ class FederationResponse:
             try:
                 # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
                 response = {}
-                url = f"{server['url']}/v1/search"
+                url = f"{server['url']}/v1/fanout"
                 response["response"] = async_session.post(url, json=args, headers=header, timeout=self.timeout)
                 response["location"] = server["location"]
 

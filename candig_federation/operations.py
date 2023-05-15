@@ -134,18 +134,18 @@ def post_search():
     try:
 
         data = connexion.request.json
-        request_type = data["request_type"]
-        endpoint_path = data["endpoint_path"]
+        request_type = data["method"]
+        endpoint_path = data["path"]
         if endpoint_path[0] == "/":
             return {
-                    "response": (f"Invalid endpoint_path: {endpoint_path}. "
+                    "response": (f"Invalid endpoint path: {endpoint_path}. "
                     "Please remove the / at the beginning: "),
                     "status": 400,
                     "service": "ErrorHandling"
                     }, 400
 
-        endpoint_payload = data["endpoint_payload"]
-        endpoint_service = data["endpoint_service"]
+        endpoint_payload = data["payload"]
+        endpoint_service = data["service"]
         federation_response = FederationResponse(
             request=request_type,
             endpoint_path=endpoint_path,
