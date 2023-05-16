@@ -21,7 +21,29 @@ pip install -r requirements.txt
 
 ### How to register peer servers
 
-On initialization of the docker container, the server listed in .env as FEDERATION_SELF_SERVER will be registered. This is your own server. If you want to register other peer servers, use the /federation/v1/servers POST endpoint, described in federation.yaml.
+On initialization of the docker container, the server listed in .env as FEDERATION_SELF_SERVER will be registered. This is your own server. If you want to register other peer servers, use the /federation/v1/servers POST endpoint, described in federation.yaml. You'll need to have a valid JWT from the peer server's identity issuer, as well as the URL of the issuer. This call must be authorized with a bearer token from a site administrator.
+
+```
+## add server
+curl -X "POST" "http://candig.docker.internal:5080/federation/v1/servers" \
+     -H 'Content-Type: application/json' \
+     -H 'Authorization: Bearer <site admin token>' \
+     -d $'{
+      "server": {
+        "id": "new-candig",
+        "url": "http://some-place.candig.ca",
+        "location": {
+          "name": "New CanDIG",
+          "province": "ON",
+          "province-code": "ca-on"
+        }
+      },
+      "authentication": {
+        "issuer": "https://some-place.candig.ca/auth/realms/candig",
+        "token": "<token from issuer>"
+      }
+    }'
+```
 
 ## Running
 
