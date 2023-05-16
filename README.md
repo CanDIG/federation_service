@@ -29,7 +29,7 @@ You should use `uwsgi` to run the app for all functionalities to work as expecte
 
 ```
 # Run Server
-uwsgi federation.ini --http :8891 --master
+uwsgi federation.ini --master
 
 # Reload server gracefully, replace <pid> with the uwsgi process ID
 kill -HUP <pid>
