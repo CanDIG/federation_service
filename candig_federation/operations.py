@@ -61,29 +61,29 @@ def add_server():
 
 
 @apilog
-@app.route('/servers/<path:id_>')
-def get_server(id_):
+@app.route('/servers/<path:server_id>')
+def get_server(server_id):
     """
     :return: Server requested.
     """
     servers = get_registered_servers()
-    if servers is not None and id_ in servers:
-        return servers[id_], 200
+    if servers is not None and server_id in servers:
+        return servers[server_id], 200
     else:
-        return {"message": f"Couldn't find server {id_}"}, 404
+        return {"message": f"Couldn't find server {server_id}"}, 404
 
 
 @apilog
-@app.route('/servers/<path:id_>')
-def delete_server(id_):
+@app.route('/servers/<path:server_id>')
+def delete_server(server_id):
     """
     :return: Server deleted.
     """
     if not is_site_admin(request):
         return {"message": "User is not authorized to POST"}, 403
-    result = unregister_server(id_)
+    result = unregister_server(server_id)
     if result is None:
-        return {"message": f"Server {id_} not found"}, 404
+        return {"message": f"Server {server_id} not found"}, 404
     return result, 200
 
 
@@ -96,16 +96,16 @@ def list_services():
 
 
 @apilog
-@app.route('/services/<path:id_>')
-def get_service(id_):
+@app.route('/services/<path:service_id>')
+def get_service(service_id):
     """
     :return: Service requested.
     """
     services = get_registered_services()
-    if services is not None and id_ in services:
-        return services[id_], 200
+    if services is not None and service_id in services:
+        return services[service_id], 200
     else:
-        return {"message": f"Couldn't find service {id_}"}, 404
+        return {"message": f"Couldn't find service {service_id}"}, 404
 
 
 @apilog
@@ -121,16 +121,16 @@ def add_service():
 
 
 @apilog
-@app.route('/services/<path:id_>')
-def delete_service(id_):
+@app.route('/services/<path:service_id>')
+def delete_service(service_id):
     """
     :return: Service deleted.
     """
     if not is_site_admin(request):
         return {"message": "User is not authorized to POST"}, 403
-    result = unregister_service(id_)
+    result = unregister_service(service_id)
     if result is None:
-        return {"message": f"Service {id_} not found"}, 404
+        return {"message": f"Service {service_id} not found"}, 404
     return result, 200
 
 
