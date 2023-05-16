@@ -1,19 +1,20 @@
 """
-Provides parsing methods to initialize the server's peer to peer/service connections.
+Methods to handle services and peer servers
 """
 
-import os
 import json
 from flask import current_app
 import authz
 
 
 def get_registered_servers():
-    with open(current_app.config['server_file']) as f:
-        try:
+    try:
+        with open(current_app.config['server_file']) as f:
             return json.load(f)
-        except Exception as e:
-            return None
+    except Exception as e:
+        print(f"Error in get_registered_servers: {type(e)} {str(e)}")
+        return None
+
 
 
 def register_server(obj):
@@ -44,8 +45,12 @@ def register_server(obj):
         except Exception as e:
             raise Exception(f"Failed to register server with opa: {type(e)} {str(e)}")
 
-    with open(current_app.config['server_file'], 'w') as f:
-        f.write(json.dumps(servers))
+    try:
+        with open(current_app.config['server_file'], 'w') as f:
+            f.write(json.dumps(servers))
+    except Exception as e:
+        print(f"Error in register_server: {type(e)} {str(e)}")
+        return None
     return obj['server']
 
 
@@ -60,19 +65,24 @@ def unregister_server(server_id):
 
 
 def get_registered_services():
-    with open(current_app.config['service_file']) as f:
-        try:
+    try:
+        with open(current_app.config['service_file']) as f:
             return json.load(f)
-        except Exception as e:
-            return None
+    except Exception as e:
+        print(f"Error in get_registered_services: {type(e)} {str(e)}")
+        return None
 
 
 def register_service(obj):
     services = get_registered_services()
     if services is not None:
         services[obj['id']] = obj
-    with open(current_app.config['service_file'], 'w') as f:
-        f.write(json.dumps(services))
+    try:
+        with open(current_app.config['service_file'], 'w') as f:
+            f.write(json.dumps(services))
+    except Exception as e:
+        print(f"Error in register_service: {type(e)} {str(e)}")
+        return None
     return obj
 
 

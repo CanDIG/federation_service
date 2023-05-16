@@ -2,9 +2,7 @@ openapi: 3.0.0
 info:
   description: Microservice implementation of CanDIGv2 federation
   version: 1.0.0
-  title: CanDIG Federation API POC
-  contact:
-    email: dnaidoo@bcgsc.ca
+  title: CanDIG Federation API
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
@@ -17,7 +15,7 @@ paths:
       operationId: operations.service_info
       responses:
         '200':
-          description: Successful query
+          description: Successful
   /servers:
     get:
       description: List registered servers.
@@ -25,10 +23,6 @@ paths:
       responses:
         '200':
           description: Successful query
-        '403':
-          description: Authorization Error
-        '404':
-          description: Services not found
         '500':
           description: Internal Error
     post:
@@ -68,14 +62,12 @@ paths:
                           type: boolean
                           description: if present and True, this is a request to register a testing server
       responses:
-        '200':
-          description: OK
         '201':
           description: Server registered successfully
+        '204':
+          description: Server already registered
         '403':
           description: Authorization Error
-        '404':
-          description: Services not found
         '500':
           description: Internal Error
   /servers/{server_id}:
@@ -87,8 +79,8 @@ paths:
       responses:
         '200':
           description: Successful query
-        '403':
-          description: Authorization Error
+        '404':
+          description: Server not found
         '500':
           description: Internal Error
     delete:
@@ -99,6 +91,8 @@ paths:
           description: Server unregistered successfully
         '403':
           description: Authorization Error
+        '404':
+          description: Server not found
         '500':
           description: Internal Error
   /services:
@@ -108,8 +102,8 @@ paths:
       responses:
         '200':
           description: Successful query
-        '403':
-          description: Authorization Error
+        '404':
+          description: Service not found
         '500':
           description: Internal Error
     post:
@@ -121,8 +115,6 @@ paths:
             schema:
               $ref: "#/components/schemas/Service"
       responses:
-        '200':
-          description: OK
         '201':
           description: Service registered successfully
         '403':
@@ -138,8 +130,8 @@ paths:
       responses:
         '200':
           description: Successful query
-        '403':
-          description: Authorization Error
+        '404':
+          description: Service not found
         '500':
           description: Internal Error
     delete:
@@ -148,8 +140,8 @@ paths:
       responses:
         '200':
           description: Service unregistered successfully
-        '403':
-          description: Authorization Error
+        '404':
+          description: Service not found
         '500':
           description: Internal Error
   /fanout:

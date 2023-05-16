@@ -18,7 +18,19 @@ def service_info():
     """
     :return: Our own server.
     """
-    return list(get_registered_servers().values())[0], 200
+    response = {
+        "description": "Microservice implementation of CanDIGv2 federation",
+        "id": "org.candig.federation",
+        "name": "CanDIGv2 Federation",
+        "organization": {
+            "name": "CanDIG",
+            "url": "https://www.distributedgenomics.ca"
+        }
+    }
+    servers = get_registered_servers()
+    if servers is not None and len(servers.values()) > 0:
+        response["server"] = list(servers.values()).pop(0)
+    return response, 200
 
 
 @apilog
@@ -26,7 +38,10 @@ def list_servers():
     """
     :return: Dictionary of registered peer servers.
     """
-    return list(get_registered_servers().values()), 200
+    servers = get_registered_servers()
+    if servers is not None:
+        return list(servers.values()), 200
+    return {"message": "Couldn't list servers"}, 500
 
 
 @apilog
@@ -36,11 +51,11 @@ def add_server():
     """
     if not is_site_admin(request):
         return {"message": "User is not authorized to POST"}, 403
-    new_server = connexion.request.json
     try:
+        new_server = connexion.request.json
         if register_server(new_server) is None:
             return {"message": f"Server {new_server['server']['id']} already present"}, 204
-        return get_registered_servers()[new_server['server']['id']], 200
+        return get_registered_servers()[new_server['server']['id']], 201
     except Exception as e:
         return {"message": f"Couldn't add server: {type(e)} {str(e)}"}, 500
 
@@ -51,7 +66,11 @@ def get_server(id_):
     """
     :return: Server requested.
     """
-    return get_registered_servers()[id_], 200
+    servers = get_registered_servers()
+    if servers is not None and id_ in servers:
+        return servers[id_], 200
+    else:
+        return {"message": f"Couldn't find server {id_}"}, 404
 
 
 @apilog
@@ -63,6 +82,8 @@ def delete_server(id_):
     if not is_site_admin(request):
         return {"message": "User is not authorized to POST"}, 403
     result = unregister_server(id_)
+    if result is None:
+        return {"message": f"Server {id_} not found"}, 404
     return result, 200
 
 
@@ -80,7 +101,11 @@ def get_service(id_):
     """
     :return: Service requested.
     """
-    return get_registered_services()[id_], 200
+    services = get_registered_services()
+    if services is not None and id_ in services:
+        return services[id_], 200
+    else:
+        return {"message": f"Couldn't find service {id_}"}, 404
 
 
 @apilog
@@ -104,6 +129,8 @@ def delete_service(id_):
     if not is_site_admin(request):
         return {"message": "User is not authorized to POST"}, 403
     result = unregister_service(id_)
+    if result is None:
+        return {"message": f"Service {id_} not found"}, 404
     return result, 200
 
 
