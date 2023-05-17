@@ -14,6 +14,7 @@ RUN apk add --no-cache \
   make \
   gcc \
   linux-headers \
+  libffi-dev \
   perl \
   bash \
   build-base \
