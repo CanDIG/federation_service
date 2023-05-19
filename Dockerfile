@@ -15,6 +15,7 @@ RUN apk add --no-cache \
   make \
   gcc \
   linux-headers \
+  libffi-dev \
   perl \
   bash \
   build-base \
@@ -32,9 +33,14 @@ RUN apk add --no-cache \
 
 RUN addgroup candig
 
-COPY . /app/federation_service
-WORKDIR /app/federation_service
+COPY requirements.txt /app/federation/requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r /app/federation/requirements.txt
 
-ENTRYPOINT ["python", "-m", "candig_federation"]
+COPY . /app/federation
+
+WORKDIR /app/federation
+
+RUN mkdir /app/config
+
+ENTRYPOINT ["bash", "entrypoint.sh"]

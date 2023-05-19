@@ -1,0 +1,294 @@
+openapi: 3.0.0
+info:
+  description: Microservice implementation of CanDIGv2 federation
+  version: 1.0.0
+  title: CanDIG Federation API
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+  - url: /federation/v1
+paths:
+  /service-info:
+    get:
+      description: Return server info about this instance
+      operationId: operations.service_info
+      responses:
+        '200':
+          description: Successful
+  /servers:
+    get:
+      description: List registered servers.
+      operationId: operations.list_servers
+      responses:
+        '200':
+          description: Successful query
+        '500':
+          description: Internal Error
+    post:
+      description: Add a server to the federation.
+      operationId: operations.add_server
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              type: object
+              required:
+                - server
+                - authentication
+              properties:
+                server:
+                  $ref: "#/components/schemas/Server"
+                authentication:
+                  oneOf:
+                    - type: object
+                      title: CanDIGv2 authentication
+                      required:
+                        - token
+                        - issuer
+                      properties:
+                        issuer:
+                          type: string
+                          description: Issuer associated with the OIDC token.
+                        token:
+                          type: string
+                          description: OIDC access token issued to a user from the issuer. Can be expired, as long as it's verifiable with the current public key.
+                    - type: object
+                      title: Testing server
+                      required:
+                        - testing
+                      properties:
+                        testing:
+                          type: boolean
+                          description: if present and True, this is a request to register a testing server
+      responses:
+        '201':
+          description: Server registered successfully
+        '204':
+          description: Server already registered
+        '403':
+          description: Authorization Error
+        '500':
+          description: Internal Error
+  /servers/{server_id}:
+    parameters:
+      - $ref: "#/components/parameters/server_id"
+    get:
+      description: Get a server
+      operationId: operations.get_server
+      responses:
+        '200':
+          description: Successful query
+        '404':
+          description: Server not found
+        '500':
+          description: Internal Error
+    delete:
+      description: Unregister a server
+      operationId: operations.delete_server
+      responses:
+        '200':
+          description: Server unregistered successfully
+        '403':
+          description: Authorization Error
+        '404':
+          description: Server not found
+        '500':
+          description: Internal Error
+  /services:
+    get:
+      description: List registered services.
+      operationId: operations.list_services
+      responses:
+        '200':
+          description: Successful query
+        '404':
+          description: Service not found
+        '500':
+          description: Internal Error
+    post:
+      description: Add a service to the federation.
+      operationId: operations.add_service
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: "#/components/schemas/Service"
+      responses:
+        '201':
+          description: Service registered successfully
+        '403':
+          description: Authorization Error
+        '500':
+          description: Internal Error
+  /services/{service_id}:
+    parameters:
+      - $ref: "#/components/parameters/service_id"
+    get:
+      description: Get a service
+      operationId: operations.get_service
+      responses:
+        '200':
+          description: Successful query
+        '404':
+          description: Service not found
+        '500':
+          description: Internal Error
+    delete:
+      description: Unregister a service
+      operationId: operations.delete_service
+      responses:
+        '200':
+          description: Service unregistered successfully
+        '404':
+          description: Service not found
+        '500':
+          description: Internal Error
+  /fanout:
+    post:
+      summary: Send a request to the CanDIG network
+      description: >
+        Entry point for Tyk to pass ALL requests to CanDIG microservices.
+        Federation broadcasting defined by 'federation' header.
+      operationId: operations.post_search
+      parameters:
+        - $ref: '#/components/parameters/federation'
+      responses:
+        '200':
+          $ref: "#/components/schemas/FederatedResponse"
+        '400':
+          description: 'invalid input, object invalid'
+        '403':
+          description: Authorization Error
+        '404':
+          description: Expression not found
+        '500':
+          description: Internal Error
+        '504':
+          description: Federation node time out
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FederatedRequestBody'
+components:
+  parameters:
+    server_id:
+      name: server_id
+      description: ID of a federated server
+      in: path
+      required: true
+      schema:
+        type: string
+    service_id:
+      name: service_id
+      description: ID of a local service that can be queried by federation
+      in: path
+      required: true
+      schema:
+        type: string
+    federation:
+      name: federation
+      description: Flag for federated query. Federation assumed unless false is specified
+      in: header
+      schema:
+        type: boolean
+        default: true
+  schemas:
+    FederatedRequestBody:
+      type: object
+      required:
+        - method
+        - path
+        - payload
+        - service
+      properties:
+        method:
+          type: string
+          description: method to be called on the endpoint
+          enum:
+            - GET
+            - POST
+        path:
+          type: string
+          description: path to be called at the endpoint
+        payload:
+          type: object
+          description: body of the request to be made
+        service:
+          type: string
+          description: name of service to be called, e.g. katsu or htsget
+    Server:
+      description: A federated CanDIG instance in the network
+      type: object
+      required:
+        - id
+        - url
+        - location
+      properties:
+        id:
+          type: string
+          description: Unique id for the server
+        url:
+          type: string
+          description: Base URL of the CanDIG instance
+          example: https://candig.uhnresearch.ca
+        location:
+          $ref: "#/components/schemas/Location"
+        testing:
+          type: boolean
+          description: if True, this is only registered as a test server in Federation, not in CanDIG overall
+    Location:
+      type: object
+      properties:
+        name:
+          type: string
+          example: UHN
+        province:
+          type: string
+          example: Ontario
+        province-code:
+          type: string
+          example: ca-on
+    Service:
+      description: A local CanDIG service that can be queried by the federation service
+      type: object
+      properties:
+        id:
+          type: string
+          enum:
+            - katsu
+            - htsget
+        url:
+          type: string
+          description: local URL for use by the federation service
+        version:
+          type: string
+          description: version of the service
+    ServiceResponse:
+      description: Response to an unfederated service request
+      type: object
+      properties:
+        results:
+          type: object
+          description: result returned from service
+        status:
+          type: number
+        service:
+          type: string
+        location:
+          $ref: "#/components/schemas/Location"
+        message:
+          type: string
+      required:
+        - service
+        - status
+    FederatedResponse:
+      description: Response to a search request, either federated or not
+      oneOf:
+        - $ref: "#/components/schemas/ServiceResponse"
+        - type: array
+          description: federated response
+          items:
+            $ref: "#/components/schemas/ServiceResponse"
+

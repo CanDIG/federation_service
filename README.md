@@ -19,57 +19,30 @@ The federation_service can be installed in a py3.7+ virtual environment:
 pip install -r requirements.txt
 ```
 
-## Configuration Files
-
-The Federation Service requires two JSON configuration files to be placed into the `federation_service/configs` directory. 
-These files are `servers.json` and `services.json`.
-
-### How to register services
-
-Specify the name and URL of your services.Below is an example of `services.json`:
-
-```
-{
-  "services": {
-    "katsu": "https://katsu-api-2.herokuapp.com",
-    "candig-server": "https://app05.herokuapp.com"
-  }
-}
-```
-
 ### How to register peer servers
 
-For federation to work, you will need to register both the `host` and its peer servers as `servers` under `config/servers.json`. This may be confusing, as you may think that your `host` does not need to be registered.
-
-In addition, specify the location for your peer servers with the array `["research centre", "province name", "province code"]`. For compatibility with CanDIG's [data portal](https://github.com/CanDIG/candig-data-portal), use the following province codes:
-
-`'ca-ab', 'ca-bc', 'ca-mb', 'ca-nb', 'ca-nl', 'ca-nt', 'ca-ns', 'ca-nu', 'ca-on', 'ca-pe', 'ca-qc', 'ca-sk', 'ca-yt'`
-
-
-For example, if your host federation service is running at `http://0.0.0.0:8890` in British Columbia, and your first 
-peer server federation service is running at `http://0.0.0.0:8891` in Ontario, your `servers.json` would look like this:
+On initialization of the docker container, the server listed in .env as FEDERATION_SELF_SERVER will be registered. This is your own server. If you want to register other peer servers, use the /federation/v1/servers POST endpoint, described in federation.yaml. This call must be authorized with a bearer token from a site administrator for your own server. In the `authentication` object, you'll need to have a valid JWT from the peer server's identity issuer, as well as the URL of the issuer.
 
 ```
-{
-  "servers": [
-    {
-      "url": "http://ga4ghdev01.bcgsc.ca:8891/federation/search",
-      "location": [
-        "BCGSC",
-        "British Columbia",
-        "ca-bc"
-      ]
-    },
-    {
-      "url": "http://ga4ghdev01.bcgsc.ca:8892/federation/search",
-      "location": [
-        "UHN",
-        "Ontario",
-        "ca-on"
-      ]
-    }
-  ]
-}
+## add server
+curl -X "POST" "http://candig.docker.internal:5080/federation/v1/servers" \
+     -H 'Content-Type: application/json' \
+     -H 'Authorization: Bearer <site admin token>' \
+     -d $'{
+      "server": {
+        "id": "new-candig",
+        "url": "http://some-place.candig.ca",
+        "location": {
+          "name": "New CanDIG",
+          "province": "ON",
+          "province-code": "ca-on"
+        }
+      },
+      "authentication": {
+        "issuer": "https://some-place.candig.ca/auth/realms/candig",
+        "token": "<token from issuer>"
+      }
+    }'
 ```
 
 ## Running
@@ -78,33 +51,26 @@ You should use `uwsgi` to run the app for all functionalities to work as expecte
 
 ```
 # Run Server
-uwsgi federation.ini --http :8891 --master
+uwsgi federation.ini --master
 
 # Reload server gracefully, replace <pid> with the uwsgi process ID
 kill -HUP <pid>
 ```
 
-You may also start the server with the following command, but federation queries will not work. The command below is usually for debugging purposes.
-
-```
-python -m candig_federation --host 0.0.0.0 --port 8080 --services ./configs/services.json --servers configs/servers.json
-```
-
-Once the service is running, a Swagger UI can be accessed at : `/federation/ui`
+Once the service is running, a Swagger UI can be accessed at : `/federation/v1`.
 
 
 ### Testing
 
-Tests can be run with pytest and coverage:
+Tests can be run with pytest:
 
 ```
-pytest --cov=candig_federation tests/
+pytest tests/test_uniform_federation.py
 ```
 
-To generate a readable html report of the test results, use:
-
+However, the tests are best run inside the docker container, if you're running in the CanDIGv2 environment:
 ```
-pytest tests/ --cov=candig_federation --html=test_report.html --self-contained-html
+docker exec candigv2_federation_1 pytest
 ```
 
 

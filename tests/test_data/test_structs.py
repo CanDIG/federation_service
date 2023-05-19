@@ -12,6 +12,7 @@ class MockResponse:
         self.json_data = json_data
         self.status_code = status_code
         self.headers = {'X-Source': '2222'}
+        self.text = "response"
 
     def json(self):
         return self.json_data
@@ -30,6 +31,7 @@ class MockResponseInternal:
         self.json_data = json_data
         self.status_code = status_code
         self.headers = {'X-Source': '2222'}
+        self.text = "response"
 
     def json(self):
         return {"results": self.json_data,
@@ -48,23 +50,6 @@ class testHeader():
 
     def headers(self):
         return self.headers
-
-
-TWO = [
-    {"url": "http://10.9.208.132:6000",
-     "location": "loc1"},
-    {"url": "http://10.9.208.132:8000",
-     "location": "loc2"}
-]
-
-THREE = [
-    {"url": "http://10.9.208.132:6000",
-     "location": "loc1"},
-    {"url": "http://10.9.208.132:8000",
-     "location": "loc2"},
-    {"url": "http://10.9.208.132:9000",
-     "location": "loc3"}
-]
 
 
 exampleHeaders = testHeader({
@@ -88,33 +73,37 @@ fedHeader = testHeader({
 })
 
 
-TP = {
+TestParams = {
     "URI": "10.9.208.132",
     "PORT0": "8890",
     "PORT1": "8891",
     "PORT2": "8892",
     "Headers": exampleHeaders,
     "Federate": fedHeader,
-    "Tyk1": "10.9.208.132:6000",
-    "Tyk2": "10.9.208.132:8000",
-    "Tyk3": "10.9.208.132:9000",
+    "Tyk1": "10.9.208.132:6000/v1/fanout",
+    "Tyk2": "10.9.208.132:8000/v1/fanout",
+    "Tyk3": "10.9.208.132:9000/v1/fanout",
     "path": "rnaget/projects",
-    "service": "TestService",
+    "service": "rnaget",
 }
 
-AP = {
-    "s1": MockResponse([{"projects": {"k1": "v1", "k2": "v2"}}], 200),
-    "s2": MockResponse([{"projects": {"key1": "value1"}}], 200),
-    "s3": MockResponse([{"projects": {"keyA": "valueB"}}], 200),
-    "i1": MockResponseInternal([{"projects": {"k1": "v1", "k2": "v2"}}], 200),
-    "i2": MockResponseInternal([{"projects": {"key1": "value1"}}], 200),
-    "i3": MockResponseInternal([{"projects": {"keyA": "valueB"}}], 200),
+GetListV1 = {"projects": {"k1": "v1", "k2": "v2"}}
+GetListV2 = {"projects": {"key1": "value1"}}
+GetListV3 = {"projects": {"keyA": "valueB"}}
+
+GetResponse = {
+    "s1": MockResponse(GetListV1, 200),
+    "s2": MockResponse(GetListV2, 200),
+    "s3": MockResponse(GetListV3, 200),
+    "i1": MockResponseInternal(GetListV1, 200),
+    "i2": MockResponseInternal(GetListV2, 200),
+    "i3": MockResponseInternal(GetListV3, 200),
     "timeout": MockResponseInternal({}, 408),
-    "fail": MockResponse(None, 404),
-    "v1": {"projects": {"k1": "v1", "k2": "v2"}, "location": "loc1"},
-    "v2": {"projects": {"key1": "value1"}, "location": "loc2"},
-    "v3": {"projects": {"keyA": "valueB"}, "location": "loc3"},
-    "j1": {"projects": {"k1": "v1", "k2": "v2"}}
+    "fail": MockResponseInternal(None, 404),
+    "loc1": {"results": GetListV1, "location": {"name": "loc1", "province": "ON", "province-code": "ca-on"}},
+    "loc2": {"results": GetListV2, "location": {"name": "loc2", "province": "ON", "province-code": "ca-on"}},
+    "loc3": {"results": GetListV3, "location": {"name": "loc3", "province": "ON", "province-code": "ca-on"}},
+    "j1": GetListV1
 }
 
 
@@ -179,12 +168,18 @@ PostListV3 = {
     ]
 }
 
-PR = {
-    "PLM1": MockResponse([PostListM1], 200),
-    "PLV1": MockResponse([PostListV1], 200),
-    "PLV2": MockResponse([PostListV2], 200),
-    "iPLV1": MockResponseInternal([PostListV1], 200),
-    "iPLV2": MockResponseInternal([PostListV2], 200),
-    "PLV3": MockResponse([PostListV3], 200),
-    "iPLV3": MockResponseInternal([PostListV3], 200)
+PostResponse = {
+    "PLM1": MockResponse(PostListM1, 200),
+    "PLV1": MockResponse(PostListV1, 200),
+    "PLV2": MockResponse(PostListV2, 200),
+    "iPLV1": MockResponseInternal(PostListV1, 200),
+    "iPLV2": MockResponseInternal(PostListV2, 200),
+    "PLV3": MockResponse(PostListV3, 200),
+    "iPLV3": MockResponseInternal(PostListV3, 200),
+    "timeout": MockResponseInternal(None, 408),
+    "fail": MockResponseInternal(None, 404),
+    "loc1": {"results": PostListV1, "location": {"name": "loc1", "province": "ON", "province-code": "ca-on"}},
+    "loc2": {"results": PostListV2, "location": {"name": "loc2", "province": "ON", "province-code": "ca-on"}},
+    "loc3": {"results": PostListV3, "location": {"name": "loc3", "province": "ON", "province-code": "ca-on"}}
+
 }

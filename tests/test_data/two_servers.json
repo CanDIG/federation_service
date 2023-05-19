@@ -1,0 +1,22 @@
+{
+    "loc1": {
+        "id": "loc1",
+        "url": "http://10.9.208.132:6000",
+        "testing": true,
+        "location": {
+            "name": "loc1",
+            "province": "ON",
+            "province-code": "ca-on"
+        }
+    },
+    "loc2": {
+        "id": "loc2",
+        "url": "http://10.9.208.132:8000",
+        "testing": true,
+        "location": {
+            "name": "loc2",
+            "province": "ON",
+            "province-code": "ca-on"
+        }
+    }
+}
