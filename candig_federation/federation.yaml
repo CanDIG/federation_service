@@ -259,6 +259,7 @@ components:
           enum:
             - katsu
             - htsget
+            - query
         url:
           type: string
           description: local URL for use by the federation service
