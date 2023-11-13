@@ -2,7 +2,7 @@ attrs~=23.1.0
 candigv2-authx@git+https://github.com/CanDIG/candigv2-authx.git@v1.1.0
 connexion==2.14.1
 decorator==4.4.0
-flask==2.2.2
+flask==2.2.5
 pyyaml>=4.2b1
 pytest==7.2.0
 pytest-cov==2.7.1
