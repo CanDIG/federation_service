@@ -31,7 +31,7 @@ RUN apk add --no-cache \
   pcre-dev \
   git
 
-RUN addgroup candig
+RUN addgroup -S candig && adduser -S candig -G candig
 
 COPY requirements.txt /app/federation/requirements.txt
 
@@ -41,6 +41,12 @@ COPY . /app/federation
 
 WORKDIR /app/federation
 
+RUN chown -R candig:candig /app/federation
+
 RUN mkdir /app/config
+
+RUN chown -R candig:candig /app/config
+
+USER candig
 
 ENTRYPOINT ["bash", "entrypoint.sh"]
