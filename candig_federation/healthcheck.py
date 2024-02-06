@@ -9,6 +9,7 @@ import datetime
 import requests
 
 keycloak_url = os.environ.get('KEYCLOAK_PUBLIC_URL')
+federation_url = os.environ.get('FEDERATION_SERVICE_URL')
 
 # Read Docker secrets
 with open("/run/secrets/client_secret") as f:
@@ -36,7 +37,7 @@ def get_token(username=None, password=None, client_id=None, client_secret=None):
 def perform_healthcheck():
     auth_token = get_token(username="user2", password=password, client_id="local_candig", client_secret=client_secret)
     headers = {"Authorization": f"Bearer {auth_token}"}
-    url = "http://candig.docker.internal:5080/federation/v1/service-info" 
+    url = f"{federation_url}/v1/service-info" 
 
     try:
         response = requests.get(url, headers=headers)
