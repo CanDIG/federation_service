@@ -38,7 +38,7 @@ class FederationResponse:
     # pylint: disable=too-many-arguments
 
     def __init__(self, request, endpoint_path, endpoint_payload, request_dict, endpoint_service, return_mimetype='application/json',
-                 timeout=5):
+                 timeout=60):
         """Constructor method
         """
         self.results = {}
