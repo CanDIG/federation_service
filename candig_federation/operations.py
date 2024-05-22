@@ -13,7 +13,6 @@ from network import get_registered_servers, get_registered_services, register_se
 app = Flask(__name__)
 
 
-@apilog
 def service_info():
     """
     :return: Our own server.
