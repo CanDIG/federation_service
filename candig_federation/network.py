@@ -5,16 +5,19 @@ Methods to handle services and peer servers
 import json
 from flask import current_app
 import authz
+import authx.auth
 
 
 def get_registered_servers():
-    try:
-        with open(current_app.config['server_file']) as f:
-            return json.load(f)
-    except Exception as e:
-        print(f"Error in get_registered_servers: {type(e)} {str(e)}")
+    stored_servers_dict, status_code = authx.auth.get_service_store_secret("federation", key="servers")
+    if status_code == 404:
+        # no value was found, so this must need to be initialized
+        stored_servers_dict, status_code = authx.auth.set_service_store_secret("federation", key="servers", value=json.dumps({"servers": {}}))
+        return {}
+    if status_code != 200:
+        print(f"Error in get_registered_servers: {stored_servers_dict}")
         return None
-
+    return stored_servers_dict["servers"]
 
 
 def register_server(obj):
@@ -45,12 +48,9 @@ def register_server(obj):
         except Exception as e:
             raise Exception(f"Failed to register server with opa: {type(e)} {str(e)}")
 
-    try:
-        with open(current_app.config['server_file'], 'w') as f:
-            f.write(json.dumps(servers))
-    except Exception as e:
-        print(f"Error in register_server: {type(e)} {str(e)}")
-        return None
+    stored_servers_dict, status_code = authx.auth.set_service_store_secret("federation", key="servers", value=json.dumps({"servers": servers}))
+    if status_code != 200:
+        print(f"Error in register_server: {stored_servers_dict}")
     return obj['server']
 
 
@@ -59,30 +59,32 @@ def unregister_server(server_id):
     result = None
     if servers is not None and server_id in servers:
         result = servers.pop(server_id)
-        with open(current_app.config['server_file'], 'w') as f:
-            f.write(json.dumps(servers))
+    stored_servers_dict, status_code = authx.auth.set_service_store_secret("federation", key="servers", value=json.dumps({"servers": servers}))
+    if status_code != 200:
+        print(f"Error in register_server: {stored_servers_dict}")
     return result
 
 
 def get_registered_services():
-    try:
-        with open(current_app.config['service_file']) as f:
-            return json.load(f)
-    except Exception as e:
-        print(f"Error in get_registered_services: {type(e)} {str(e)}")
+    stored_services_dict, status_code = authx.auth.get_service_store_secret("federation", key="services")
+    if status_code == 404:
+        # no value was found, so this must need to be initialized
+        stored_services_dict, status_code = authx.auth.set_service_store_secret("federation", key="services", value=json.dumps({"services": {}}))
+        return {}
+    if status_code != 200:
+        print(f"Error in get_registered_services: {stored_services_dict}")
         return None
+    return stored_services_dict["services"]
 
 
 def register_service(obj):
     services = get_registered_services()
     if services is not None:
         services[obj['id']] = obj
-    try:
-        with open(current_app.config['service_file'], 'w') as f:
-            f.write(json.dumps(services))
-    except Exception as e:
-        print(f"Error in register_service: {type(e)} {str(e)}")
-        return None
+        stored_services_dict, status_code = authx.auth.set_service_store_secret("federation", key="services", value=json.dumps({"services": services}))
+        if status_code != 200:
+            print(f"Error in register_service: {stored_services_dict}")
+            return None
     return obj
 
 
@@ -91,6 +93,5 @@ def unregister_service(service_id):
     result = None
     if services is not None and service_id in services:
         result = services.pop(service_id)
-        with open(current_app.config['service_file'], 'w') as f:
-            f.write(json.dumps(services))
+        stored_services_dict, status_code = authx.auth.set_service_store_secret("federation", key="services",   value=json.dumps({"services": services}))
     return result

@@ -30,16 +30,6 @@ def main():
     APP.app.logger.addHandler(log_handler)
     APP.app.logger.setLevel(numeric_loglevel)
 
-    APP.app.config["service_file"] = os.path.abspath(f"{CONFIG_DIR}/services.json")
-    if not os.path.exists(APP.app.config["service_file"]):
-        with open(APP.app.config["service_file"], "w") as f:
-            f.write("{}")
-
-    APP.app.config["server_file"] = os.path.abspath(f"{CONFIG_DIR}/servers.json")
-    if not os.path.exists(APP.app.config["server_file"]):
-        with open(APP.app.config["server_file"], "w") as f:
-            f.write("{}")
-
     return APP
 
 def configure_app():
