@@ -2,7 +2,6 @@
 
 set -Euo pipefail
 
-export OPA_SECRET=$(cat /run/secrets/opa-service-token)
 export TYK_SECRET_KEY=$(cat /run/secrets/tyk-secret-key)
 
 

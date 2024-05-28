@@ -5,8 +5,6 @@ import os
 
 app = Flask(__name__)
 TEST_KEY = os.getenv("TEST_KEY")
-CANDIG_OPA_URL = os.getenv("CANDIG_OPA_URL")
-CANDIG_OPA_SECRET = os.getenv("CANDIG_OPA_SECRET")
 TYK_FEDERATION_API_ID = os.getenv("TYK_FEDERATION_API_ID")
 
 
@@ -27,7 +25,7 @@ def is_site_admin(request):
         return True # no auth
     if "Authorization" in request.headers:
         try:
-            return authx.auth.is_site_admin(request, opa_url=CANDIG_OPA_URL, admin_secret=CANDIG_OPA_SECRET)
+            return authx.auth.is_site_admin(request)
         except Exception as e:
             print(f"Couldn't authorize site_admin: {type(e)} {str(e)}")
             app.logger.warning(f"Couldn't authorize site_admin: {type(e)} {str(e)}")
