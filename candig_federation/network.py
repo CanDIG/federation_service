@@ -4,8 +4,10 @@ Methods to handle services and peer servers
 
 import json
 from flask import current_app
-import authz
 import authx.auth
+import os
+
+TYK_FEDERATION_API_ID = os.getenv("TYK_FEDERATION_API_ID")
 
 
 def get_registered_servers():
@@ -40,11 +42,11 @@ def register_server(obj):
             token = obj['authentication']['token']
             issuer = obj['authentication']['issuer']
 
-            authz.add_provider_to_tyk(token, issuer)
+            authx.auth.add_provider_to_tyk_api(TYK_FEDERATION_API_ID, token, issuer)
         except Exception as e:
             raise Exception(f"Failed to register server with tyk: {type(e)} {str(e)}")
         try:
-            authz.add_provider_to_opa(token, issuer)
+            authx.auth.add_provider_to_opa(token, issuer)
         except Exception as e:
             raise Exception(f"Failed to register server with opa: {type(e)} {str(e)}")
 
