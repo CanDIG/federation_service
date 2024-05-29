@@ -4,6 +4,7 @@ Methods to handle incoming requests passed from Tyk
 
 from authz import is_site_admin
 import connexion
+from werkzeug.exceptions import UnsupportedMediaType
 from flask import request, Flask
 from apilog import apilog
 from federation import FederationResponse
@@ -39,24 +40,37 @@ def list_servers():
     """
     servers = get_registered_servers()
     if servers is not None:
-        return list(servers.values()), 200
+        result = map(lambda x: x["server"], servers.values())
+        return list(result), 200
     return {"message": "Couldn't list servers"}, 500
 
 
 @apilog
-def add_server():
+def add_server(register=False):
     """
     :return: Server added.
     """
     if not is_site_admin(request):
         return {"message": "User is not authorized to POST"}, 403
     try:
-        new_server = connexion.request.json
-        if register_server(new_server) is None:
-            return {"message": f"Server {new_server['server']['id']} already present"}, 204
-        return get_registered_servers()[new_server['server']['id']], 201
+        # if register=True, list known servers in Vault and register them all
+        if register:
+            existing_servers = get_registered_servers()
+            for server in existing_servers:
+                register_server(existing_servers[server])
     except Exception as e:
-        return {"message": f"Couldn't add server: {type(e)} {str(e)}"}, 500
+        return {"message": f"Couldn't register servers: {type(e)} {str(e)} {connexion.request}"}, 500
+    try:
+        if connexion.request.json is not None and 'server' in connexion.request.json:
+            new_server = connexion.request.json
+            if register_server(new_server) is None:
+                return {"message": f"Server {new_server['server']['id']} already present"}, 204
+            return get_registered_servers()[new_server['server']['id']]['server'], 201
+    except UnsupportedMediaType as e:
+        # this is the exception that gets thrown if the requestbody is null
+        return get_registered_servers(), 200
+    except Exception as e:
+        return {"message": f"Couldn't add server: {type(e)} {str(e)} {connexion.request}"}, 500
 
 
 @apilog
@@ -108,12 +122,17 @@ def get_service(service_id):
 
 
 @apilog
-def add_service():
+def add_service(register=False):
     """
     :return: Service added.
     """
     if not is_site_admin(request):
         return {"message": "User is not authorized to POST"}, 403
+    # if register=True, list known services in Vault and register them all
+    if register:
+        existing_services = get_registered_services()
+        for service in existing_services:
+            register_service(existing_services[service])
     new_service = connexion.request.json
     register_service(new_service)
     return get_registered_services()[new_service['id']], 200

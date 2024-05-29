@@ -33,7 +33,7 @@ def register_server(obj):
                 found = True
         if found:
             return None
-        servers[new_server['id']] = new_server
+        servers[new_server['id']] = obj
 
     if 'testing' in obj['authentication']:
         new_server['testing'] = True
