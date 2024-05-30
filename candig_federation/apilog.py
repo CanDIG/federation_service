@@ -57,5 +57,8 @@ def apilog(func, *args, **kwargs):
 
     logentry = json.dumps(entrydict)
 
-    current_app.logger.info(logentry)
+    try:
+        current_app.logger.info(logentry)
+    except:
+        pass
     return func(*args, **kwargs)
