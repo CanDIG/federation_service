@@ -128,13 +128,19 @@ def add_service(register=False):
     """
     if not is_site_admin(request):
         return {"message": "User is not authorized to POST"}, 403
-    # if register=True, list known services in Vault and register them all
-    if register:
-        existing_services = get_registered_services()
-        for service in existing_services:
-            register_service(existing_services[service])
-    new_service = connexion.request.json
-    register_service(new_service)
+    try:
+        # if register=True, list known services in Vault and register them all
+        if register:
+            existing_services = get_registered_services()
+            for service in existing_services:
+                register_service(existing_services[service])
+        new_service = connexion.request.json
+        register_service(new_service)
+    except UnsupportedMediaType as e:
+        # this is the exception that gets thrown if the requestbody is null
+        return get_registered_services(), 200
+    except Exception as e:
+        return {"message": f"Couldn't add service: {type(e)} {str(e)} {connexion.request}"}, 500
     return get_registered_services()[new_service['id']], 200
 
 
