@@ -270,14 +270,14 @@ class FederationResponse:
             try:
                 # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
                 response = {}
-                url = f"{server['url']}/v1/fanout"
+                url = f"{server['server']['url']}/v1/fanout"
                 response["response"] = async_session.post(url, json=args, headers=header, timeout=self.timeout)
-                response["location"] = server["location"]
+                response["location"] = server['server']["location"]
 
-                responses[server['id']] = response
+                responses[server['server']['id']] = response
 
             except Exception as e:
-                responses[server['id']] = f"async_requests {server['id']}: {type(e)} {str(e)}"
+                responses[server['server']['id']] = f"async_requests {server['server']['id']}: {type(e)} {str(e)}"
 
         return responses
 
@@ -373,7 +373,7 @@ class FederationResponse:
             # add locations:
             response['location'] = {}
             for server in self.servers:
-                response['location'][server] = self.servers[server]['location']
+                response['location'][server] = self.servers[server]['server']['location']
 
             # now deconvolute the result to an array:
             response_array = []
