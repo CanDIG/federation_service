@@ -27,7 +27,7 @@ def is_site_admin(request):
         return True # no auth
     if "Authorization" in request.headers:
         try:
-            return authx.auth.is_site_admin(request, opa_url=CANDIG_OPA_URL, admin_secret=CANDIG_OPA_SECRET)
+            return authx.auth.is_site_admin(request)
         except Exception as e:
             print(f"Couldn't authorize site_admin: {type(e)} {str(e)}")
             app.logger.warning(f"Couldn't authorize site_admin: {type(e)} {str(e)}")
