@@ -194,11 +194,13 @@ class FederationResponse:
         :type header: object
         :return: List of ResponseObjects, this specific return is used only in testing
         """
+        safe_mode = "safe" in header
         future_responses = self.async_requests(request=request,
            header=header,
            endpoint_payload=endpoint_payload,
            endpoint_path=endpoint_path,
-           endpoint_service=endpoint_service)
+           endpoint_service=endpoint_service,
+           safe=safe_mode)
 
         for future_response_id in future_responses.keys():
             future_response = future_responses[future_response_id]
@@ -243,7 +245,7 @@ class FederationResponse:
         # Return is used for testing individual methods
         return self.results
 
-    def async_requests(self, request, endpoint_path, endpoint_payload, endpoint_service, header):
+    def async_requests(self, request, endpoint_path, endpoint_payload, endpoint_service, header, safe=False):
         """Send requests to each CanDIG node in the network asynchronously using FutureSession. The
         futures are returned back to and handled by handle_server_requests()
 
@@ -268,6 +270,13 @@ class FederationResponse:
 
         for server in self.servers.values():
             try:
+                if safe:
+                    # Try to access the server's service-info endpoint with a very short timeout before continuing
+                    url = f"{server['server']['url']}/v1/service-info"
+                    service_info = async_session.post(url, json=args, headers=header, timeout=1)
+                    if not service_info.ok:
+                        raise Exception(f"Safe service-info check timed failed: {server['server']['id']}: {service_info.status_code}")
+
                 # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
                 response = {}
                 url = f"{server['server']['url']}/v1/fanout"
