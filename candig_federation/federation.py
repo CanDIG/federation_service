@@ -9,7 +9,7 @@ import requests
 from flask import current_app
 from requests_futures.sessions import FuturesSession
 from network import get_registered_servers, get_registered_services
-
+from heartbeat import get_live_services
 
 class FederationResponse:
     """
@@ -270,12 +270,9 @@ class FederationResponse:
 
         for server in self.servers.values():
             try:
-                if safe:
-                    # Try to access the server's service-info endpoint with a very short timeout before continuing
-                    url = f"{server['server']['url']}/v1/service-info"
-                    service_info = async_session.post(url, json=args, headers=header, timeout=1)
-                    if not service_info.ok:
-                        raise Exception(f"Safe service-info check timed failed: {server['server']['id']}: {service_info.status_code}")
+                # Do not ping servers that are not live
+                if safe and not server['server']['id'] in get_live_services():
+                    continue
 
                 # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
                 response = {}
