@@ -59,7 +59,7 @@ class FederationResponse:
         try:
             self.token = self.request_dict.headers['Authorization']
         except KeyError as e:
-            logger.log_message("WARNING", "Request lacking Authorization header")
+            logger.warning("Request lacking Authorization header")
             self.token = ""
 
         self.header = {
@@ -83,7 +83,7 @@ class FederationResponse:
         :param path: API endpoint of service
         :type path: Str
         """
-        logger.log_message("INFO", json.dumps({"Sending": "{} -> {}/{}".format(
+        logger.info(json.dumps({"Sending": "{} -> {}/{}".format(
             request_type, destination, path
         )}))
 
@@ -96,7 +96,7 @@ class FederationResponse:
         :param code: Response code
         :type code: int
         """
-        logger.log_message("INFO", json.dumps({"Received": "{} From {}".format(
+        logger.info(json.dumps({"Received": "{} From {}".format(
             code, source
         )}))
 

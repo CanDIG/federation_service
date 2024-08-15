@@ -22,7 +22,7 @@ def get_registered_servers():
         stored_servers_dict, status_code = authx.auth.set_service_store_secret("federation", key="servers", value=json.dumps({"servers": {}}))
         return {}
     if status_code != 200:
-        logger.log_message("ERROR", f"Error in get_registered_servers: {stored_servers_dict}")
+        logger.error(f"Error in get_registered_servers: {stored_servers_dict}")
         return None
     return stored_servers_dict["servers"]
 
@@ -57,7 +57,7 @@ def register_server(obj):
 
     stored_servers_dict, status_code = authx.auth.set_service_store_secret("federation", key="servers", value=json.dumps({"servers": servers}))
     if status_code != 200:
-        logger.log_message("ERROR", f"Error in register_server: {stored_servers_dict}")
+        logger.error(f"Error in register_server: {stored_servers_dict}")
     return obj['server']
 
 
@@ -68,7 +68,7 @@ def unregister_server(server_id):
         result = servers.pop(server_id)
     stored_servers_dict, status_code = authx.auth.set_service_store_secret("federation", key="servers", value=json.dumps({"servers": servers}))
     if status_code != 200:
-        logger.log_message("ERROR", f"Error in register_server: {stored_servers_dict}")
+        logger.error(f"Error in register_server: {stored_servers_dict}")
     return result
 
 
@@ -79,7 +79,7 @@ def get_registered_services():
         stored_services_dict, status_code = authx.auth.set_service_store_secret("federation", key="services", value=json.dumps({"services": {}}))
         return {}
     if status_code != 200:
-        logger.log_message("ERROR", f"Error in get_registered_services: {stored_services_dict}")
+        logger.error(f"Error in get_registered_services: {stored_services_dict}")
         return None
     return stored_services_dict["services"]
 
@@ -90,7 +90,7 @@ def register_service(obj):
         services[obj['id']] = obj
         stored_services_dict, status_code = authx.auth.set_service_store_secret("federation", key="services", value=json.dumps({"services": services}))
         if status_code != 200:
-            logger.log_message("ERROR", f"Error in register_service: {stored_services_dict}")
+            logger.error(f"Error in register_service: {stored_services_dict}")
             return None
     return obj
 

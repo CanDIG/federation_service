@@ -44,7 +44,7 @@ def list_servers():
     if servers is not None:
         result = map(lambda x: x["server"], servers.values())
         return list(result), 200
-    logger.log_message("DEBUG", f"Couldn't list servers", request)
+    logger.debug(f"Couldn't list servers", request)
     return {"message": "Couldn't list servers"}, 500
 
 
@@ -61,7 +61,7 @@ def add_server(register=False):
             for server in existing_servers:
                 register_server(existing_servers[server])
     except Exception as e:
-        logger.log_message("DEBUG", f"Couldn't register server", request)
+        logger.debug(f"Couldn't register server", request)
         return {"message": f"Couldn't register servers: {type(e)} {str(e)} {connexion.request}"}, 500
     try:
         if connexion.request.json is not None and 'server' in connexion.request.json:
@@ -73,7 +73,7 @@ def add_server(register=False):
         # this is the exception that gets thrown if the requestbody is null
         return get_registered_servers(), 200
     except Exception as e:
-        logger.log_message("DEBUG", f"Couldn't register server", request)
+        logger.debug(f"Couldn't register server", request)
         return {"message": f"Couldn't add server: {type(e)} {str(e)} {connexion.request}"}, 500
 
 
@@ -86,7 +86,7 @@ def get_server(server_id):
     if servers is not None and server_id in servers:
         return servers[server_id], 200
     else:
-        logger.log_message("DEBUG", f"Couldn't find server {server_id}", request)
+        logger.debug(f"Couldn't find server {server_id}", request)
         return {"message": f"Couldn't find server {server_id}"}, 404
 
 
@@ -99,7 +99,7 @@ def delete_server(server_id):
         return {"message": "User is not authorized to POST"}, 403
     result = unregister_server(server_id)
     if result is None:
-        logger.log_message("DEBUG", f"Server not found", request)
+        logger.debug(f"Server not found", request)
         return {"message": f"Server {server_id} not found"}, 404
     return result, 200
 
@@ -120,7 +120,7 @@ def get_service(service_id):
     if services is not None and service_id in services:
         return services[service_id], 200
     else:
-        logger.log_message("DEBUG", f"Couldn't find service {service_id}", request)
+        logger.debug(f"Couldn't find service {service_id}", request)
         return {"message": f"Couldn't find service {service_id}"}, 404
 
 
@@ -142,7 +142,7 @@ def add_service(register=False):
         # this is the exception that gets thrown if the requestbody is null
         return get_registered_services(), 200
     except Exception as e:
-        logger.log_message("DEBUG", f"Couldn't add service", request)
+        logger.debug(f"Couldn't add service", request)
         return {"message": f"Couldn't add service: {type(e)} {str(e)} {connexion.request}"}, 500
     return get_registered_services()[new_service['id']], 200
 
@@ -156,7 +156,7 @@ def delete_service(service_id):
         return {"message": "User is not authorized to POST"}, 403
     result = unregister_service(service_id)
     if result is None:
-        logger.log_message("DEBUG", f"Couldn't find service", request)
+        logger.debug(f"Couldn't find service", request)
         return {"message": f"Service {service_id} not found"}, 404
     return result, 200
 
@@ -185,7 +185,7 @@ def post_search():
     ServiceName - Name of service (used for logstash tagging)
     """
     try:
-        logger.log_message("DEBUG", "Sending federated request", request)
+        logger.debug("Sending federated request", request)
         data = connexion.request.json
         request_type = data["method"]
         endpoint_path = data["path"]
@@ -215,7 +215,7 @@ def post_search():
         have a valid request_type, endpoint_path and endpoint_payload. A KeyError occuring here
         will be due to the service dictionary receiving an invalid key.
         """
-        logger.log_message("ERROR", f"{type(e)} {str(e)}", request)
+        logger.error(f"{type(e)} {str(e)}", request)
         return {
                "response": f"{type(e)} {str(e)}",
                "status": 404,
