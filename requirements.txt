@@ -1,5 +1,6 @@
 attrs~=23.1.0
 candigv2-authx@git+https://github.com/CanDIG/candigv2-authx.git@v2.4.3
+candigv2-logging@git+https://github.com/CanDIG/candigv2-logging.git@develop
 connexion==2.14.1
 decorator==4.4.0
 flask==2.2.5

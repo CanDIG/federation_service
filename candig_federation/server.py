@@ -9,8 +9,10 @@ import connexion
 from flask_cors import CORS
 import os.path
 import network
-import logging
 import os
+import candigv2_logging.logging
+
+candigv2_logging.logging.initialize()
 
 
 def main():
@@ -21,14 +23,6 @@ def main():
     """
 
     CONFIG_DIR = os.getenv("CONFIG_DIR", "../config")
-    # Logging configuration
-
-    log_handler = logging.FileHandler(f"{CONFIG_DIR}/federation.log")
-    numeric_loglevel = getattr(logging, "INFO")
-    log_handler.setLevel(numeric_loglevel)
-
-    APP.app.logger.addHandler(log_handler)
-    APP.app.logger.setLevel(numeric_loglevel)
 
     return APP
 
