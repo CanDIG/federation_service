@@ -8,7 +8,7 @@ from datetime import datetime
 from uuid import UUID
 from decorator import decorator
 from connexion import request
-from flask import current_app
+from candigv2_logging.logging import log_message
 
 
 class FieldEncoder(json.JSONEncoder):
@@ -21,44 +21,23 @@ class FieldEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def structured_log(**kwargs):
-    """
-
-    JSON string of keyword arguments
-    """
-    entrydict = {"timestamp": str(datetime.now())}
-    for key in kwargs:
-        entrydict[key] = kwargs[key]
-    return json.dumps(entrydict, skipkeys=True, cls=FieldEncoder)
-
-
-def logger():
-    """Return the py.logging current logger"""
-    return current_app.logger
-
-
 @decorator
 def apilog(func, *args, **kwargs):
     """
     Logging decorator for API calls
     """
-    entrydict = {"timestamp": str(datetime.now())}
+    entrydict = {}
     try:
-        entrydict['method'] = request.method
-        entrydict['path'] = request.full_path
-        entrydict['data'] = str(request.data)
         entrydict['address'] = request.remote_addr
-        entrydict['headers'] = str(request.headers)
+        entrydict['data'] = request.json
     except RuntimeError:
         entrydict['called'] = func.__name__
         entrydict['args'] = args
         for key in kwargs:
             entrydict[key] = kwargs[key]
 
-    logentry = json.dumps(entrydict)
-
     try:
-        current_app.logger.info(logentry)
-    except:
-        pass
+        log_message("INFO", entrydict, request=request)
+    except Exception as e:
+        log_message("DEBUG", str(e))
     return func(*args, **kwargs)
