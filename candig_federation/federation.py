@@ -8,7 +8,10 @@ import json
 import requests
 from requests_futures.sessions import FuturesSession
 from network import get_registered_servers, get_registered_services
-from candigv2_logging.logging import log_message
+from candigv2_logging.logging import CanDIGLogger
+
+
+logger = CanDIGLogger(__file__)
 
 
 class FederationResponse:
@@ -56,7 +59,7 @@ class FederationResponse:
         try:
             self.token = self.request_dict.headers['Authorization']
         except KeyError as e:
-            log_message("WARNING", "Request lacking Authorization header")
+            logger.log_message("WARNING", "Request lacking Authorization header")
             self.token = ""
 
         self.header = {
@@ -80,7 +83,7 @@ class FederationResponse:
         :param path: API endpoint of service
         :type path: Str
         """
-        log_message("INFO", json.dumps({"Sending": "{} -> {}/{}".format(
+        logger.log_message("INFO", json.dumps({"Sending": "{} -> {}/{}".format(
             request_type, destination, path
         )}))
 
@@ -93,7 +96,7 @@ class FederationResponse:
         :param code: Response code
         :type code: int
         """
-        log_message("INFO", json.dumps({"Received": "{} From {}".format(
+        logger.log_message("INFO", json.dumps({"Received": "{} From {}".format(
             code, source
         )}))
 

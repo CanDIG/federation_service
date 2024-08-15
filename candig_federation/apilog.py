@@ -8,7 +8,10 @@ from datetime import datetime
 from uuid import UUID
 from decorator import decorator
 from connexion import request
-from candigv2_logging.logging import log_message
+from candigv2_logging.logging import CanDIGLogger
+
+
+logger = CanDIGLogger(__file__)
 
 
 class FieldEncoder(json.JSONEncoder):
@@ -37,7 +40,7 @@ def apilog(func, *args, **kwargs):
             entrydict[key] = kwargs[key]
 
     try:
-        log_message("INFO", entrydict, request=request)
+        logger.log_message("INFO", entrydict, request=request)
     except Exception as e:
-        log_message("DEBUG", str(e))
+        logger.log_message("DEBUG", str(e))
     return func(*args, **kwargs)
