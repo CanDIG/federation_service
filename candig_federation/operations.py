@@ -6,9 +6,12 @@ from authz import is_site_admin
 import connexion
 from werkzeug.exceptions import UnsupportedMediaType
 from flask import request, Flask
-from apilog import apilog
 from federation import FederationResponse
 from network import get_registered_servers, get_registered_services, register_server, register_service, unregister_server, unregister_service
+from candigv2_logging.logging import CanDIGLogger
+
+
+logger = CanDIGLogger(__file__)
 
 
 app = Flask(__name__)
@@ -33,7 +36,6 @@ def service_info():
     return response, 200
 
 
-@apilog
 def list_servers():
     """
     :return: Dictionary of registered peer servers.
@@ -42,10 +44,10 @@ def list_servers():
     if servers is not None:
         result = map(lambda x: x["server"], servers.values())
         return list(result), 200
+    logger.debug(f"Couldn't list servers", request)
     return {"message": "Couldn't list servers"}, 500
 
 
-@apilog
 def add_server(register=False):
     """
     :return: Server added.
@@ -59,6 +61,7 @@ def add_server(register=False):
             for server in existing_servers:
                 register_server(existing_servers[server])
     except Exception as e:
+        logger.debug(f"Couldn't register server", request)
         return {"message": f"Couldn't register servers: {type(e)} {str(e)} {connexion.request}"}, 500
     try:
         if connexion.request.json is not None and 'server' in connexion.request.json:
@@ -70,10 +73,10 @@ def add_server(register=False):
         # this is the exception that gets thrown if the requestbody is null
         return get_registered_servers(), 200
     except Exception as e:
+        logger.debug(f"Couldn't register server", request)
         return {"message": f"Couldn't add server: {type(e)} {str(e)} {connexion.request}"}, 500
 
 
-@apilog
 @app.route('/servers/<path:server_id>')
 def get_server(server_id):
     """
@@ -83,10 +86,10 @@ def get_server(server_id):
     if servers is not None and server_id in servers:
         return servers[server_id], 200
     else:
+        logger.debug(f"Couldn't find server {server_id}", request)
         return {"message": f"Couldn't find server {server_id}"}, 404
 
 
-@apilog
 @app.route('/servers/<path:server_id>')
 def delete_server(server_id):
     """
@@ -96,11 +99,11 @@ def delete_server(server_id):
         return {"message": "User is not authorized to POST"}, 403
     result = unregister_server(server_id)
     if result is None:
+        logger.debug(f"Server not found", request)
         return {"message": f"Server {server_id} not found"}, 404
     return result, 200
 
 
-@apilog
 def list_services():
     """
     :return: Dictionary of registered services.
@@ -108,7 +111,6 @@ def list_services():
     return list(get_registered_services().values()), 200
 
 
-@apilog
 @app.route('/services/<path:service_id>')
 def get_service(service_id):
     """
@@ -118,10 +120,10 @@ def get_service(service_id):
     if services is not None and service_id in services:
         return services[service_id], 200
     else:
+        logger.debug(f"Couldn't find service {service_id}", request)
         return {"message": f"Couldn't find service {service_id}"}, 404
 
 
-@apilog
 def add_service(register=False):
     """
     :return: Service added.
@@ -140,11 +142,11 @@ def add_service(register=False):
         # this is the exception that gets thrown if the requestbody is null
         return get_registered_services(), 200
     except Exception as e:
+        logger.debug(f"Couldn't add service", request)
         return {"message": f"Couldn't add service: {type(e)} {str(e)} {connexion.request}"}, 500
     return get_registered_services()[new_service['id']], 200
 
 
-@apilog
 @app.route('/services/<path:service_id>')
 def delete_service(service_id):
     """
@@ -154,11 +156,11 @@ def delete_service(service_id):
         return {"message": "User is not authorized to POST"}, 403
     result = unregister_service(service_id)
     if result is None:
+        logger.debug(f"Couldn't find service", request)
         return {"message": f"Service {service_id} not found"}, 404
     return result, 200
 
 
-@apilog
 def post_search():
     """
     Send a POST request to CanDIG services and possibly federate it.
@@ -183,7 +185,7 @@ def post_search():
     ServiceName - Name of service (used for logstash tagging)
     """
     try:
-
+        logger.debug("Sending federated request", request)
         data = connexion.request.json
         request_type = data["method"]
         endpoint_path = data["path"]
@@ -213,6 +215,7 @@ def post_search():
         have a valid request_type, endpoint_path and endpoint_payload. A KeyError occuring here
         will be due to the service dictionary receiving an invalid key.
         """
+        logger.error(f"{type(e)} {str(e)}", request)
         return {
                "response": f"{type(e)} {str(e)}",
                "status": 404,
