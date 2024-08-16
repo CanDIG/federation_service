@@ -17,19 +17,19 @@ def check_pulse():
                 live_servers.append(server['server']['id'])
 
         # Determine whether or not those sites are available by pinging Federation service-info
-        with open('./live_servers.txt', 'w') as f:
+        with open('/app/federation/live_servers.txt', 'w') as f:
             f.write("|".join(live_servers))
     except Exception as e:
         log += "\n" + str(e)
 
-    with open('./log.txt', 'w') as f:
+    with open('/app/federation/log.txt', 'w') as f:
         f.write(log)
         f.write(str(e))
 
 
 def get_live_servers():
     live_servers = []
-    with open('./live_servers.txt', 'r') as f:
+    with open('/app/federation/live_servers.txt', 'r') as f:
         live_servers_str = f.read()
         live_servers = live_servers_str.split('|')
     return live_servers

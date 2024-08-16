@@ -38,7 +38,7 @@ class FederationResponse:
     # pylint: disable=too-many-arguments
 
     def __init__(self, request, endpoint_path, endpoint_payload, request_dict, endpoint_service, return_mimetype='application/json',
-                 timeout=60):
+                 timeout=60, safe=False):
         """Constructor method
         """
         self.results = {}
@@ -53,6 +53,7 @@ class FederationResponse:
         self.logger = current_app.logger
         self.servers = get_registered_servers()
         self.services = get_registered_services()
+        self.safe = safe
 
         try:
             self.token = self.request_dict.headers['Authorization']
@@ -194,13 +195,12 @@ class FederationResponse:
         :type header: object
         :return: List of ResponseObjects, this specific return is used only in testing
         """
-        safe_mode = "safe" in header
+        self.logger.info(str(header))
         future_responses = self.async_requests(request=request,
            header=header,
            endpoint_payload=endpoint_payload,
            endpoint_path=endpoint_path,
-           endpoint_service=endpoint_service,
-           safe=safe_mode)
+           endpoint_service=endpoint_service)
 
         for future_response_id in future_responses.keys():
             future_response = future_responses[future_response_id]
@@ -223,9 +223,12 @@ class FederationResponse:
                 if isinstance(future_response, requests.exceptions.ConnectionError):
                     self.status[future_response_id] = 404
                     self.message[future_response_id] = f'Connection Error. Peer server may be down. Location: {location["name"]}, {location["province"]}'
-                if isinstance(future_response, requests.exceptions.Timeout):
+                elif isinstance(future_response, requests.exceptions.Timeout):
                     self.status[future_response_id] = 504
                     self.message[future_response_id] = f'Peer server timed out, it may be down. Location: {location["name"]}, {location["province"]}'
+                else:
+                    self.status[future_response_id] = 500
+                    self.message[future_response_id] = f"handle_server_request failed on {future_response_id}, federation = {self.header['Federation']}: {future_response}"
                 continue
             except requests.exceptions.ConnectionError:
                 self.status[future_response_id] = 404
@@ -245,7 +248,7 @@ class FederationResponse:
         # Return is used for testing individual methods
         return self.results
 
-    def async_requests(self, request, endpoint_path, endpoint_payload, endpoint_service, header, safe=False):
+    def async_requests(self, request, endpoint_path, endpoint_payload, endpoint_service, header):
         """Send requests to each CanDIG node in the network asynchronously using FutureSession. The
         futures are returned back to and handled by handle_server_requests()
 
@@ -270,15 +273,16 @@ class FederationResponse:
 
         for server in self.servers.values():
             try:
-                # Do not ping servers that are not live
-                if safe and not server['server']['id'] in get_live_servers():
-                    continue
-
-                # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
                 response = {}
-                url = f"{server['server']['url']}/v1/fanout"
-                response["response"] = async_session.post(url, json=args, headers=header, timeout=self.timeout)
                 response["location"] = server['server']["location"]
+
+                if self.safe and not server['server']['id'] in get_live_servers():
+                    # Do not ping servers that are not live according to the heartbeat service
+                    response["response"] = f"Safe check abort: {server['server']['id']} is assumed to be down"
+                else:
+                    # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
+                    url = f"{server['server']['url']}/v1/fanout"
+                    response["response"] = async_session.post(url, json=args, headers=header, timeout=self.timeout)
 
                 responses[server['server']['id']] = response
 
