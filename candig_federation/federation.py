@@ -9,7 +9,7 @@ import requests
 from flask import current_app
 from requests_futures.sessions import FuturesSession
 from network import get_registered_servers, get_registered_services
-from heartbeat import get_live_services
+from heartbeat import get_live_servers
 
 class FederationResponse:
     """
@@ -271,7 +271,7 @@ class FederationResponse:
         for server in self.servers.values():
             try:
                 # Do not ping servers that are not live
-                if safe and not server['server']['id'] in get_live_services():
+                if safe and not server['server']['id'] in get_live_servers():
                     continue
 
                 # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
