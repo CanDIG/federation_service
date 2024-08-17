@@ -6,10 +6,14 @@ Provides methods to handle both local and federated requests
 
 import json
 import requests
-from flask import current_app
 from requests_futures.sessions import FuturesSession
 from network import get_registered_servers, get_registered_services
 from heartbeat import get_live_servers
+from candigv2_logging.logging import CanDIGLogger
+
+
+logger = CanDIGLogger(__file__)
+
 
 class FederationResponse:
     """
@@ -50,7 +54,6 @@ class FederationResponse:
         self.endpoint_service = endpoint_service
         self.return_mimetype = return_mimetype
         self.request_dict = request_dict
-        self.logger = current_app.logger
         self.servers = get_registered_servers()
         self.services = get_registered_services()
         self.safe = safe
@@ -58,7 +61,7 @@ class FederationResponse:
         try:
             self.token = self.request_dict.headers['Authorization']
         except KeyError as e:
-            self.logger.warn("Request lacking Authorization header")
+            logger.warning("Request lacking Authorization header")
             self.token = ""
 
         self.header = {
@@ -82,7 +85,7 @@ class FederationResponse:
         :param path: API endpoint of service
         :type path: Str
         """
-        self.logger.info(json.dumps({"Sending": "{} -> {}/{}".format(
+        logger.info(json.dumps({"Sending": "{} -> {}/{}".format(
             request_type, destination, path
         )}))
 
@@ -95,7 +98,7 @@ class FederationResponse:
         :param code: Response code
         :type code: int
         """
-        self.logger.info(json.dumps({"Received": "{} From {}".format(
+        logger.info(json.dumps({"Received": "{} From {}".format(
             code, source
         )}))
 
@@ -387,7 +390,6 @@ class FederationResponse:
 
             # now deconvolute the result to an array:
             response_array = []
-            # print(json.dumps(response, indent=3))
             for server in response['location'].keys():
                 r = {
                     'location': response['location'][server],
