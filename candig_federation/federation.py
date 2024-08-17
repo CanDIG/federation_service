@@ -198,7 +198,7 @@ class FederationResponse:
         :type header: object
         :return: List of ResponseObjects, this specific return is used only in testing
         """
-        self.logger.info(str(header))
+        logger.info(str(header))
         future_responses = self.async_requests(request=request,
            header=header,
            endpoint_payload=endpoint_payload,
