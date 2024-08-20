@@ -2,6 +2,7 @@
 import time
 from network import get_registered_servers
 import requests
+import os.path
 
 def check_pulse():
     servers = get_registered_servers()
@@ -29,9 +30,10 @@ def check_pulse():
 
 def get_live_servers():
     live_servers = []
-    with open('/app/federation/live_servers.txt', 'r') as f:
-        live_servers_str = f.read()
-        live_servers = live_servers_str.split('|')
+    if os.path.isfile("/app/federation/live_servers.txt"):
+        with open('/app/federation/live_servers.txt', 'r') as f:
+            live_servers_str = f.read().strip()
+            live_servers = live_servers_str.split('|')
     return live_servers
 
 if __name__ == "__main__":
