@@ -23,9 +23,9 @@ def check_pulse():
     except Exception as e:
         log += "\n" + str(e)
 
-    with open('/app/federation/log.txt', 'w') as f:
-        f.write(log)
-        f.write(str(e))
+        with open('/app/federation/log.txt', 'w') as f:
+            f.write(log)
+            f.write(str(e))
 
 
 def get_live_servers():
