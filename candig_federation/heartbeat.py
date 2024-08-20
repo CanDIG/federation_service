@@ -6,6 +6,8 @@ import os.path
 
 def check_pulse():
     servers = get_registered_servers()
+    if len(servers) == 0:
+        return
     # Determine which sites we have access to
     live_servers = []
     log = ""
