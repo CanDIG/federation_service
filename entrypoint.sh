@@ -13,5 +13,7 @@ fi
 # use the following for development
 #python3 -m candig_federation
 
+python candig_federation/heartbeat.py &
+
 # use the following instead for production deployment
 uwsgi federation.ini
