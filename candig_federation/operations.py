@@ -205,7 +205,7 @@ def post_search():
             endpoint_payload=endpoint_payload,
             request_dict=request,
             endpoint_service=endpoint_service,
-            safe="safe" in data
+            unsafe="unsafe" in data
         )
 
         return federation_response.get_response_object()

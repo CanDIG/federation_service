@@ -42,7 +42,7 @@ class FederationResponse:
     # pylint: disable=too-many-arguments
 
     def __init__(self, request, endpoint_path, endpoint_payload, request_dict, endpoint_service, return_mimetype='application/json',
-                 timeout=60, safe=False):
+                 timeout=60, unsafe=False):
         """Constructor method
         """
         self.results = {}
@@ -56,7 +56,7 @@ class FederationResponse:
         self.request_dict = request_dict
         self.servers = get_registered_servers()
         self.services = get_registered_services()
-        self.safe = safe
+        self.unsafe = unsafe
 
         try:
             self.token = self.request_dict.headers['Authorization']
@@ -279,7 +279,7 @@ class FederationResponse:
                 response = {}
                 response["location"] = server['server']["location"]
 
-                if self.safe and not server['server']['id'] in get_live_servers():
+                if not (self.unsafe or server['server']['id'] in get_live_servers()):
                     # Do not ping servers that are not live according to the heartbeat service
                     response["response"] = f"Safe check abort: {server['server']['id']} is assumed to be down"
                 else:
