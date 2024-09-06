@@ -6,11 +6,10 @@ Provides methods to handle both local and federated requests
 
 import json
 import requests
-from requests_futures.sessions import FuturesSession
 from network import get_registered_servers, get_registered_services
 from heartbeat import get_live_servers
 from candigv2_logging.logging import CanDIGLogger
-
+import gevent
 
 logger = CanDIGLogger(__file__)
 
@@ -198,7 +197,6 @@ class FederationResponse:
         :type header: object
         :return: List of ResponseObjects, this specific return is used only in testing
         """
-        logger.info(str(header))
         future_responses = self.async_requests(request=request,
            header=header,
            endpoint_payload=endpoint_payload,
@@ -209,8 +207,7 @@ class FederationResponse:
             future_response = future_responses[future_response_id]
             location = future_response["location"]
             try:
-                future_response = future_response["response"]
-                response = future_response.result()
+                response = future_response["response"]
 
                 # If the call was successful append the results
                 if response.status_code in [200, 201]:
@@ -246,8 +243,6 @@ class FederationResponse:
                 self.message[future_response_id] = f"handle_server_request failed on {future_response_id}, federation = {self.header['Federation']}: {type(e)}: {str(e)} {response.text}"
                 continue
 
-
-
         # Return is used for testing individual methods
         return self.results
 
@@ -271,9 +266,8 @@ class FederationResponse:
         """
         args = {"method": request, "path": endpoint_path,
                 "payload": endpoint_payload, "service": endpoint_service}
-        async_session = FuturesSession(max_workers=10)  # capping max threads
         responses = {}
-
+        jobs = {}
         for server in self.servers.values():
             try:
                 response = {}
@@ -285,13 +279,18 @@ class FederationResponse:
                 else:
                     # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
                     url = f"{server['server']['url']}/v1/fanout"
-                    response["response"] = async_session.post(url, json=args, headers=header, timeout=self.timeout)
 
+                    # spawn each request in a gevent
+                    jobs[server['server']['id']] = gevent.spawn(requests.post, url, json=args, headers=header, timeout=self.timeout)
                 responses[server['server']['id']] = response
 
             except Exception as e:
+                jobs[server['server']['id']] = f"{type(e)} {str(e)}"
                 responses[server['server']['id']] = f"async_requests {server['server']['id']}: {type(e)} {str(e)}"
-
+        # wait for all of the gevents to come back
+        gevent.joinall(jobs.values())
+        for job in jobs:
+            responses[job]['response'] = jobs[job].value
         return responses
 
     def merge_status(self, statuses):

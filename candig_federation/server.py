@@ -3,6 +3,9 @@
 """
 Driver program for service
 """
+from gevent import monkey
+
+monkey.patch_all()
 
 import connexion
 # from prometheus_flask_exporter import PrometheusMetrics
