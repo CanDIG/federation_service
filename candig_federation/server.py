@@ -3,12 +3,14 @@
 """
 Driver program for service
 """
+from gevent import monkey
+
+monkey.patch_all()
 
 import connexion
 # from prometheus_flask_exporter import PrometheusMetrics
 from flask_cors import CORS
 import os.path
-import network
 import os
 import candigv2_logging.logging
 
@@ -46,7 +48,6 @@ APPLICATION = main()
 application = APPLICATION.app
 # metrics = PrometheusMetrics(application)
 CORS(application)
-
 
 if __name__ == '__main__':
     APPLICATION.run()

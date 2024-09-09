@@ -16,4 +16,5 @@ fi
 python candig_federation/heartbeat.py &
 
 # use the following instead for production deployment
-uwsgi federation.ini
+cd candig_federation
+gunicorn server:application
