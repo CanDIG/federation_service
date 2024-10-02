@@ -69,7 +69,8 @@ def get_federation_response(request_type, headers="Headers"):
                         endpoint_payload="",
                         endpoint_path=TestParams["path"],
                         request_dict=TestParams[headers],
-                        endpoint_service=TestParams["service"])
+                        endpoint_service=TestParams["service"],
+                        unsafe=True)
 
 
 
@@ -379,7 +380,8 @@ def test_valid_federated_query_one_server_get(mock_requests, mock_session, clien
                 data=json.dumps({"path": TestParams["path"],
                                  "payload": "",
                                  "method": "GET",
-                                 "service": TestParams["service"]
+                                 "service": TestParams["service"],
+                                 "unsafe": True
                 }),
                 headers=Headers(fedHeader.headers)
         ):
@@ -451,7 +453,9 @@ def test_valid_federated_query_two_server_get(mock_requests, mock_session, clien
                 data=json.dumps({"path": TestParams["path"],
                                  "payload": "",
                                  "method": "GET",
-                                 "service": TestParams["service"]}),
+                                 "service": TestParams["service"],
+                                 "unsafe": True
+                                 }),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -507,8 +511,9 @@ def test_invalid_backslash_endpoint_start(mock_requests, mock_session, client, t
                 data=json.dumps({"path": "/fail/this/path",
                                  "payload": "",
                                  "method": "GET",
-                                 "service": TestParams["service"]
-                }),
+                                 "service": TestParams["service"],
+                                 "unsafe": True
+                                 }),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
