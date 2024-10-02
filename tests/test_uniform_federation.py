@@ -326,7 +326,7 @@ def test_timeout_noFed_post(mock_requests, client, two_servers):
 
 # Test the async request function --------------------------------------------------------------------
 
-@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_get)
+@patch('federation.requests.post', side_effect=mocked_async_requests_get)
 def test_valid_asyncRequests_two_servers_get(mock_requests, client, two_servers):
     with client:
         FR = get_federation_response("POST", "Federate")
@@ -342,7 +342,7 @@ def test_valid_asyncRequests_two_servers_get(mock_requests, client, two_servers)
         assert Success == [200, 200]
 
 
-@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_post)
+@patch('federation.requests.post', side_effect=mocked_async_requests_post)
 def test_valid_asyncRequests_two_servers_post(mock_requests, client, two_servers):
     with client:
         FR = get_federation_response("POST")
@@ -361,7 +361,7 @@ def test_valid_asyncRequests_two_servers_post(mock_requests, client, two_servers
 # Test Federation with one server --------------------------------------------------------------------
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_get)
+@patch('federation.requests.post', side_effect=mocked_async_requests_get)
 def test_valid_ServerRequest_one_server_get(mock_requests, mock_session, client, two_servers):
     with client:
         FR = get_federation_response("GET", "Federate")
@@ -373,7 +373,7 @@ def test_valid_ServerRequest_one_server_get(mock_requests, mock_session, client,
 
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_get)
+@patch('federation.requests.post', side_effect=mocked_async_requests_get)
 def test_valid_federated_query_one_server_get(mock_requests, mock_session, client, two_servers):
     with client:
         with APP.app.test_request_context(
@@ -394,7 +394,7 @@ def test_valid_federated_query_one_server_get(mock_requests, mock_session, clien
 
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_post)
+@patch('federation.requests.post', side_effect=mocked_async_requests_post)
 def test_valid_ServerRequest_one_server_post(mock_session, mock_requests, client, two_servers):
     with client:
         FR = get_federation_response("POST", "Federate")
@@ -407,7 +407,7 @@ def test_valid_ServerRequest_one_server_post(mock_session, mock_requests, client
 
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_post)
+@patch('federation.requests.post', side_effect=mocked_async_requests_post)
 def test_valid_federated_query_one_server_post(mock_requests, mock_session, client, two_servers):
     with client:
         with APP.app.test_request_context(
@@ -432,7 +432,7 @@ def test_valid_federated_query_one_server_post(mock_requests, mock_session, clie
 
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_get)
+@patch('federation.requests.post', side_effect=mocked_async_requests_get)
 def test_valid_ServerRequest_two_server_get(mock_requests, mock_session, client, three_servers):
     with client:
         FR = get_federation_response("GET", "Federate")
@@ -446,7 +446,7 @@ def test_valid_ServerRequest_two_server_get(mock_requests, mock_session, client,
 
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_get)
+@patch('federation.requests.post', side_effect=mocked_async_requests_get)
 def test_valid_federated_query_two_server_get(mock_requests, mock_session, client, three_servers):
     with client:
         with APP.app.test_request_context(
@@ -468,7 +468,7 @@ def test_valid_federated_query_two_server_get(mock_requests, mock_session, clien
 
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_post)
+@patch('federation.requests.post', side_effect=mocked_async_requests_post)
 def test_valid_ServerRequest_two_server_post(mock_session, mock_requests, client, three_servers):
     with client:
         FR = get_federation_response("POST", "Federate")
@@ -482,7 +482,7 @@ def test_valid_ServerRequest_two_server_post(mock_session, mock_requests, client
 
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_post)
+@patch('federation.requests.post', side_effect=mocked_async_requests_post)
 def test_valid_federated_query_two_server_post(mock_requests, mock_session, client, three_servers):
     with client:
         with APP.app.test_request_context(
