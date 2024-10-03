@@ -69,7 +69,8 @@ def get_federation_response(request_type, headers="Headers"):
                         endpoint_payload="",
                         endpoint_path=TestParams["path"],
                         request_dict=TestParams[headers],
-                        endpoint_service=TestParams["service"])
+                        endpoint_service=TestParams["service"],
+                        unsafe=True)
 
 
 
@@ -325,7 +326,7 @@ def test_timeout_noFed_post(mock_requests, client, two_servers):
 
 # Test the async request function --------------------------------------------------------------------
 
-@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_get)
+@patch('federation.requests.post', side_effect=mocked_async_requests_get)
 def test_valid_asyncRequests_two_servers_get(mock_requests, client, two_servers):
     with client:
         FR = get_federation_response("POST", "Federate")
@@ -341,7 +342,7 @@ def test_valid_asyncRequests_two_servers_get(mock_requests, client, two_servers)
         assert Success == [200, 200]
 
 
-@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_post)
+@patch('federation.requests.post', side_effect=mocked_async_requests_post)
 def test_valid_asyncRequests_two_servers_post(mock_requests, client, two_servers):
     with client:
         FR = get_federation_response("POST")
@@ -357,76 +358,10 @@ def test_valid_asyncRequests_two_servers_post(mock_requests, client, two_servers
         assert Success == [200, 200]
 
 
-@patch('federation.FuturesSession.post', side_effect=exceptions.ConnectionError)
-def test_invalid_asyncRequests_two_servers_get(mock_requests, client, two_servers):
-    with client:
-        FR = get_federation_response("POST")
-        resp = FR.async_requests(request='GET',
-                                 endpoint_path=TestParams["path"],
-                                 endpoint_payload="",
-                                 header=TestParams["Headers"],
-                                 endpoint_service=TestParams["service"])
-        ConnErrs = list(map(lambda a: "ConnectionError" in str(a), resp.values()))
-
-        # Error should just be propagated through since handle_server_request will address it
-
-        assert len(resp) == 2
-        assert ConnErrs == [True, True]
-
-
-@patch('federation.FuturesSession.post', side_effect=exceptions.ConnectionError)
-def test_invalid_asyncRequests_two_servers_post(mock_requests, client, two_servers):
-    with client:
-        FR = get_federation_response("POST")
-        resp = FR.async_requests(request='POST',
-                                 endpoint_path=TestParams["path"],
-                                 endpoint_payload="",
-                                 header=TestParams["Headers"],
-                                 endpoint_service=TestParams["service"])
-
-        Success = list(map(lambda a: "ConnectionError" in str(a), resp.values()))
-
-        assert len(resp) == 2
-        assert Success == [True, True]
-
-
-@patch('federation.FuturesSession.post', side_effect=exceptions.Timeout)
-def test_timeout_asyncRequests_two_servers_post(mock_requests, client, two_servers):
-    with client:
-        FR = get_federation_response("POST")
-        resp = FR.async_requests(request='POST',
-                                 endpoint_path=TestParams["path"],
-                                 endpoint_payload="",
-                                 header=TestParams["Headers"],
-                                 endpoint_service=TestParams["service"])
-
-        Success = list(map(lambda a: "Timeout" in str(a), resp.values()))
-
-        assert len(resp) == 2
-        assert Success == [True, True]
-
-
-@patch('federation.FuturesSession.post', side_effect=exceptions.Timeout)
-def test_timeout_asyncRequests_two_servers_get(mock_requests, client, two_servers):
-    with client:
-        FR = get_federation_response("GET")
-        resp = FR.async_requests(request='GET',
-                                 endpoint_path=TestParams["path"],
-                                 endpoint_payload="",
-                                 header=TestParams["Headers"],
-                                 endpoint_service=TestParams["service"])
-
-        TimeoutErrs = list(map(lambda a: "Timeout" in str(a), resp.values()))
-
-        # Error should just be propagated through since handle_server_request will address it
-
-        assert len(resp) == 2
-        assert TimeoutErrs == [True, True]
-
 # Test Federation with one server --------------------------------------------------------------------
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_get)
+@patch('federation.requests.post', side_effect=mocked_async_requests_get)
 def test_valid_ServerRequest_one_server_get(mock_requests, mock_session, client, two_servers):
     with client:
         FR = get_federation_response("GET", "Federate")
@@ -438,14 +373,15 @@ def test_valid_ServerRequest_one_server_get(mock_requests, mock_session, client,
 
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_get)
+@patch('federation.requests.post', side_effect=mocked_async_requests_get)
 def test_valid_federated_query_one_server_get(mock_requests, mock_session, client, two_servers):
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"path": TestParams["path"],
                                  "payload": "",
                                  "method": "GET",
-                                 "service": TestParams["service"]
+                                 "service": TestParams["service"],
+                                 "unsafe": True
                 }),
                 headers=Headers(fedHeader.headers)
         ):
@@ -458,7 +394,7 @@ def test_valid_federated_query_one_server_get(mock_requests, mock_session, clien
 
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_post)
+@patch('federation.requests.post', side_effect=mocked_async_requests_post)
 def test_valid_ServerRequest_one_server_post(mock_session, mock_requests, client, two_servers):
     with client:
         FR = get_federation_response("POST", "Federate")
@@ -471,14 +407,16 @@ def test_valid_ServerRequest_one_server_post(mock_session, mock_requests, client
 
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_post)
+@patch('federation.requests.post', side_effect=mocked_async_requests_post)
 def test_valid_federated_query_one_server_post(mock_requests, mock_session, client, two_servers):
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"path": TestParams["path"],
                                  "payload": "",
                                  "method": "POST",
-                                 "service": TestParams["service"]}),
+                                 "service": TestParams["service"],
+                                 "unsafe": True
+                }),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -489,177 +427,12 @@ def test_valid_federated_query_one_server_post(mock_requests, mock_session, clie
                 if server["status"] == 200:
                     assert server['results'] == PostResponse[loc]['results']
 
-
-# Test Federation with one server, have "local" error -------------------------------------------------
-
-@patch('federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_requests_post)
-def test_valid_federated_local_ConnErr_one_server_post(mock_session, client, two_servers):
-    with client:
-        with APP.app.test_request_context(
-                data=json.dumps({"path": TestParams["path"],
-                                 "payload": "",
-                                 "method": "POST",
-                                 "service": TestParams["service"]}),
-                headers=Headers(fedHeader.headers)
-        ):
-            RO, Status = operations.post_search()
-
-            assert Status == 200
-            for server in RO:
-                loc = server["location"]["name"]
-                if server["status"] == 200:
-                    assert server['results'] == PostResponse[loc]['results']
-
-
-@patch('federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_local_timeout_requests_post)
-def test_valid_federated_local_TimeOut_one_server_post(mock_session, client, two_servers):
-    with client:
-        with APP.app.test_request_context(
-                data=json.dumps({"path": TestParams["path"],
-                                 "payload": "",
-                                 "method": "POST",
-                                 "service": TestParams["service"]}),
-                headers=Headers(fedHeader.headers)
-        ):
-            RO, Status = operations.post_search()
-
-            assert Status == 200
-            for server in RO:
-                loc = server["location"]["name"]
-                if server["status"] == 200:
-                    if server["status"] == 200:
-                        assert server['results'] == PostResponse[loc]['results']
-
-
-
-@patch('federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_local_timeout_requests_get)
-def test_valid_federated_local_TimeOut_one_server_get(mock_requests, mock_session, client, two_servers):
-    with client:
-        with APP.app.test_request_context(
-                data=json.dumps({"path": TestParams["path"],
-                                 "payload": "",
-                                 "method": "GET",
-                                 "service": TestParams["service"]}),
-                headers=Headers(fedHeader.headers)
-        ):
-            RO, Status = operations.post_search()
-
-            assert Status == 200
-            for server in RO:
-                loc = server["location"]["name"]
-                if server["status"] == 200:
-                    assert server["results"] == GetResponse[loc]['results']
-
-
-@patch('federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_requests_get)
-def test_valid_federated_local_ConnErr_one_server_get(mock_requests, mock_session, client, two_servers):
-    with client:
-        with APP.app.test_request_context(
-                data=json.dumps({"path"   : TestParams["path"],
-                                 "payload": "",
-                                 "method"    : "GET",
-                                 "service": TestParams["service"]
-                                 }),
-                headers=Headers(fedHeader.headers)
-        ):
-            RO, Status = operations.post_search()
-
-            assert Status == 200
-            for server in RO:
-                loc = server["location"]["name"]
-                if server["status"] == 200:
-                    assert server["results"] == GetResponse[loc]['results']
-
-
-# Test Federation with one server, have server error out --------------------------------------------------
-
-@patch('federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_p1_ConnErr_requests_post)
-def test_ConnErr_federated_valid_local_one_server_post(mock_session, client, two_servers):
-    with client:
-        with APP.app.test_request_context(
-                data=json.dumps({"path": TestParams["path"],
-                                 "payload": "",
-                                 "method": "POST",
-                                 "service": TestParams["service"]}),
-                headers=Headers(fedHeader.headers)
-        ):
-            RO, Status = operations.post_search()
-
-            assert Status == 200
-            for server in RO:
-                loc = server["location"]["name"]
-                if server["status"] == 200:
-                    assert server["results"] == PostResponse[loc]['results']
-
-@patch('federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_p1_timeout_requests_post)
-def test_TimeOut_federated_valid_local_one_server_post(mock_session, client, two_servers):
-    with client:
-        with APP.app.test_request_context(
-                data=json.dumps({"path": TestParams["path"],
-                                 "payload": "",
-                                 "method": "POST",
-                                 "service": TestParams["service"]}),
-                headers=Headers(fedHeader.headers)
-        ):
-            RO, Status = operations.post_search()
-
-            assert Status == 200
-            for server in RO:
-                loc = server["location"]["name"]
-                if server["status"] == 200:
-                    assert server["results"] == PostResponse[loc]['results']
-
-
-@patch('federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_p1_ConnErr_requests_get)
-def test_ConnErr_federated_valid_local_one_server_get(mock_requests, mock_session, client, two_servers):
-    with client:
-        with APP.app.test_request_context(
-                data=json.dumps({"path": TestParams["path"],
-                                 "payload": "",
-                                 "method": "GET",
-                                 "service": TestParams["service"]}),
-                headers=Headers(fedHeader.headers)
-        ):
-            RO, Status = operations.post_search()
-
-            assert Status == 200
-            for server in RO:
-                loc = server["location"]["name"]
-                if server["status"] == 200:
-                    assert server["results"] == GetResponse[loc]['results']
-
-
-@patch('federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_p1_ConnErr_requests_get)
-def test_TimeOut_federated_valid_local_one_server_get(mock_requests, mock_session, client, two_servers):
-    with client:
-        with APP.app.test_request_context(
-                data=json.dumps({"path": TestParams["path"],
-                                 "payload": "",
-                                 "method": "GET",
-                                 "service": TestParams["service"]}),
-                headers=Headers(fedHeader.headers)
-        ):
-            RO, Status = operations.post_search()
-
-            assert Status == 200
-            for server in RO:
-                loc = server["location"]["name"]
-                if server["status"] == 200:
-                    assert server["results"] == GetResponse[loc]['results']
 
 # Test Federation with two nodes and local -----------------------------------------------------
 
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_get)
+@patch('federation.requests.post', side_effect=mocked_async_requests_get)
 def test_valid_ServerRequest_two_server_get(mock_requests, mock_session, client, three_servers):
     with client:
         FR = get_federation_response("GET", "Federate")
@@ -673,14 +446,16 @@ def test_valid_ServerRequest_two_server_get(mock_requests, mock_session, client,
 
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_get)
+@patch('federation.requests.post', side_effect=mocked_async_requests_get)
 def test_valid_federated_query_two_server_get(mock_requests, mock_session, client, three_servers):
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"path": TestParams["path"],
                                  "payload": "",
                                  "method": "GET",
-                                 "service": TestParams["service"]}),
+                                 "service": TestParams["service"],
+                                 "unsafe": True
+                                 }),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -693,7 +468,7 @@ def test_valid_federated_query_two_server_get(mock_requests, mock_session, clien
 
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_post)
+@patch('federation.requests.post', side_effect=mocked_async_requests_post)
 def test_valid_ServerRequest_two_server_post(mock_session, mock_requests, client, three_servers):
     with client:
         FR = get_federation_response("POST", "Federate")
@@ -707,56 +482,16 @@ def test_valid_ServerRequest_two_server_post(mock_session, mock_requests, client
 
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_post)
+@patch('federation.requests.post', side_effect=mocked_async_requests_post)
 def test_valid_federated_query_two_server_post(mock_requests, mock_session, client, three_servers):
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"path": TestParams["path"],
                                  "payload": "",
                                  "method": "POST",
-                                 "service": TestParams["service"]}),
-                headers=Headers(fedHeader.headers)
-        ):
-            RO, Status = operations.post_search()
-
-            assert Status == 200
-            for server in RO:
-                loc = server["location"]["name"]
-                if server["status"] == 200:
-                    assert server["results"] == PostResponse[loc]['results']
-
-
-# Test Federation with two nodes and local error -----------------------------------------------------
-
-@patch('federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_requests_post)
-def test_valid_federated_local_ConnErr_two_server_post(mock_session, client, three_servers):
-    with client:
-        with APP.app.test_request_context(
-                data=json.dumps({"path": TestParams["path"],
-                                 "payload": "",
-                                 "method": "POST",
-                                 "service": TestParams["service"]}),
-                headers=Headers(fedHeader.headers)
-        ):
-            RO, Status = operations.post_search()
-
-            assert Status == 200
-            for server in RO:
-                loc = server["location"]["name"]
-                if server["status"] == 200:
-                    assert server["results"] == PostResponse[loc]['results']
-
-
-@patch('federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_local_timeout_requests_post)
-def test_valid_federated_local_TimeOut_two_server_post(mock_session, client, three_servers):
-    with client:
-        with APP.app.test_request_context(
-                data=json.dumps({"path": TestParams["path"],
-                                 "payload": "",
-                                 "method": "POST",
-                                 "service": TestParams["service"]}),
+                                 "service": TestParams["service"],
+                                 "unsafe": True
+                                 }),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()
@@ -769,199 +504,16 @@ def test_valid_federated_local_TimeOut_two_server_post(mock_session, client, thr
 
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_requests_get)
-def test_valid_federated_local_ConnErr_two_server_get(mock_requests, mock_session, client, three_servers):
-    with client:
-        with APP.app.test_request_context(
-                data=json.dumps({"path": TestParams["path"],
-                                 "payload": "",
-                                 "method": "GET",
-                                 "service": TestParams["service"]}),
-                headers=Headers(fedHeader.headers)
-        ):
-            RO, Status = operations.post_search()
-
-            assert Status == 200
-            for server in RO:
-                loc = server["location"]["name"]
-                if server["status"] == 200:
-                    assert server["results"] == GetResponse[loc]['results']
-
-
-@patch('federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_local_timeout_requests_get)
-def test_valid_federated_local_TimeOut_two_server_get(mock_requests, mock_session, client, three_servers):
-    with client:
-        with APP.app.test_request_context(
-                data=json.dumps({"path": TestParams["path"],
-                                 "payload": "",
-                                 "method": "GET",
-                                 "service": TestParams["service"]}),
-                headers=Headers(fedHeader.headers)
-        ):
-            RO, Status = operations.post_search()
-
-            assert Status == 200
-            for server in RO:
-                loc = server["location"]["name"]
-                if server["status"] == 200:
-                    assert server["results"] == GetResponse[loc]['results']
-
-
-# Test Federation with two nodes (One timeout) and local Error -----------------------------------------------------
-
-@patch('federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_p1_Timeout_requests_post)
-def test_one_TimeOut_federated_local_ConnErr_two_server_post(mock_session, client, three_servers):
-    with client:
-        with APP.app.test_request_context(
-                data=json.dumps({"path": TestParams["path"],
-                                 "payload": "",
-                                 "method": "POST",
-                                 "service": TestParams["service"]}),
-                headers=Headers(fedHeader.headers)
-        ):
-            RO, Status = operations.post_search()
-
-            assert Status == 200
-            for server in RO:
-                loc = server["location"]["name"]
-                if server["status"] == 200:
-                    assert server["results"] == PostResponse[loc]['results']
-
-
-@patch('federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_local_TimeOUt_p1_Timeout_requests_post)
-def test_one_TimeOut_federated_local_TimeOut_two_server_post(mock_session, client, three_servers):
-    with client:
-        with APP.app.test_request_context(
-                data=json.dumps({"path": TestParams["path"],
-                                 "payload": "",
-                                 "method": "POST",
-                                 "service": TestParams["service"]}),
-                headers=Headers(fedHeader.headers)
-        ):
-            RO, Status = operations.post_search()
-
-            assert Status == 200
-            for server in RO:
-                loc = server["location"]["name"]
-                if server["status"] == 200:
-                    assert server["results"] == PostResponse[loc]['results']
-
-
-@patch('federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_local_ConnErr_p1_Timeout_requests_get)
-def test_one_TimeOut_federated_local_ConnErr_two_server_get(mock_requests, mock_session, client, three_servers):
-    with client:
-        with APP.app.test_request_context(
-                data=json.dumps({"path": TestParams["path"],
-                                 "payload": "",
-                                 "method": "GET",
-                                 "service": TestParams["service"]}),
-                headers=Headers(fedHeader.headers)
-        ):
-            RO, Status = operations.post_search()
-
-            assert Status == 200
-            for server in RO:
-                loc = server["location"]["name"]
-                if server["status"] == 200:
-                    assert server["results"] == GetResponse[loc]['results']
-
-
-@patch('federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_local_TimeOut_p1_Timeout_requests_get)
-def test_one_TimeOut_federated_local_TimeOut_two_server_get(mock_requests, mock_session, client, three_servers):
-    with client:
-        with APP.app.test_request_context(
-                data=json.dumps({"path": TestParams["path"],
-                                 "payload": "",
-                                 "method": "GET",
-                                 "service": TestParams["service"]}),
-                headers=Headers(fedHeader.headers)
-        ):
-            RO, Status = operations.post_search()
-
-            assert Status == 200
-            for server in RO:
-                loc = server["location"]["name"]
-                if server["status"] == 200:
-                    assert server["results"] == GetResponse[loc]['results']
-
-
-# Test Federation with two nodes (One timeout) and local valid -----------------------------------------------------
-
-@patch('federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_p1_timeout_requests_post)
-def test_one_TimeOut_federated_valid_two_server_post(mock_session, client, three_servers):
-    with client:
-        with APP.app.test_request_context(
-                data=json.dumps({"path": TestParams["path"],
-                                 "payload": "",
-                                 "method": "POST",
-                                 "service": TestParams["service"]}),
-                headers=Headers(fedHeader.headers)
-        ):
-            RO, Status = operations.post_search()
-
-            assert Status == 200
-            for server in RO:
-                loc = server["location"]["name"]
-                if server["status"] == 200:
-                    assert server["results"] == PostResponse[loc]['results']
-
-
-@patch('federation.requests.Session.post', side_effect=mocked_service_post)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_p1_timeout_requests_post)
-def test_one_TimeOut_federated_local_valid_two_server_post(mock_session, client, three_servers):
-    with client:
-        with APP.app.test_request_context(
-                data=json.dumps({"path": TestParams["path"],
-                                 "payload": "",
-                                 "method": "POST",
-                                 "service": TestParams["service"]}),
-                headers=Headers(fedHeader.headers)
-        ):
-            RO, Status = operations.post_search()
-
-            assert Status == 200
-            for server in RO:
-                loc = server["location"]["name"]
-                if server["status"] == 200:
-                    assert server["results"] == PostResponse[loc]['results']
-
-
-@patch('federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_p1_timeout_requests_get)
-def test_one_TimeOut_federated_local_valid_two_server_get(mock_requests, mock_session, client, three_servers):
-    with client:
-        with APP.app.test_request_context(
-                data=json.dumps({"path": TestParams["path"],
-                                 "payload": "",
-                                 "method": "GET",
-                                 "service": TestParams["service"]}),
-                headers=Headers(fedHeader.headers)
-        ):
-            RO, Status = operations.post_search()
-
-            assert Status == 200
-            for server in RO:
-                loc = server["location"]["name"]
-                if server["status"] == 200:
-                    assert server["results"] == GetResponse[loc]['results']
-
-
-@patch('federation.requests.Session.get', side_effect=mocked_service_get)
-@patch('federation.FuturesSession.post', side_effect=mocked_async_requests_get)
+@patch('federation.requests.post', side_effect=mocked_async_requests_get)
 def test_invalid_backslash_endpoint_start(mock_requests, mock_session, client, two_servers):
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"path": "/fail/this/path",
                                  "payload": "",
                                  "method": "GET",
-                                 "service": TestParams["service"]
-                }),
+                                 "service": TestParams["service"],
+                                 "unsafe": True
+                                 }),
                 headers=Headers(fedHeader.headers)
         ):
             RO, Status = operations.post_search()

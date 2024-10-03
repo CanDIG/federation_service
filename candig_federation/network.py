@@ -13,13 +13,15 @@ logger = CanDIGLogger(__file__)
 
 
 TYK_FEDERATION_API_ID = os.getenv("TYK_FEDERATION_API_ID")
-
+APPROLE_TOKEN = None
+if os.getenv("TESTING", False):
+    APPROLE_TOKEN = "test"
 
 def get_registered_servers():
-    stored_servers_dict, status_code = authx.auth.get_service_store_secret("federation", key="servers")
+    stored_servers_dict, status_code = authx.auth.get_service_store_secret("federation", key="servers", token=APPROLE_TOKEN)
     if status_code == 404:
         # no value was found, so this must need to be initialized
-        stored_servers_dict, status_code = authx.auth.set_service_store_secret("federation", key="servers", value=json.dumps({"servers": {}}))
+        stored_servers_dict, status_code = authx.auth.set_service_store_secret("federation", key="servers", value=json.dumps({"servers": {}}), token=APPROLE_TOKEN)
         return {}
     if status_code != 200:
         logger.error(f"Error in get_registered_servers: {stored_servers_dict}")
@@ -73,10 +75,10 @@ def unregister_server(server_id):
 
 
 def get_registered_services():
-    stored_services_dict, status_code = authx.auth.get_service_store_secret("federation", key="services")
+    stored_services_dict, status_code = authx.auth.get_service_store_secret("federation", key="services", token=APPROLE_TOKEN)
     if status_code == 404:
         # no value was found, so this must need to be initialized
-        stored_services_dict, status_code = authx.auth.set_service_store_secret("federation", key="services", value=json.dumps({"services": {}}))
+        stored_services_dict, status_code = authx.auth.set_service_store_secret("federation", key="services", value=json.dumps({"services": {}}), token=APPROLE_TOKEN)
         return {}
     if status_code != 200:
         logger.error(f"Error in get_registered_services: {stored_services_dict}")
