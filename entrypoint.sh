@@ -2,7 +2,6 @@
 
 set -Euo pipefail
 
-export OPA_SECRET=$(cat /run/secrets/opa-service-token)
 export TYK_SECRET_KEY=$(cat /run/secrets/tyk-secret-key)
 
 
@@ -14,5 +13,8 @@ fi
 # use the following for development
 #python3 -m candig_federation
 
+python candig_federation/heartbeat.py &
+
 # use the following instead for production deployment
-uwsgi federation.ini
+cd candig_federation
+gunicorn server:application

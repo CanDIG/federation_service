@@ -3,6 +3,16 @@ dist: focal   # required for Python >= 3.7
 python:
   - "3.12"
 
+before_install:
+  - sudo mkdir -p /run/secrets
+  - sudo touch /run/secrets/vault-approle-token
+  - sudo chmod 777 /run/secrets/vault-approle-token
+  - echo "test" > /run/secrets/vault-approle-token
+  - sudo mkdir -p /home/candig
+  - sudo touch /home/candig/roleid
+  - sudo chmod 777 /home/candig/roleid
+  - echo "test" > /home/candig/roleid
+
 install:
   - pip install -r requirements.txt
 
@@ -11,4 +21,4 @@ script:
   - pytest --cov=candig_federation tests/ -vv
 
 env:
-  - CONFIG_DIR=config TRAVIS=true # Used to skip local integration tests in test_local_federation.py
+  - SERVICE_NAME=federation VAULT_URL=http://localhost CONFIG_DIR=config TRAVIS=true # Used to skip local integration tests in test_local_federation.py

@@ -3,14 +3,18 @@
 """
 Driver program for service
 """
+from gevent import monkey
+
+monkey.patch_all()
 
 import connexion
 # from prometheus_flask_exporter import PrometheusMetrics
 from flask_cors import CORS
 import os.path
-import network
-import logging
 import os
+import candigv2_logging.logging
+
+candigv2_logging.logging.initialize()
 
 
 def main():
@@ -21,24 +25,6 @@ def main():
     """
 
     CONFIG_DIR = os.getenv("CONFIG_DIR", "../config")
-    # Logging configuration
-
-    log_handler = logging.FileHandler(f"{CONFIG_DIR}/federation.log")
-    numeric_loglevel = getattr(logging, "INFO")
-    log_handler.setLevel(numeric_loglevel)
-
-    APP.app.logger.addHandler(log_handler)
-    APP.app.logger.setLevel(numeric_loglevel)
-
-    APP.app.config["service_file"] = os.path.abspath(f"{CONFIG_DIR}/services.json")
-    if not os.path.exists(APP.app.config["service_file"]):
-        with open(APP.app.config["service_file"], "w") as f:
-            f.write("{}")
-
-    APP.app.config["server_file"] = os.path.abspath(f"{CONFIG_DIR}/servers.json")
-    if not os.path.exists(APP.app.config["server_file"]):
-        with open(APP.app.config["server_file"], "w") as f:
-            f.write("{}")
 
     return APP
 
@@ -62,7 +48,6 @@ APPLICATION = main()
 application = APPLICATION.app
 # metrics = PrometheusMetrics(application)
 CORS(application)
-
 
 if __name__ == '__main__':
     APPLICATION.run()

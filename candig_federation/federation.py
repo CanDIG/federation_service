@@ -6,9 +6,12 @@ Provides methods to handle both local and federated requests
 
 import json
 import requests
-from flask import current_app
-from requests_futures.sessions import FuturesSession
 from network import get_registered_servers, get_registered_services
+from heartbeat import get_live_servers
+from candigv2_logging.logging import CanDIGLogger
+import gevent
+
+logger = CanDIGLogger(__file__)
 
 
 class FederationResponse:
@@ -38,7 +41,7 @@ class FederationResponse:
     # pylint: disable=too-many-arguments
 
     def __init__(self, request, endpoint_path, endpoint_payload, request_dict, endpoint_service, return_mimetype='application/json',
-                 timeout=60):
+                 timeout=60, unsafe=False):
         """Constructor method
         """
         self.results = {}
@@ -50,14 +53,14 @@ class FederationResponse:
         self.endpoint_service = endpoint_service
         self.return_mimetype = return_mimetype
         self.request_dict = request_dict
-        self.logger = current_app.logger
         self.servers = get_registered_servers()
         self.services = get_registered_services()
+        self.unsafe = unsafe
 
         try:
             self.token = self.request_dict.headers['Authorization']
         except KeyError as e:
-            self.logger.warn("Request lacking Authorization header")
+            logger.warning("Request lacking Authorization header")
             self.token = ""
 
         self.header = {
@@ -81,7 +84,7 @@ class FederationResponse:
         :param path: API endpoint of service
         :type path: Str
         """
-        self.logger.info(json.dumps({"Sending": "{} -> {}/{}".format(
+        logger.info(json.dumps({"Sending": "{} -> {}/{}".format(
             request_type, destination, path
         )}))
 
@@ -94,7 +97,7 @@ class FederationResponse:
         :param code: Response code
         :type code: int
         """
-        self.logger.info(json.dumps({"Received": "{} From {}".format(
+        logger.info(json.dumps({"Received": "{} From {}".format(
             code, source
         )}))
 
@@ -204,8 +207,7 @@ class FederationResponse:
             future_response = future_responses[future_response_id]
             location = future_response["location"]
             try:
-                future_response = future_response["response"]
-                response = future_response.result()
+                response = future_response["response"]
 
                 # If the call was successful append the results
                 if response.status_code in [200, 201]:
@@ -221,9 +223,12 @@ class FederationResponse:
                 if isinstance(future_response, requests.exceptions.ConnectionError):
                     self.status[future_response_id] = 404
                     self.message[future_response_id] = f'Connection Error. Peer server may be down. Location: {location["name"]}, {location["province"]}'
-                if isinstance(future_response, requests.exceptions.Timeout):
+                elif isinstance(future_response, requests.exceptions.Timeout):
                     self.status[future_response_id] = 504
                     self.message[future_response_id] = f'Peer server timed out, it may be down. Location: {location["name"]}, {location["province"]}'
+                else:
+                    self.status[future_response_id] = 500
+                    self.message[future_response_id] = f"handle_server_request failed on {future_response_id}, federation = {self.header['Federation']}: {future_response}"
                 continue
             except requests.exceptions.ConnectionError:
                 self.status[future_response_id] = 404
@@ -237,8 +242,6 @@ class FederationResponse:
                 self.status[future_response_id] = 500
                 self.message[future_response_id] = f"handle_server_request failed on {future_response_id}, federation = {self.header['Federation']}: {type(e)}: {str(e)} {response.text}"
                 continue
-
-
 
         # Return is used for testing individual methods
         return self.results
@@ -263,22 +266,31 @@ class FederationResponse:
         """
         args = {"method": request, "path": endpoint_path,
                 "payload": endpoint_payload, "service": endpoint_service}
-        async_session = FuturesSession(max_workers=10)  # capping max threads
         responses = {}
-
+        jobs = {}
         for server in self.servers.values():
             try:
-                # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
                 response = {}
-                url = f"{server['url']}/v1/fanout"
-                response["response"] = async_session.post(url, json=args, headers=header, timeout=self.timeout)
-                response["location"] = server["location"]
+                response["location"] = server['server']["location"]
 
-                responses[server['id']] = response
+                if not (self.unsafe or server['server']['id'] in get_live_servers()):
+                    # Do not ping servers that are not live according to the heartbeat service
+                    response["response"] = f"Safe check abort: {server['server']['id']} is assumed to be down"
+                else:
+                    # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
+                    url = f"{server['server']['url']}/v1/fanout"
+
+                    # spawn each request in a gevent
+                    jobs[server['server']['id']] = gevent.spawn(requests.post, url, json=args, headers=header, timeout=self.timeout)
+                responses[server['server']['id']] = response
 
             except Exception as e:
-                responses[server['id']] = f"async_requests {server['id']}: {type(e)} {str(e)}"
-
+                jobs[server['server']['id']] = f"{type(e)} {str(e)}"
+                responses[server['server']['id']] = f"async_requests {server['server']['id']}: {type(e)} {str(e)}"
+        # wait for all of the gevents to come back
+        gevent.joinall(jobs.values())
+        for job in jobs:
+            responses[job]['response'] = jobs[job].value
         return responses
 
     def merge_status(self, statuses):
@@ -373,11 +385,10 @@ class FederationResponse:
             # add locations:
             response['location'] = {}
             for server in self.servers:
-                response['location'][server] = self.servers[server]['location']
+                response['location'][server] = self.servers[server]['server']['location']
 
             # now deconvolute the result to an array:
             response_array = []
-            # print(json.dumps(response, indent=3))
             for server in response['location'].keys():
                 r = {
                     'location': response['location'][server],

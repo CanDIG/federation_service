@@ -28,10 +28,13 @@ paths:
     post:
       description: Add a server to the federation.
       operationId: operations.add_server
+      parameters:
+        - $ref: '#/components/parameters/register'
       requestBody:
         content:
           'application/json':
             schema:
+              nullable: true
               type: object
               required:
                 - server
@@ -107,12 +110,15 @@ paths:
         '500':
           description: Internal Error
     post:
+      parameters:
+        - $ref: '#/components/parameters/register'
       description: Add a service to the federation.
       operationId: operations.add_service
       requestBody:
         content:
           'application/json':
             schema:
+              nullable: true
               $ref: "#/components/schemas/Service"
       responses:
         '201':
@@ -194,6 +200,13 @@ components:
       schema:
         type: boolean
         default: true
+    register:
+      name: register
+      in: query
+      description: re-register all known servers/services
+      required: false
+      schema:
+          type: boolean
   schemas:
     FederatedRequestBody:
       type: object

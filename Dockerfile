@@ -1,36 +1,14 @@
 ARG venv_python
-ARG alpine_version
-FROM python:${venv_python}-alpine${alpine_version}
+FROM python:${venv_python}
 
 LABEL Maintainer="CanDIG Project"
 LABEL "candigv2"="federation_service"
 
 USER root
 
-RUN apk update
+RUN groupadd -r candig && useradd -rm candig -g candig
 
-RUN apk add --no-cache \
-  autoconf \
-  automake \
-  make \
-  gcc \
-  linux-headers \
-  libffi-dev \
-  perl \
-  bash \
-  build-base \
-  musl-dev \
-  zlib-dev \
-  bzip2-dev \
-  xz-dev \
-  libcurl \
-  curl \
-  curl-dev \
-  yaml-dev \
-  pcre-dev \
-  git
-
-RUN addgroup -S candig && adduser -S candig -G candig
+RUN apt-get update && apt-get -y install
 
 COPY requirements.txt /app/federation/requirements.txt
 
