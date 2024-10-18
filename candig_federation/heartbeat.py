@@ -3,6 +3,7 @@ import time
 from network import get_registered_servers
 import requests
 import os.path
+import os
 
 def check_pulse():
     servers = get_registered_servers()
@@ -12,14 +13,18 @@ def check_pulse():
     live_servers = []
     log = ""
     for server in servers.values():
-        try:
-            url = f"{server['server']['url']}/hello"
-            log += f"\ntesting {url}"
-            service_info = requests.get(url, timeout=2)
-            if service_info.ok:
-                live_servers.append(server['server']['id'])
-        except Exception as e:
-            log += "\n" + str(e)
+        if server['server']['id'] != os.getenv("FEDERATION_SELF_SERVER_ID", 'internal-1'):
+            try:
+                url = f"{server['server']['url']}/hello"
+                log += f"\ntesting {url}"
+                service_info = requests.get(url, timeout=2)
+                if service_info.ok:
+                    live_servers.append(server['server']['id'])
+            except Exception as e:
+                log += "\n" + str(e)
+        else:
+            live_servers.append(server['server']['id'])
+
 
     # Determine whether or not those sites are available by pinging Federation service-info
     with open('/app/federation/live_servers.txt', 'w') as f:
@@ -27,7 +32,6 @@ def check_pulse():
 
     with open('/app/federation/log.txt', 'w') as f:
         f.write(log)
-        f.write(str(e))
 
 
 def get_live_servers():
