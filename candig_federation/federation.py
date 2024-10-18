@@ -278,7 +278,7 @@ class FederationResponse:
                     response["response"] = f"Safe check abort: {server['server']['id']} is assumed to be down"
                 else:
                     # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
-                    url = f"{server['server']['url']}/v1/fanout"
+                    url = f"{server['server']['url']}/federation/v1/fanout"
 
                     # spawn each request in a gevent
                     jobs[server['server']['id']] = gevent.spawn(requests.post, url, json=args, headers=header, timeout=self.timeout)
