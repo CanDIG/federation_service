@@ -13,6 +13,7 @@ logger = CanDIGLogger(__file__)
 
 
 TYK_FEDERATION_API_ID = os.getenv("TYK_FEDERATION_API_ID")
+TYK_LISTEN_PATH = os.getenv("TYK_LISTEN_PATH", "federation")
 APPROLE_TOKEN = None
 if os.getenv("TESTING", False):
     APPROLE_TOKEN = "test"
@@ -32,6 +33,9 @@ def get_registered_servers():
 def register_server(obj):
     servers = get_registered_servers()
     new_server = obj['server']
+    if not new_server['url'].endswith(TYK_LISTEN_PATH):
+        new_server['url'] = new_server['url'] + '/' + TYK_LISTEN_PATH
+
     if servers is not None:
         # check to see if it's already here:
         found = False
