@@ -27,7 +27,6 @@ def check_pulse():
 
     with open('/app/federation/log.txt', 'w') as f:
         f.write(log)
-        f.write(str(e))
 
 
 def get_live_servers():
