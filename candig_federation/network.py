@@ -32,8 +32,6 @@ def get_registered_servers():
 def register_server(obj):
     servers = get_registered_servers()
     new_server = obj['server']
-    if not new_server['url'].endswith("/federation"):
-        new_server['url'] = new_server['url'] + "/federation"
 
     if servers is not None:
         # check to see if it's already here:
