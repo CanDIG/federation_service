@@ -11,23 +11,23 @@ def check_pulse():
     # Determine which sites we have access to
     live_servers = []
     log = ""
-    try:
-        for server in servers.values():
+    for server in servers.values():
+        try:
             url = f"{server['server']['url']}/hello"
             log += f"\ntesting {url}"
             service_info = requests.get(url, timeout=2)
             if service_info.ok:
                 live_servers.append(server['server']['id'])
+        except Exception as e:
+            log += "\n" + str(e)
 
-        # Determine whether or not those sites are available by pinging Federation service-info
-        with open('/app/federation/live_servers.txt', 'w') as f:
-            f.write("|".join(live_servers))
-    except Exception as e:
-        log += "\n" + str(e)
+    # Determine whether or not those sites are available by pinging Federation service-info
+    with open('/app/federation/live_servers.txt', 'w') as f:
+        f.write("|".join(live_servers))
 
-        with open('/app/federation/log.txt', 'w') as f:
-            f.write(log)
-            f.write(str(e))
+    with open('/app/federation/log.txt', 'w') as f:
+        f.write(log)
+        f.write(str(e))
 
 
 def get_live_servers():
