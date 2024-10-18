@@ -13,7 +13,7 @@ def check_pulse():
     log = ""
     try:
         for server in servers.values():
-            url = f"{server['server']['url']}/v1/service-info"
+            url = f"{server['server']['url']}/hello"
             log += f"\ntesting {url}"
             service_info = requests.get(url, timeout=2)
             if service_info.ok:
