@@ -13,7 +13,7 @@ fi
 # use the following for development
 #python3 -m candig_federation
 
-python candig_federation/heartbeat.sh &
+bash candig_federation/heartbeat.sh &
 
 # use the following instead for production deployment
 cd candig_federation
