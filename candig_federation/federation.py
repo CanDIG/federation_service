@@ -142,6 +142,7 @@ class FederationResponse:
         except Exception as e:
             self.status = 500
             self.message = f"get_service: {type(e)} {str(e)}"
+            logger.debug(self.message)
             return
 
     def post_service(self, service, endpoint_path, endpoint_payload):
@@ -173,6 +174,7 @@ class FederationResponse:
         except Exception as e:
             self.status = 500
             self.message = f"post_service: {type(e)} {str(e)}"
+            logger.debug(self.message)
             return
 
     def handle_server_request(self, request, endpoint_path, endpoint_payload, endpoint_service, header):
