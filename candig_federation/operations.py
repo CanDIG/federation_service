@@ -57,11 +57,18 @@ def add_server(register=False):
     try:
         # if register=True, list known servers in Vault and register them all
         if register:
+            errors = {}
             existing_servers = get_registered_servers()
             for server in existing_servers:
-                register_server(existing_servers[server])
+                try:
+                    register_server(existing_servers[server])
+                except Exception as e:
+                    logger.debug(f"failed to register {existing_servers[server]['server']['id']} {type(e)} {str(e)}", request)
+                    errors[existing_servers[server]['server']['id']] = f"{type(e)} {str(e)}"
+            if len(errors) > 0:
+                return errors, 500
     except Exception as e:
-        logger.debug(f"Couldn't register server", request)
+        logger.debug(f"Couldn't register servers: {type(e)} {str(e)}", request)
         return {"message": f"Couldn't register servers: {type(e)} {str(e)} {connexion.request}"}, 500
     try:
         if connexion.request.json is not None and 'server' in connexion.request.json:
