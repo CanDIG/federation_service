@@ -7,6 +7,8 @@ import os
 
 def check_pulse():
     servers = get_registered_servers()
+    if servers is None:
+        return
     if len(servers) == 0:
         return
     # Determine which sites we have access to

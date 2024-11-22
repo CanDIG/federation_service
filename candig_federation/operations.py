@@ -115,7 +115,11 @@ def list_services():
     """
     :return: Dictionary of registered services.
     """
-    return list(get_registered_services().values()), 200
+    services = get_registered_services()
+    if services is not None:
+        return list(services.values()), 200
+    logger.debug(f"Couldn't list services", request)
+    return {"message": "Couldn't list services"}, 500
 
 
 @app.route('/services/<path:service_id>')
