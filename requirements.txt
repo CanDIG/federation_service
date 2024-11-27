@@ -7,8 +7,8 @@ flask==2.2.5
 prometheus-flask-exporter==0.13.0
 Flask-Cors==5.0.0
 requests-mock>=1.11.0
-gunicorn[gevent]>=23.0.0
-gevent>=24.2.1
+gunicorn>=23.0.0
+uvicorn[standard]==0.30.6
 pyyaml>=4.2b1
 pytest==7.2.0
 pytest-cov==2.7.1

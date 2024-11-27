@@ -3,7 +3,6 @@ import os
 bind = "0.0.0.0:4232"
 workers = int(os.getenv("WORKERS", 4))
 threads = int(os.getenv("THREADS", 4))
-worker_class = "gevent"
 user = "candig"
 group = "candig"
 loglevel = 'debug'
