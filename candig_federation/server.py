@@ -35,7 +35,7 @@ def configure_app():
     App pulled out as global variable to allow import into
     testing files to access application context
     """
-    app = connexion.FlaskApp(__name__, options={"swagger_url": "/"})
+    app = connexion.App(__name__)
     app.add_api('federation.yaml', strict_validation=True, validate_responses=True)
     return app
 
