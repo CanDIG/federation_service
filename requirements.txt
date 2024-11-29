@@ -12,5 +12,5 @@ requests-mock>=1.12.1
 gunicorn>=23.0.0
 uvicorn[standard]==0.30.6
 pyyaml>=4.2b1
-pytest==7.2.0
+pytest==8.3.3
 pytest-cov==2.7.1
