@@ -1,7 +1,3 @@
-from gevent import monkey
-
-monkey.patch_all()
-
 # from prometheus_flask_exporter import PrometheusMetrics
 from flask_cors import CORS
 import connexion

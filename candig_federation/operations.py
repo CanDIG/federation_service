@@ -5,7 +5,7 @@ Methods to handle incoming requests passed from Tyk
 from authz import is_site_admin
 import connexion
 from werkzeug.exceptions import UnsupportedMediaType
-from flask import request, Flask
+from flask import Flask
 from federation import FederationResponse
 from network import get_registered_servers, get_registered_services, register_server, register_service, unregister_server, unregister_service
 from candigv2_logging.logging import CanDIGLogger
@@ -44,15 +44,15 @@ def list_servers():
     if servers is not None:
         result = map(lambda x: x["server"], servers.values())
         return list(result), 200
-    logger.debug(f"Couldn't list servers", request)
+    logger.debug(f"Couldn't list servers", connexion.request)
     return {"message": "Couldn't list servers"}, 500
 
 
-def add_server(register=False):
+async def add_server(register=False):
     """
     :return: Server added.
     """
-    if not is_site_admin(request):
+    if not is_site_admin(connexion.request):
         return {"message": "User is not authorized to POST"}, 403
     try:
         # if register=True, list known servers in Vault and register them all
@@ -63,16 +63,17 @@ def add_server(register=False):
                 try:
                     register_server(existing_servers[server])
                 except Exception as e:
-                    logger.debug(f"failed to register {existing_servers[server]['server']['id']} {type(e)} {str(e)}", request)
+                    logger.debug(f"failed to register {existing_servers[server]['server']['id']} {type(e)} {str(e)}", connexion.request)
                     errors[existing_servers[server]['server']['id']] = f"{type(e)} {str(e)}"
             if len(errors) > 0:
                 return errors, 500
     except Exception as e:
-        logger.debug(f"Couldn't register servers: {type(e)} {str(e)}", request)
+        logger.debug(f"Couldn't register servers: {type(e)} {str(e)}", connexion.request)
         return {"message": f"Couldn't register servers: {type(e)} {str(e)} {connexion.request}"}, 500
     try:
-        if connexion.request.json is not None and 'server' in connexion.request.json:
-            new_server = connexion.request.json
+        req = await connexion.request.json()
+        if req is not None and 'server' in req:
+            new_server = req
             if register_server(new_server) is None:
                 return {"message": f"Server {new_server['server']['id']} already present"}, 204
             return get_registered_servers()[new_server['server']['id']]['server'], 201
@@ -80,7 +81,7 @@ def add_server(register=False):
         # this is the exception that gets thrown if the requestbody is null
         return get_registered_servers(), 200
     except Exception as e:
-        logger.debug(f"Couldn't register server", request)
+        logger.debug(f"Couldn't add server", connexion.request)
         return {"message": f"Couldn't add server: {type(e)} {str(e)} {connexion.request}"}, 500
 
 
@@ -93,7 +94,7 @@ def get_server(server_id):
     if servers is not None and server_id in servers:
         return servers[server_id], 200
     else:
-        logger.debug(f"Couldn't find server {server_id}", request)
+        logger.debug(f"Couldn't find server {server_id}", connexion.request)
         return {"message": f"Couldn't find server {server_id}"}, 404
 
 
@@ -102,11 +103,11 @@ def delete_server(server_id):
     """
     :return: Server deleted.
     """
-    if not is_site_admin(request):
+    if not is_site_admin(connexion.request):
         return {"message": "User is not authorized to POST"}, 403
     result = unregister_server(server_id)
     if result is None:
-        logger.debug(f"Server not found", request)
+        logger.debug(f"Server not found", connexion.request)
         return {"message": f"Server {server_id} not found"}, 404
     return result, 200
 
@@ -118,7 +119,7 @@ def list_services():
     services = get_registered_services()
     if services is not None:
         return list(services.values()), 200
-    logger.debug(f"Couldn't list services", request)
+    logger.debug(f"Couldn't list services", connexion.request)
     return {"message": "Couldn't list services"}, 500
 
 
@@ -131,31 +132,37 @@ def get_service(service_id):
     if services is not None and service_id in services:
         return services[service_id], 200
     else:
-        logger.debug(f"Couldn't find service {service_id}", request)
+        logger.debug(f"Couldn't find service {service_id}", connexion.request)
         return {"message": f"Couldn't find service {service_id}"}, 404
 
 
-def add_service(register=False):
+async def add_service(register=False):
     """
     :return: Service added.
     """
-    if not is_site_admin(request):
+    if not is_site_admin(connexion.request):
         return {"message": "User is not authorized to POST"}, 403
-    try:
-        # if register=True, list known services in Vault and register them all
-        if register:
+    # if register=True, list known services in Vault and register them all
+    if register:
+        try:
             existing_services = get_registered_services()
             for service in existing_services:
                 register_service(existing_services[service])
-        new_service = connexion.request.json
-        register_service(new_service)
+        except Exception as e:
+            logger.debug(f"Couldn't register existing services", connexion.request)
+            return {"message": f"Couldn't register existing services: {type(e)} {str(e)}"}, 500
+    try:
+        new_service = await connexion.request.json()
+        if new_service is not None:
+            register_service(new_service)
+            return get_registered_services()[new_service['id']], 200
     except UnsupportedMediaType as e:
         # this is the exception that gets thrown if the requestbody is null
         return get_registered_services(), 200
     except Exception as e:
-        logger.debug(f"Couldn't add service", request)
+        logger.debug(f"Couldn't add service", connexion.request)
         return {"message": f"Couldn't add service: {type(e)} {str(e)} {connexion.request}"}, 500
-    return get_registered_services()[new_service['id']], 200
+    return get_registered_services(), 200
 
 
 @app.route('/services/<path:service_id>')
@@ -163,16 +170,16 @@ def delete_service(service_id):
     """
     :return: Service deleted.
     """
-    if not is_site_admin(request):
+    if not is_site_admin(connexion.request):
         return {"message": "User is not authorized to POST"}, 403
     result = unregister_service(service_id)
     if result is None:
-        logger.debug(f"Couldn't find service", request)
+        logger.debug(f"Couldn't find service", connexion.request)
         return {"message": f"Service {service_id} not found"}, 404
     return result, 200
 
 
-def post_search():
+async def post_search():
     """
     Send a POST request to CanDIG services and possibly federate it.
     Method defined by federation.yaml OpenAPI document.
@@ -196,8 +203,8 @@ def post_search():
     ServiceName - Name of service (used for logstash tagging)
     """
     try:
-        logger.debug("Sending federated request", request)
-        data = connexion.request.json
+        logger.debug("Sending federated request", connexion.request)
+        data = await connexion.request.json()
         request_type = data["method"]
         endpoint_path = data["path"]
         if endpoint_path[0] == "/":
@@ -214,12 +221,13 @@ def post_search():
             request=request_type,
             endpoint_path=endpoint_path,
             endpoint_payload=endpoint_payload,
-            request_dict=request,
+            request_dict=connexion.request,
             endpoint_service=endpoint_service,
             unsafe="unsafe" in data
         )
 
-        return federation_response.get_response_object()
+        resp, status = await federation_response.get_response_object()
+        return resp, status
 
     except Exception as e:
         """
@@ -227,7 +235,7 @@ def post_search():
         have a valid request_type, endpoint_path and endpoint_payload. A KeyError occuring here
         will be due to the service dictionary receiving an invalid key.
         """
-        logger.error(f"{type(e)} {str(e)}", request)
+        logger.error(f"post_search {type(e)} {str(e)}", connexion.request)
         return {
                "response": f"{type(e)} {str(e)}",
                "status": 404,
