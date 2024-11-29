@@ -17,4 +17,4 @@ bash candig_federation/heartbeat.sh &
 
 # use the following instead for production deployment
 cd candig_federation
-gunicorn server:application
+gunicorn -k uvicorn.workers.UvicornWorker server:app

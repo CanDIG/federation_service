@@ -4,6 +4,10 @@ from network import get_registered_servers
 import requests
 import os.path
 import os
+from candigv2_logging.logging import initialize, CanDIGLogger
+
+initialize()
+logger = CanDIGLogger(__file__)
 
 def check_pulse():
     servers = get_registered_servers()
@@ -18,10 +22,11 @@ def check_pulse():
         if server['server']['id'] != os.getenv("FEDERATION_SELF_SERVER_ID", 'internal-1'):
             try:
                 url = f"{server['server']['url']}/hello"
-                log += f"\ntesting {url}"
                 service_info = requests.get(url, timeout=2)
                 if service_info.ok:
                     live_servers.append(server['server']['id'])
+                else:
+                    logger.warning(f"Heartbeat not successful for {server['server']['id']} {url}: {service_info.status_code}, {service_info.text}")
             except Exception as e:
                 log += "\n" + str(e)
         else:
@@ -31,10 +36,6 @@ def check_pulse():
     # Determine whether or not those sites are available by pinging Federation service-info
     with open('/app/federation/live_servers.txt', 'w') as f:
         f.write("|".join(live_servers))
-
-    with open('/app/federation/log.txt', 'w') as f:
-        f.write(log)
-
 
 def get_live_servers():
     live_servers = []

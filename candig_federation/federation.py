@@ -6,10 +6,11 @@ Provides methods to handle both local and federated requests
 
 import json
 import requests
+import asyncio
+import aiohttp
 from network import get_registered_servers, get_registered_services
 from heartbeat import get_live_servers
 from candigv2_logging.logging import CanDIGLogger
-import gevent
 
 logger = CanDIGLogger(__file__)
 
@@ -177,7 +178,7 @@ class FederationResponse:
             logger.debug(self.message)
             return
 
-    def handle_server_request(self, request, endpoint_path, endpoint_payload, endpoint_service, header):
+    async def handle_server_request(self, request, endpoint_path, endpoint_payload, endpoint_service, header):
         """
         Make peer server data requests and update the results and status for a FederationResponse
 
@@ -199,7 +200,7 @@ class FederationResponse:
         :type header: object
         :return: List of ResponseObjects, this specific return is used only in testing
         """
-        future_responses = self.async_requests(request=request,
+        future_responses = await self.async_requests(request=request,
            header=header,
            endpoint_payload=endpoint_payload,
            endpoint_path=endpoint_path,
@@ -210,16 +211,17 @@ class FederationResponse:
             location = future_response["location"]
             try:
                 response = future_response["response"]
+                status_code = future_response["status_code"]
 
                 # If the call was successful append the results
-                if response.status_code in [200, 201]:
-                    self.results[future_response_id] = response.json()['results']
-                    self.status[future_response_id] = response.status_code
-                elif response.status_code == 405:
-                    self.status[future_response_id] = response.status_code
-                    self.message[future_response_id] = f"Unauthorized: {response.text}"
+                if status_code in [200, 201]:
+                    self.results[future_response_id] = response['results']
+                    self.status[future_response_id] = status_code
+                elif status_code == 405:
+                    self.status[future_response_id] = status_code
+                    self.message[future_response_id] = f"Unauthorized: {response}"
                 else:
-                    self.status[future_response_id] = response.status_code
+                    self.status[future_response_id] = status_code
                     self.message[future_response_id] = f"handle_server_request failed on {future_response_id}, federation = {self.header['Federation']}"
             except AttributeError:
                 if isinstance(future_response, requests.exceptions.ConnectionError):
@@ -242,13 +244,13 @@ class FederationResponse:
                 continue
             except Exception as e:
                 self.status[future_response_id] = 500
-                self.message[future_response_id] = f"handle_server_request failed on {future_response_id}, federation = {self.header['Federation']}: {type(e)}: {str(e)} {response.text}"
+                self.message[future_response_id] = f"handle_server_request failed on {future_response_id}, federation = {self.header['Federation']}: {type(e)}: {str(e)} {response}"
                 continue
 
         # Return is used for testing individual methods
         return self.results
 
-    def async_requests(self, request, endpoint_path, endpoint_payload, endpoint_service, header):
+    async def async_requests(self, request, endpoint_path, endpoint_payload, endpoint_service, header):
         """Send requests to each CanDIG node in the network asynchronously using FutureSession. The
         futures are returned back to and handled by handle_server_requests()
 
@@ -269,7 +271,7 @@ class FederationResponse:
         args = {"method": request, "path": endpoint_path,
                 "payload": endpoint_payload, "service": endpoint_service}
         responses = {}
-        jobs = {}
+        jobs = []
         for server in self.servers.values():
             try:
                 response = {}
@@ -282,18 +284,30 @@ class FederationResponse:
                     # self.announce_fed_out(request_type, url, endpoint_path, endpoint_payload)
                     url = f"{server['server']['url']}/federation/v1/fanout"
 
-                    # spawn each request in a gevent
-                    jobs[server['server']['id']] = gevent.spawn(requests.post, url, json=args, headers=header, timeout=self.timeout)
+                    # spawn each request in an async task
+                    jobs.append((server['server']['id'], url))
                 responses[server['server']['id']] = response
 
             except Exception as e:
-                jobs[server['server']['id']] = f"{type(e)} {str(e)}"
                 responses[server['server']['id']] = f"async_requests {server['server']['id']}: {type(e)} {str(e)}"
-        # wait for all of the gevents to come back
-        gevent.joinall(jobs.values())
-        for job in jobs:
-            responses[job]['response'] = jobs[job].value
+        async with aiohttp.ClientSession() as session:
+            tasks = [self.send_request(id, url, args, header, session) for (id, url) in jobs]
+            results = await asyncio.gather(*tasks)
+
+            for (id, response, status) in results:
+                responses[id]['response'] = response
+                responses[id]['status_code'] = status
         return responses
+
+
+    async def send_request(self, id, url, args, header, session):
+        async with session.post(url, json=args, headers=header, timeout=self.timeout) as response:
+            try:
+                data = await response.json()
+                return id, data, response.status
+            except:
+                message = await response.text()
+                return id, message, response.status
 
     def merge_status(self, statuses):
         """Returns a single status to represent the federated query.
@@ -331,7 +345,7 @@ class FederationResponse:
         else:
             return 500
 
-    def get_response_object(self):
+    async def get_response_object(self):
         """Driver method to communicate with other CanDIG nodes.
 
         1. Check if federation is needed
@@ -347,7 +361,7 @@ class FederationResponse:
 
             if self.federate_check():
 
-                self.handle_server_request(request="GET",
+                await self.handle_server_request(request="GET",
                                            endpoint_path=self.endpoint_path,
                                            endpoint_payload=self.endpoint_payload,
                                            endpoint_service=self.endpoint_service,
@@ -360,7 +374,7 @@ class FederationResponse:
         else:
 
             if self.federate_check():
-                self.handle_server_request(request="POST",
+                await self.handle_server_request(request="POST",
                                            endpoint_path=self.endpoint_path,
                                            endpoint_payload=self.endpoint_payload,
                                            endpoint_service=self.endpoint_service,
