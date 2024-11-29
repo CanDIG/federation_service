@@ -198,8 +198,7 @@ components:
       description: Flag for federated query. Federation assumed unless false is specified
       in: header
       schema:
-        type: boolean
-        default: true
+        type: string
     register:
       name: register
       in: query
