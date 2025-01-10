@@ -3,11 +3,11 @@
 Provides methods to handle both local and federated requests
 """
 
-
 import json
 import requests
 import asyncio
 import aiohttp
+import database
 from network import get_registered_servers, get_registered_services
 from heartbeat import get_live_servers
 from candigv2_logging.logging import CanDIGLogger
@@ -34,15 +34,21 @@ class FederationResponse:
     :type service: str
     :param return_mimetype: HTTP content-type, default is application/json
     :type return_mimetype: str
+    :param page: Page number of results in request. If given, federation will truncate federated results to the given page, and return page information
+    :type timeout: int
+    :param page_size: Number of results per page to query. Use only in conjunction with the page parameter
+    :type timeout: int
     :param timeout: Wait time before a request times out, default is 5 seconds
     :type timeout: int
+    :param unsafe: If true, shortcuts around non-responding servers by checking the heartbeat list
+    :type unsafe: bool
     """
 
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=too-many-arguments
 
     def __init__(self, request, endpoint_path, endpoint_payload, request_dict, endpoint_service, return_mimetype='application/json',
-                 timeout=60, unsafe=False):
+                 page=None, page_size=10, timeout=60, unsafe=False):
         """Constructor method
         """
         self.results = {}
@@ -56,6 +62,8 @@ class FederationResponse:
         self.request_dict = request_dict
         self.servers = get_registered_servers()
         self.services = get_registered_services()
+        self.page = page
+        self.page_size = page_size
         self.unsafe = unsafe
 
         try:
@@ -177,6 +185,21 @@ class FederationResponse:
             self.message = f"post_service: {type(e)} {str(e)}"
             logger.debug(self.message)
             return
+
+    async def get_num_results_per_server(self):
+        """
+        For each server, grab the given number of results, loading/saving to cache when possible
+        """
+        # Create a hash for this request, minus page/page_size
+        
+        hashable_attr = self.request + self.endpoint_path + str(self.endpoint_payload) + str(self.request_dict) + self.endpoint_service
+        cached_data = database.get_cache(hash(hashable_attr))
+
+        # TODO: Cache invalidation when?
+        if cached_data is not None:
+            # Determine how many results each server has
+            for server in self.servers:
+                
 
     async def handle_server_request(self, request, endpoint_path, endpoint_payload, endpoint_service, header):
         """

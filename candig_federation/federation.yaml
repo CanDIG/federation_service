@@ -199,6 +199,19 @@ components:
       in: header
       schema:
         type: string
+    page:
+      name: page
+      description: Page number of results in request. If given, federation will truncate federated results to the given page, and return page information
+      in: header
+      schema:
+        type: integer
+    page_size:
+      name: page_size
+      description: Number of results per page to query. Use only in conjunction with the page parameter
+      in: header
+      schema:
+        type: integer
+        default: 10
     register:
       name: register
       in: query

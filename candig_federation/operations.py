@@ -223,7 +223,9 @@ async def post_search():
             endpoint_payload=endpoint_payload,
             request_dict=connexion.request,
             endpoint_service=endpoint_service,
-            unsafe="unsafe" in data
+            unsafe="unsafe" in data,
+            page=data["page"] if "page" in data else None,
+            page_size=data["page_size"] if "page_size" in data else 10
         )
 
         resp, status = await federation_response.get_response_object()
