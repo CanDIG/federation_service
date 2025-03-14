@@ -202,6 +202,21 @@ async def post_search():
     Response - List of service specific responses
     ServiceName - Name of service (used for logstash tagging)
     """
+
+    # If this call is the first time a user is calling fanout, we need to check for candig authz before passing it on. There shouldn't be any federation in the header.
+    # Internally, async_requests will call fanout again, but with federation = false and a service token. This service token will be passed on to the local service. A user won't be able to put in the service token.
+    # If a user calls fanout with federation = true, FederationResponse will call the service directly, but there won't be a service token, so the service will have to do its own authz check.
+
+    if "federation" in connexion.request.headers and connexion.request.headers['federation'] == "false" \
+    and "X-Service-Token" in connexion.request.headers and connexion.request.headers['X-Service-Token'] == SERVICE_TOKEN:
+        # federation = false in the headers means this is our self-generated call from async_requests. This is okay.
+        logger.debug(f"federation is false, {connexion.request.headers.keys()}")
+        pass
+    else:
+        # anything else has not been authzed yet.
+        if not is_candig_authorized(connexion.request):
+            return {"error": f"{connexion.request.client.host} User is not locally CanDIG authorized"}, 403
+
     try:
         logger.debug("Sending federated request", connexion.request)
         data = await connexion.request.json()
