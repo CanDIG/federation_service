@@ -11,6 +11,7 @@ import aiohttp
 from network import get_registered_servers, get_registered_services
 from heartbeat import get_live_servers
 from candigv2_logging.logging import CanDIGLogger
+from authz import SERVICE_TOKEN
 
 logger = CanDIGLogger(__file__)
 
@@ -74,6 +75,13 @@ class FederationResponse:
         self.service_headers = {}
         self.timeout = timeout
 
+    def insert_local_service_token(self):
+        if "X-Service-Token" in self.header and SERVICE_TOKEN not in self.header['X-Service-Token']:
+            self.header['X-Service-Token'] += "," + SERVICE_TOKEN
+        else:
+            self.header['X-Service-Token'] = SERVICE_TOKEN
+        logger.debug(f"X-Service-Token is {self.header['X-Service-Token']}")
+
     def announce_fed_out(self, request_type, destination, path):
         """
         Logging function to track requests being sent out by the Federation service
@@ -123,6 +131,9 @@ class FederationResponse:
         :param endpoint_payload: Query parameters needed by endpoint specified in endpoint_path
         :type endpoint_payload: object, {param0=value0, paramN=valueN} for GET, JSON struct dependent on service endpoint for POST
         """
+
+        self.insert_local_service_token()
+
         try:
             request_handle = requests.Session()
             full_path = "{}/{}".format(self.services[service]['url'], endpoint_path)
@@ -263,6 +274,9 @@ class FederationResponse:
             except Exception as e:
                 responses[server['server']['id']] = f"async_requests {server['server']['id']}: {type(e)} {str(e)}"
         async with aiohttp.ClientSession() as session:
+            if "X-Service-Token" not in header:
+                header['X-Service-Token'] = self.header
+
             tasks = [self.send_request(id, url, args, header, session) for (id, url) in jobs]
             results = await asyncio.gather(*tasks)
 

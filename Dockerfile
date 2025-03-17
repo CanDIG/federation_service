@@ -23,6 +23,8 @@ RUN chown -R candig:candig /app/federation
 RUN mkdir /app/config
 
 RUN chown -R candig:candig /app/config
+RUN touch /app/initial_setup
+RUN chmod 777 /app/initial_setup
 
 USER candig
 

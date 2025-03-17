@@ -2,14 +2,15 @@ from flask import Flask
 import authx.auth
 import os
 from candigv2_logging.logging import CanDIGLogger
+import server
 
+SERVICE_TOKEN = server.SERVICE_TOKEN
 
 logger = CanDIGLogger(__file__)
 
 
 app = Flask(__name__)
-TEST_KEY = os.getenv("TEST_KEY")
-
+TEST_KEY = os.getenv("TEST_KEY", None)
 
 def is_testing(request):
     if request.headers.get("Test_Key") == TEST_KEY:
