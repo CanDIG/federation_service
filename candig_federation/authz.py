@@ -32,3 +32,16 @@ def is_site_admin(request):
             logger.error(f"Couldn't authorize site_admin: {type(e)} {str(e)}")
             return False
     return False
+
+
+def is_candig_authorized(request):
+    return authx.auth.is_user_candig_authorized(request)
+
+
+def is_local_token(request):
+    token = authx.auth.get_auth_token(request)
+    permissions, status_code = authx.auth.get_opa_permissions(bearer_token=token)
+    if status_code == 200:
+        if "is_local_token" in permissions:
+            return permissions["is_local_token"]
+    return False
