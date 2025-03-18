@@ -270,67 +270,67 @@ def mocked_async_local_TimeOUt_p1_Timeout_requests_post(*args, **kwargs):
 # Test basic service requests --------------------------------------------------------------------
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
-def test_valid_noFed_get(mock_requests, client, two_servers):
+async def test_valid_noFed_get(mock_requests, client, two_servers):
     with client:
         FR = get_federation_response("GET")
-        RO, Status = FR.get_response_object()
+        RO, Status = await FR.get_response_object()
 
         assert RO["status"] == 200
         assert RO["results"] == GetResponse["j1"]
 
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
-def test_valid_noFed_post(mock_requests, client, two_servers):
+async def test_valid_noFed_post(mock_requests, client, two_servers):
     with client:
         FR = get_federation_response("POST")
-        RO, Status = FR.get_response_object()
+        RO, Status = await FR.get_response_object()
         assert RO["status"] == 200
         assert RO["results"] == PostListV1
 
 # Test basic service errors --------------------------------------------------------------------
 
 @patch('federation.requests.Session.get', side_effect=exceptions.ConnectionError)
-def test_invalid_noFed_get(mock_requests, client, two_servers):
+async def test_invalid_noFed_get(mock_requests, client, two_servers):
     with client:
         FR = get_federation_response("GET")
-        RO, Status = FR.get_response_object()
+        RO, Status = await FR.get_response_object()
         assert RO["status"] == 404
         assert RO["results"] == {}
 
 
 @patch('federation.requests.Session.post', side_effect=exceptions.ConnectionError)
-def test_invalid_noFed_post(mock_requests, client, two_servers):
+async def test_invalid_noFed_post(mock_requests, client, two_servers):
     with client:
         FR = get_federation_response("POST")
-        RO, Status = FR.get_response_object()
+        RO, Status = await FR.get_response_object()
         assert RO["status"] == 404
         assert RO["results"] == {}
 
 
 @patch('federation.requests.Session.get', side_effect=exceptions.Timeout)
-def test_timeout_noFed_get(mock_requests, client, two_servers):
+async def test_timeout_noFed_get(mock_requests, client, two_servers):
     with client:
         FR = get_federation_response("GET")
-        RO, Status = FR.get_response_object()
+        RO, Status = await FR.get_response_object()
         assert RO["status"] == 504
         assert RO["results"] == {}
 
 
 @patch('federation.requests.Session.post', side_effect=exceptions.Timeout)
-def test_timeout_noFed_post(mock_requests, client, two_servers):
+async def test_timeout_noFed_post(mock_requests, client, two_servers):
     with client:
         FR = get_federation_response("POST")
-        RO, Status = FR.get_response_object()
+        RO, Status = await FR.get_response_object()
         assert RO["status"] == 504
         assert RO["results"] == {}
 
 # Test the async request function --------------------------------------------------------------------
 
 @patch('federation.requests.post', side_effect=mocked_async_requests_get)
-def test_valid_asyncRequests_two_servers_get(mock_requests, client, two_servers):
+async def test_valid_asyncRequests_two_servers_get(mock_requests, client, two_servers):
     with client:
         FR = get_federation_response("POST", "Federate")
-        resp = FR.async_requests(request='GET',
+        resp = await FR.async_requests(request='GET',
                                  endpoint_path=TestParams["path"],
                                  endpoint_payload="",
                                  header=TestParams["Headers"],
@@ -343,10 +343,10 @@ def test_valid_asyncRequests_two_servers_get(mock_requests, client, two_servers)
 
 
 @patch('federation.requests.post', side_effect=mocked_async_requests_post)
-def test_valid_asyncRequests_two_servers_post(mock_requests, client, two_servers):
+async def test_valid_asyncRequests_two_servers_post(mock_requests, client, two_servers):
     with client:
         FR = get_federation_response("POST")
-        resp = FR.async_requests(request='POST',
+        resp = await FR.async_requests(request='POST',
                                  endpoint_path=TestParams["path"],
                                  endpoint_payload="",
                                  header=TestParams["Headers"],
@@ -362,10 +362,10 @@ def test_valid_asyncRequests_two_servers_post(mock_requests, client, two_servers
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
 @patch('federation.requests.post', side_effect=mocked_async_requests_get)
-def test_valid_ServerRequest_one_server_get(mock_requests, mock_session, client, two_servers):
+async def test_valid_ServerRequest_one_server_get(mock_requests, mock_session, client, two_servers):
     with client:
         FR = get_federation_response("GET", "Federate")
-        RO, Status = FR.get_response_object()
+        RO, Status = await FR.get_response_object()
         assert Status == 200
         for server in RO:
             loc = server["location"]["name"]
@@ -374,7 +374,7 @@ def test_valid_ServerRequest_one_server_get(mock_requests, mock_session, client,
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
 @patch('federation.requests.post', side_effect=mocked_async_requests_get)
-def test_valid_federated_query_one_server_get(mock_requests, mock_session, client, two_servers):
+async def test_valid_federated_query_one_server_get(mock_requests, mock_session, client, two_servers):
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"path": TestParams["path"],
@@ -385,7 +385,7 @@ def test_valid_federated_query_one_server_get(mock_requests, mock_session, clien
                 }),
                 headers=Headers(fedHeader.headers)
         ):
-            RO, Status = operations.post_search()
+            RO, Status = await operations.post_search()
 
             assert Status == 200
             for server in RO:
@@ -395,10 +395,10 @@ def test_valid_federated_query_one_server_get(mock_requests, mock_session, clien
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
 @patch('federation.requests.post', side_effect=mocked_async_requests_post)
-def test_valid_ServerRequest_one_server_post(mock_session, mock_requests, client, two_servers):
+async def test_valid_ServerRequest_one_server_post(mock_session, mock_requests, client, two_servers):
     with client:
         FR = get_federation_response("POST", "Federate")
-        RO, Status = FR.get_response_object()
+        RO, Status = await FR.get_response_object()
 
         assert Status == 200
         for server in RO:
@@ -408,7 +408,7 @@ def test_valid_ServerRequest_one_server_post(mock_session, mock_requests, client
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
 @patch('federation.requests.post', side_effect=mocked_async_requests_post)
-def test_valid_federated_query_one_server_post(mock_requests, mock_session, client, two_servers):
+async def test_valid_federated_query_one_server_post(mock_requests, mock_session, client, two_servers):
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"path": TestParams["path"],
@@ -419,7 +419,7 @@ def test_valid_federated_query_one_server_post(mock_requests, mock_session, clie
                 }),
                 headers=Headers(fedHeader.headers)
         ):
-            RO, Status = operations.post_search()
+            RO, Status = await operations.post_search()
 
             assert Status == 200
             for server in RO:
@@ -433,10 +433,10 @@ def test_valid_federated_query_one_server_post(mock_requests, mock_session, clie
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
 @patch('federation.requests.post', side_effect=mocked_async_requests_get)
-def test_valid_ServerRequest_two_server_get(mock_requests, mock_session, client, three_servers):
+async def test_valid_ServerRequest_two_server_get(mock_requests, mock_session, client, three_servers):
     with client:
         FR = get_federation_response("GET", "Federate")
-        RO, Status = FR.get_response_object()
+        RO, Status = await FR.get_response_object()
 
         assert Status == 200
         for server in RO:
@@ -447,7 +447,7 @@ def test_valid_ServerRequest_two_server_get(mock_requests, mock_session, client,
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
 @patch('federation.requests.post', side_effect=mocked_async_requests_get)
-def test_valid_federated_query_two_server_get(mock_requests, mock_session, client, three_servers):
+async def test_valid_federated_query_two_server_get(mock_requests, mock_session, client, three_servers):
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"path": TestParams["path"],
@@ -458,7 +458,7 @@ def test_valid_federated_query_two_server_get(mock_requests, mock_session, clien
                                  }),
                 headers=Headers(fedHeader.headers)
         ):
-            RO, Status = operations.post_search()
+            RO, Status = await operations.post_search()
 
             assert Status == 200
             for server in RO:
@@ -469,10 +469,10 @@ def test_valid_federated_query_two_server_get(mock_requests, mock_session, clien
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
 @patch('federation.requests.post', side_effect=mocked_async_requests_post)
-def test_valid_ServerRequest_two_server_post(mock_session, mock_requests, client, three_servers):
+async def test_valid_ServerRequest_two_server_post(mock_session, mock_requests, client, three_servers):
     with client:
         FR = get_federation_response("POST", "Federate")
-        RO, Status = FR.get_response_object()
+        RO, Status = await FR.get_response_object()
 
         assert Status == 200
         for server in RO:
@@ -483,7 +483,7 @@ def test_valid_ServerRequest_two_server_post(mock_session, mock_requests, client
 
 @patch('federation.requests.Session.post', side_effect=mocked_service_post)
 @patch('federation.requests.post', side_effect=mocked_async_requests_post)
-def test_valid_federated_query_two_server_post(mock_requests, mock_session, client, three_servers):
+async def test_valid_federated_query_two_server_post(mock_requests, mock_session, client, three_servers):
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"path": TestParams["path"],
@@ -494,7 +494,7 @@ def test_valid_federated_query_two_server_post(mock_requests, mock_session, clie
                                  }),
                 headers=Headers(fedHeader.headers)
         ):
-            RO, Status = operations.post_search()
+            RO, Status = await operations.post_search()
 
             assert Status == 200
             for server in RO:
@@ -505,7 +505,7 @@ def test_valid_federated_query_two_server_post(mock_requests, mock_session, clie
 
 @patch('federation.requests.Session.get', side_effect=mocked_service_get)
 @patch('federation.requests.post', side_effect=mocked_async_requests_get)
-def test_invalid_backslash_endpoint_start(mock_requests, mock_session, client, two_servers):
+async def test_invalid_backslash_endpoint_start(mock_requests, mock_session, client, two_servers):
     with client:
         with APP.app.test_request_context(
                 data=json.dumps({"path": "/fail/this/path",
@@ -516,7 +516,7 @@ def test_invalid_backslash_endpoint_start(mock_requests, mock_session, client, t
                                  }),
                 headers=Headers(fedHeader.headers)
         ):
-            RO, Status = operations.post_search()
+            RO, Status = await operations.post_search()
 
             assert Status == 400
 

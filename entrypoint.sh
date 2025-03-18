@@ -6,7 +6,9 @@ export TYK_SECRET_KEY=$(cat /run/secrets/tyk-secret-key)
 
 
 
-if [[ -f "initial_setup" ]]; then
+if [[ -f "/app/initial_setup" ]]; then
+    python -c "from authx.auth import create_service_token
+print(create_service_token())" | tail -n 1 > /home/candig/service_token.txt
     rm initial_setup
 fi
 
@@ -17,4 +19,4 @@ bash candig_federation/heartbeat.sh &
 
 # use the following instead for production deployment
 cd candig_federation
-gunicorn server:application
+gunicorn -k uvicorn.workers.UvicornWorker server:app
