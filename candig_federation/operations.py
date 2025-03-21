@@ -2,7 +2,7 @@
 Methods to handle incoming requests passed from Tyk
 """
 
-from authz import is_site_admin
+from authz import is_site_admin, is_candig_authorized, is_local_token
 import connexion
 from werkzeug.exceptions import UnsupportedMediaType
 from flask import Flask
@@ -226,7 +226,15 @@ async def post_search():
             unsafe="unsafe" in data
         )
 
+        federation_response.insert_local_service_token()
+
         resp, status = await federation_response.get_response_object()
+
+        if is_local_token(connexion.request):
+            logger.debug("local token, checking for authz")
+            if not is_candig_authorized(connexion.request):
+                return {"error": f"{connexion.request.client.host} User is not locally CanDIG authorized"}, 403
+
         return resp, status
 
     except Exception as e:

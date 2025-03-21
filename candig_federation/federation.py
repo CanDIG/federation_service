@@ -11,6 +11,7 @@ import aiohttp
 from network import get_registered_servers, get_registered_services
 from heartbeat import get_live_servers
 from candigv2_logging.logging import CanDIGLogger
+from authz import SERVICE_TOKEN
 
 logger = CanDIGLogger(__file__)
 
@@ -68,11 +69,18 @@ class FederationResponse:
             'Content-Type': self.return_mimetype,
             'Accept': self.return_mimetype,
             'Federation': 'false',
-            'Authorization': self.token,
+            'Authorization': self.token
         }
 
         self.service_headers = {}
         self.timeout = timeout
+
+    def insert_local_service_token(self):
+        if "X-Service-Token" in self.header and SERVICE_TOKEN not in self.header['X-Service-Token']:
+            self.header['X-Service-Token'] += "," + SERVICE_TOKEN
+        else:
+            self.header['X-Service-Token'] = SERVICE_TOKEN
+        logger.debug(f"X-Service-Token is {self.header['X-Service-Token']}")
 
     def announce_fed_out(self, request_type, destination, path):
         """
@@ -113,23 +121,29 @@ class FederationResponse:
         else:
             return True
 
-    def get_service(self, service, endpoint_path, endpoint_payload):
+    def send_service_request(self, service, request, endpoint_path, endpoint_payload):
         """
-        Sends a GET request to service, adds response to self.status and self.results
+        Sends a request to service, adds response to self.status and self.results
 
         :param service: name of service sending the response
         :param endpoint_path: Specific API endpoint of CanDIG service to be queried, may contain query string if GET
         :type endpoint_path: str
         :param endpoint_payload: Query parameters needed by endpoint specified in endpoint_path
-        :type endpoint_payload: object, {param0=value0, paramN=valueN} for GET
+        :type endpoint_payload: object, {param0=value0, paramN=valueN} for GET, JSON struct dependent on service endpoint for POST
         """
+
+        self.insert_local_service_token()
+
         try:
             request_handle = requests.Session()
             full_path = "{}/{}".format(self.services[service]['url'], endpoint_path)
-            # self.announce_fed_out("GET", service, endpoint_path)
 
-            resp = request_handle.get(
-                full_path, headers=self.header, params=endpoint_payload, timeout=self.timeout)
+            if request.upper() == "GET":
+                resp = request_handle.get(
+                    full_path, headers=self.header, params=endpoint_payload, timeout=self.timeout)
+            elif request.upper() == "POST":
+                resp = request_handle.post(
+                    full_path, headers=self.header, json=endpoint_payload)
             self.status = resp.status_code
             self.results = resp.json()
         except requests.exceptions.ConnectionError:
@@ -146,37 +160,6 @@ class FederationResponse:
             logger.debug(self.message)
             return
 
-    def post_service(self, service, endpoint_path, endpoint_payload):
-        """
-        Sends a POST request to service, adds response to self.status and self.results
-
-        :param service: name of service sending the response
-        :param endpoint_path: Specific API endpoint of CanDIG service to be queried, may contain query string if GET
-        :type endpoint_path: str
-        :param endpoint_payload: Query parameters needed by endpoint specified in endpoint_path
-        :type endpoint_payload: object, JSON struct dependent on service endpoint for POST
-        """
-        try:
-            request_handle = requests.Session()
-            full_path = "{}/{}".format(self.services[service]['url'], endpoint_path)
-            # self.announce_fed_out("POST", service, endpoint_path, endpoint_payload)
-            resp = request_handle.post(
-                full_path, headers=self.header, json=endpoint_payload)
-            self.status = resp.status_code
-            self.results = resp.json()
-        except requests.exceptions.ConnectionError:
-            self.status = 404
-            self.message = 'Connection Error. Peer server may be down.'
-            return
-        except requests.exceptions.Timeout:
-            self.status = 504
-            self.message = 'Peer server timed out, it may be down.'
-            return
-        except Exception as e:
-            self.status = 500
-            self.message = f"post_service: {type(e)} {str(e)}"
-            logger.debug(self.message)
-            return
 
     async def handle_server_request(self, request, endpoint_path, endpoint_payload, endpoint_service, header):
         """
@@ -222,7 +205,7 @@ class FederationResponse:
                     self.message[future_response_id] = f"Unauthorized: {response}"
                 else:
                     self.status[future_response_id] = status_code
-                    self.message[future_response_id] = f"handle_server_request failed on {future_response_id}, federation = {self.header['Federation']}"
+                    self.message[future_response_id] = f"handle_server_request failed on {future_response_id}, federation = {self.header['Federation']}: {response}"
             except AttributeError:
                 if isinstance(future_response, requests.exceptions.ConnectionError):
                     self.status[future_response_id] = 404
@@ -291,6 +274,9 @@ class FederationResponse:
             except Exception as e:
                 responses[server['server']['id']] = f"async_requests {server['server']['id']}: {type(e)} {str(e)}"
         async with aiohttp.ClientSession() as session:
+            if "X-Service-Token" not in header:
+                header['X-Service-Token'] = self.header
+
             tasks = [self.send_request(id, url, args, header, session) for (id, url) in jobs]
             results = await asyncio.gather(*tasks)
 
@@ -368,9 +354,10 @@ class FederationResponse:
                                            header=self.header)
 
             else:
-                self.get_service(service=self.endpoint_service,
-                                 endpoint_path=self.endpoint_path,
-                                 endpoint_payload=self.endpoint_payload)
+                self.send_service_request(request="GET",
+                                          service=self.endpoint_service,
+                                          endpoint_path=self.endpoint_path,
+                                          endpoint_payload=self.endpoint_payload)
         else:
 
             if self.federate_check():
@@ -380,9 +367,10 @@ class FederationResponse:
                                            endpoint_service=self.endpoint_service,
                                            header=self.header)
             else:
-                self.post_service(service=self.endpoint_service,
-                                  endpoint_path=self.endpoint_path,
-                                  endpoint_payload=self.endpoint_payload)
+                self.send_service_request(request="POST",
+                                          service=self.endpoint_service,
+                                          endpoint_path=self.endpoint_path,
+                                          endpoint_payload=self.endpoint_payload)
 
         response = {
             "status": self.status,
