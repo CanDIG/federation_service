@@ -23,7 +23,7 @@ pip install -r requirements.txt
 
 On initialization of the docker container, the server listed in .env as FEDERATION_SELF_SERVER will be registered. This is your own server.
 
-To register other peer servers, use the /federation/v1/servers POST endpoint, described in federation.yaml. This call must be authorized with a site administrator bearer token from your own server (obtainable via CanDIGv2/site_admin_token.py). The `authentication` object contains a valid site administrator JWT from the peer server's identity issuer (obtainable on the peer server likewise via CanDIGv2/site_admin_token.py).  The Keycloak endpoint URL of the issuer ("issuer" and the JWT's `iss` claim) is also included.
+To register other peer servers, use the /federation/v1/servers POST endpoint, described in federation.yaml. This call must be authorized with a site administrator access token from your own server (obtainable via CanDIGv2/site_admin_token.py). The `authentication` object should contain a valid JWT from the peer server's identity issuer (obtainable on the peer server likewise via CanDIGv2/site_admin_token.py). The Keycloak endpoint URL of the issuer should also be included. This will be compared with the `iss` claim in the JWT to make sure that they are the same.
 
 ```
 ## add server
