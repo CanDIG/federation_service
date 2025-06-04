@@ -70,6 +70,8 @@ def unregister_server(server_id):
     servers = get_registered_servers()
     result = None
     if servers is not None and server_id in servers:
+        issuer = servers[server_id]["authentication"]["issuer"]
+        authx.auth.remove_provider_from_tyk_api(TYK_FEDERATION_API_ID, issuer)
         result = servers.pop(server_id)
     stored_servers_dict, status_code = authx.auth.set_service_store_secret("federation", key="servers", value=json.dumps({"servers": servers}))
     if status_code != 200:
