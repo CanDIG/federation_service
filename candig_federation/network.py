@@ -13,6 +13,7 @@ logger = CanDIGLogger(__file__)
 
 
 TYK_FEDERATION_API_ID = os.getenv("TYK_FEDERATION_API_ID")
+TYK_HTSGET_API_ID = os.getenv("TYK_HTSGET_API_ID")
 APPROLE_TOKEN = None
 if os.getenv("TESTING", False):
     APPROLE_TOKEN = "test"
@@ -54,6 +55,7 @@ def register_server(obj):
                             raise Exception(f"Cannot register another server with the same issuer and client")
                         return None
             authx.auth.add_provider_to_tyk_api(TYK_FEDERATION_API_ID, token, issuer)
+            authx.auth.add_provider_to_tyk_api(TYK_HTSGET_API_ID, token, issuer)
         except Exception as e:
             raise Exception(f"Failed to register server with tyk: {type(e)} {str(e)}")
         try:
@@ -74,6 +76,7 @@ def unregister_server(server_id):
     if servers is not None and server_id in servers:
         issuer = servers[server_id]["authentication"]["issuer"]
         authx.auth.remove_provider_from_tyk_api(TYK_FEDERATION_API_ID, issuer)
+        authx.auth.remove_provider_from_tyk_api(TYK_HTSGET_API_ID, issuer)
         result = servers.pop(server_id)
     stored_servers_dict, status_code = authx.auth.set_service_store_secret("federation", key="servers", value=json.dumps({"servers": servers}))
     if status_code != 200:
