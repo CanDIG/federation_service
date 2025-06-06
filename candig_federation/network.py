@@ -44,18 +44,20 @@ def register_server(obj):
         try:
             jwt_data = authx.auth.decode_token(token, issuer)
             client_id = jwt_data["azp"]
+
+            # add provider to tyk: the method will check for and will not add duplicates.
+            authx.auth.add_provider_to_tyk_api(TYK_FEDERATION_API_ID, token, issuer)
+            authx.auth.add_provider_to_tyk_api(TYK_HTSGET_API_ID, token, issuer)
+
+            # check to see if this exact server is already here: if so, don't add it to our servers list
             servers = get_registered_servers()
-            found = False
             if servers is not None:
-                # check to see if this exact server is already here:
                 for s in servers.values():
                     s_client_id = authx.auth.decode_token(s["authentication"]["token"], s["authentication"]["issuer"])["azp"]
                     if s_client_id == client_id and s["authentication"]["issuer"] == issuer:
                         if s["server"]["url"] != new_server["url"]:
                             raise Exception(f"Cannot register another server with the same issuer and client")
                         return None
-            authx.auth.add_provider_to_tyk_api(TYK_FEDERATION_API_ID, token, issuer)
-            authx.auth.add_provider_to_tyk_api(TYK_HTSGET_API_ID, token, issuer)
         except Exception as e:
             raise Exception(f"Failed to register server with tyk: {type(e)} {str(e)}")
         try:
