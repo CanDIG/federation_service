@@ -75,13 +75,14 @@ async def add_server(register=False):
         if req is not None and 'server' in req:
             new_server = req
             if register_server(new_server) is None:
-                return {"message": f"Server {new_server['server']['id']} already present"}, 204
+                return {"message": f"Server matching {new_server['server']['url']} already present"}, 200
             return get_registered_servers()[new_server['server']['id']]['server'], 201
+        return {"message": "Success"}, 200
     except UnsupportedMediaType as e:
         # this is the exception that gets thrown if the requestbody is null
         return get_registered_servers(), 200
     except Exception as e:
-        logger.debug(f"Couldn't add server", connexion.request)
+        logger.debug(f"Couldn't add server: {type(e)} {str(e)}", connexion.request)
         return {"message": f"Couldn't add server: {type(e)} {str(e)} {connexion.request}"}, 500
 
 
