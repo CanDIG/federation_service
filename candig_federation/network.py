@@ -30,28 +30,29 @@ def get_registered_servers():
 
 
 def register_server(obj):
-    servers = get_registered_servers()
     new_server = obj['server']
+    token = obj['authentication']['token']
+    issuer = obj['authentication']['issuer']
+
     if new_server['url'].endswith("/federation"):
        new_server['url'].replace("/federation", "")
-
-    if servers is not None:
-        # check to see if it's already here:
-        found = False
-        for s in servers.values():
-            if json.dumps(s, sort_keys=True) == json.dumps(new_server, sort_keys=True):
-                found = True
-        if found:
-            return None
-        servers[new_server['id']] = obj
 
     if 'testing' in obj['authentication']:
         new_server['testing'] = True
     else:
         try:
-            token = obj['authentication']['token']
-            issuer = obj['authentication']['issuer']
-
+            jwt_data = authx.auth.decode_token(token, issuer)
+            client_id = jwt_data["azp"]
+            servers = get_registered_servers()
+            found = False
+            if servers is not None:
+                # check to see if this exact server is already here:
+                for s in servers.values():
+                    s_client_id = authx.auth.decode_token(s["authentication"]["token"], s["authentication"]["issuer"])["azp"]
+                    if s_client_id == client_id and s["authentication"]["issuer"] == issuer:
+                        if s["server"]["url"] != new_server["url"]:
+                            raise Exception(f"Cannot register another server with the same issuer and client")
+                        return None
             authx.auth.add_provider_to_tyk_api(TYK_FEDERATION_API_ID, token, issuer)
         except Exception as e:
             raise Exception(f"Failed to register server with tyk: {type(e)} {str(e)}")
@@ -60,6 +61,7 @@ def register_server(obj):
         except Exception as e:
             raise Exception(f"Failed to register server with opa: {type(e)} {str(e)}")
 
+    servers[new_server['id']] = obj
     stored_servers_dict, status_code = authx.auth.set_service_store_secret("federation", key="servers", value=json.dumps({"servers": servers}))
     if status_code != 200:
         logger.error(f"Error in register_server: {stored_servers_dict}")
