@@ -11,6 +11,10 @@ logger = CanDIGLogger(__file__)
 
 app = Flask(__name__)
 TEST_KEY = os.getenv("TEST_KEY", None)
+if TEST_KEY is not None:
+    SERVICE_TOKEN = authx.auth.create_service_token()
+else:
+    SERVICE_TOKEN = TEST_KEY
 
 def is_testing(request):
     if request.headers.get("Test_Key") == TEST_KEY:

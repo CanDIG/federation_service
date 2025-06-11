@@ -69,7 +69,7 @@ class FederationResponse:
             'Content-Type': self.return_mimetype,
             'Accept': self.return_mimetype,
             'Federation': 'false',
-            'Authorization': self.token,
+            'Authorization': self.token
         }
 
         self.service_headers = {}
