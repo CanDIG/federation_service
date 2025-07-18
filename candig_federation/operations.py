@@ -7,7 +7,7 @@ import connexion
 from werkzeug.exceptions import UnsupportedMediaType
 from flask import Flask
 from federation import FederationResponse
-from network import get_registered_servers, get_registered_services, register_server, register_service, unregister_server, unregister_service
+from network import get_registered_servers, get_registered_services, get_registered_external_services, register_server, register_service, register_external_service, unregister_server, unregister_service, unregister_external_service
 from candigv2_logging.logging import CanDIGLogger
 
 
@@ -110,6 +110,67 @@ def delete_server(server_id):
     if result is None:
         logger.debug(f"Server not found", connexion.request)
         return {"message": f"Server {server_id} not found"}, 404
+    return result, 200
+
+
+def list_external_services():
+    """
+    :return: Dictionary of registered external services.
+    """
+    services = get_registered_external_services()
+    if services is not None:
+        result = map(lambda x: x["service"], services.values())
+        return list(result), 200
+    logger.debug(f"Couldn't list services", connexion.request)
+    return {"message": "Couldn't list services"}, 500
+
+
+async def add_external_service():
+    """
+    :return: Service added.
+    """
+    if not is_site_admin(connexion.request):
+        return {"message": "User is not authorized to POST"}, 403
+    try:
+        req = await connexion.request.json()
+        if req is not None and 'service' in req:
+            new_service = req
+            if register_external_service(new_service) is None:
+                return {"message": f"Service matching {new_service['service']} already present"}, 200
+            return get_registered_external_services()[new_service['service']], 201
+        return {"message": "Success"}, 200
+    except UnsupportedMediaType as e:
+        # this is the exception that gets thrown if the requestbody is null
+        return get_registered_external_services(), 200
+    except Exception as e:
+        logger.debug(f"Couldn't add service: {type(e)} {str(e)}", connexion.request)
+        return {"message": f"Couldn't add service: {type(e)} {str(e)} {connexion.request}"}, 500
+
+
+@app.route('/external_services/<path:service_id>')
+def get_external_service(service_id):
+    """
+    :return: Service requested.
+    """
+    services = get_registered_external_services()
+    if services is not None and service_id in services:
+        return services[service_id], 200
+    else:
+        logger.debug(f"Couldn't find service {service_id}", connexion.request)
+        return {"message": f"Couldn't find service {service_id}"}, 404
+
+
+@app.route('/external_services/<path:service_id>')
+def delete_external_service(service_id):
+    """
+    :return: Service deleted.
+    """
+    if not is_site_admin(connexion.request):
+        return {"message": "User is not authorized to POST"}, 403
+    result = unregister_external_service(service_id)
+    if result is None:
+        logger.debug(f"Service not found", connexion.request)
+        return {"message": f"Service {service_id} not found"}, 404
     return result, 200
 
 

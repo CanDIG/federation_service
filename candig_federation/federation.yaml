@@ -98,6 +98,77 @@ paths:
           description: Server not found
         '500':
           description: Internal Error
+  /external-service:
+    get:
+      description: List external service.
+      operationId: operations.list_external_services
+      responses:
+        '200':
+          description: Successful query
+        '500':
+          description: Internal Error
+    post:
+      description: Add an external service.
+      operationId: operations.add_external_service
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              nullable: true
+              type: object
+              required:
+                - service
+                - authentication
+              properties:
+                service:
+                  type: string
+                  description: Name of the external service. Must be unique in the system.
+                authentication:
+                  type: object
+                  required:
+                    - token
+                    - issuer
+                  properties:
+                    issuer:
+                      type: string
+                      description: Issuer associated with the OIDC token.
+                    token:
+                      type: string
+                      description: OIDC id_token issued to the service user from the issuer.
+      responses:
+        '201':
+          description: Service registered successfully
+        '204':
+          description: Service already registered
+        '403':
+          description: Authorization Error
+        '500':
+          description: Internal Error
+  /external-service/{service_id}:
+    parameters:
+      - $ref: "#/components/parameters/service_id"
+    get:
+      description: Get an external service
+      operationId: operations.get_external_service
+      responses:
+        '200':
+          description: Successful query
+        '404':
+          description: Service not found
+        '500':
+          description: Internal Error
+    delete:
+      description: Unregister a service
+      operationId: operations.delete_external_service
+      responses:
+        '200':
+          description: Service unregistered successfully
+        '403':
+          description: Authorization Error
+        '404':
+          description: Service not found
+        '500':
+          description: Internal Error
   /services:
     get:
       description: List registered services.
