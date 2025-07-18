@@ -218,12 +218,17 @@ async def post_search():
 
         endpoint_payload = data["payload"]
         endpoint_service = data["service"]
+        user_jwt = None
+        if "user_jwt" in data:
+            user_jwt = data["user_jwt"]
+
         federation_response = FederationResponse(
             request=request_type,
             endpoint_path=endpoint_path,
             endpoint_payload=endpoint_payload,
             request_dict=connexion.request,
             endpoint_service=endpoint_service,
+            user_jwt=user_jwt,
             unsafe="unsafe" in data
         )
 

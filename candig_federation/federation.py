@@ -42,7 +42,7 @@ class FederationResponse:
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=too-many-arguments
 
-    def __init__(self, request, endpoint_path, endpoint_payload, request_dict, endpoint_service, return_mimetype='application/json',
+    def __init__(self, request, endpoint_path, endpoint_payload, request_dict, endpoint_service, user_jwt, return_mimetype='application/json',
                  timeout=60, unsafe=False):
         """Constructor method
         """
@@ -59,11 +59,16 @@ class FederationResponse:
         self.services = get_registered_services()
         self.unsafe = unsafe
 
-        try:
-            self.token = self.request_dict.headers['Authorization']
-        except KeyError as e:
-            logger.warning("Request lacking Authorization header")
-            self.token = ""
+        if user_jwt is not None:
+            self.token = f"Bearer {user_jwt}"
+        else:
+            try:
+                self.token = self.request_dict.headers['Authorization']
+                token = self.token
+            except KeyError as e:
+                logger.warning("Request lacking Authorization header")
+                self.token = ""
+                token = self.token
 
         self.header = {
             'Content-Type': self.return_mimetype,

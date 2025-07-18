@@ -215,6 +215,9 @@ components:
         - payload
         - service
       properties:
+        user_jwt:
+          type: string
+          description: user jwt, if not the one in the Authorization header
         method:
           type: string
           description: method to be called on the endpoint
