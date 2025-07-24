@@ -3,7 +3,6 @@ Methods to handle services and peer servers
 """
 
 import json
-from flask import current_app
 import authx.auth
 import os
 from candigv2_logging.logging import CanDIGLogger
@@ -14,6 +13,7 @@ logger = CanDIGLogger(__file__)
 
 TYK_FEDERATION_API_ID = os.getenv("TYK_FEDERATION_API_ID")
 TYK_HTSGET_API_ID = os.getenv("TYK_HTSGET_API_ID")
+CANDIG_USER_KEY = os.getenv("CANDIG_USER_KEY")
 APPROLE_TOKEN = None
 if os.getenv("TESTING", False):
     APPROLE_TOKEN = "test"
@@ -83,6 +83,65 @@ def unregister_server(server_id):
     stored_servers_dict, status_code = authx.auth.set_service_store_secret("federation", key="servers", value=json.dumps({"servers": servers}))
     if status_code != 200:
         logger.error(f"Error in register_server: {stored_servers_dict}")
+    return result
+
+
+def get_registered_external_services():
+    stored_external_services_dict, status_code = authx.auth.get_service_store_secret("federation", key="external_services", token=APPROLE_TOKEN)
+    if status_code == 404:
+        # no value was found, so this must need to be initialized
+        stored_external_services_dict, status_code = authx.auth.set_service_store_secret("federation", key="external_services", value=json.dumps({"external_services": {}}), token=APPROLE_TOKEN)
+        return {}
+    if status_code != 200:
+        logger.error(f"Error in get_registered_external_services: {stored_external_services_dict}")
+        return None
+    return stored_external_services_dict["external_services"]
+
+
+def register_external_service(obj):
+    token = obj['authentication']['token']
+    issuer = obj['authentication']['issuer']
+
+    new_external_service = {
+        "service": obj["service"],
+        "issuer": issuer,
+        "token": token
+    }
+
+    try:
+        jwt_data = authx.auth.decode_token(token, issuer)
+        new_external_service["client_id"] = jwt_data["azp"]
+        new_external_service["user"] = jwt_data[CANDIG_USER_KEY]
+
+        # add provider to tyk: the method will check for and will not add duplicates.
+        authx.auth.add_provider_to_tyk_api(TYK_FEDERATION_API_ID, token, issuer)
+
+        external_services = get_registered_external_services()
+    except Exception as e:
+        raise Exception(f"Failed to register external_service with tyk: {type(e)} {str(e)}")
+    try:
+        authx.auth.add_provider_to_opa(token, issuer)
+    except Exception as e:
+        raise Exception(f"Failed to register external_service with opa: {type(e)} {str(e)}")
+
+    external_services[new_external_service["service"]] = new_external_service
+    stored_external_services_dict, status_code = authx.auth.set_service_store_secret("federation", key="external_services", value=json.dumps({"external_services": external_services}))
+    if status_code != 200:
+        logger.error(f"Error in register_external_service: {stored_external_services_dict}")
+    return new_external_service
+
+
+def unregister_external_service(external_service_id):
+    external_services = get_registered_external_services()
+    result = None
+    if external_services is not None and external_service_id in external_services:
+        issuer = external_services[external_service_id]["issuer"]
+        # TODO: figure out how to remove this from the API if it's the only occurrence in both external_services AND federated servers
+        # authx.auth.remove_provider_from_tyk_api(TYK_FEDERATION_API_ID, issuer)
+        result = external_services.pop(external_service_id)
+    stored_external_services_dict, status_code = authx.auth.set_service_store_secret("federation", key="external_services", value=json.dumps({"external_services": external_services}))
+    if status_code != 200:
+        logger.error(f"Error in register_external_service: {stored_external_services_dict}")
     return result
 
 
