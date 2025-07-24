@@ -3,15 +3,19 @@ Methods to handle incoming requests passed from Tyk
 """
 
 from authz import is_site_admin, is_candig_authorized, is_local_token
+from authx.auth import get_auth_token
 import connexion
 from werkzeug.exceptions import UnsupportedMediaType
 from flask import Flask
 from federation import FederationResponse
 from network import get_registered_servers, get_registered_services, get_registered_external_services, register_server, register_service, register_external_service, unregister_server, unregister_service, unregister_external_service
 from candigv2_logging.logging import CanDIGLogger
+import os
+import requests
 
 
 logger = CanDIGLogger(__file__)
+CANDIG_INGEST_PUBLIC_URL = os.getenv("CANDIG_INGEST_PUBLIC_URL")
 
 
 app = Flask(__name__)
@@ -134,9 +138,32 @@ async def add_external_service():
     try:
         req = await connexion.request.json()
         if req is not None and 'service' in req:
-            new_service = req
-            if register_external_service(new_service) is None:
+            new_service = register_external_service(req)
+            if new_service is None:
                 return {"message": f"Service matching {new_service['service']} already present"}, 200
+
+            # the new service user needs to be CanDIG-authorized:
+            headers = {
+                "Content-Type": "application/json; charset=utf-8"
+            }
+
+            # first, preapprove the service user:
+            headers["Authorization"] = f"Bearer {get_auth_token(connexion.request)}"
+            response = requests.post(
+                f"{CANDIG_INGEST_PUBLIC_URL}/user/preapproved/{new_service["user"]}",
+                headers=headers
+            )
+
+            # then, request authorization for the service user
+            headers["Authorization"] = f"Bearer {new_service['token']}"
+            response = requests.post(
+                f"{CANDIG_INGEST_PUBLIC_URL}/user/pending/request",
+                headers=headers
+            )
+
+            if response.status_code != 200:
+                return {"message": f"Service user {new_service["user"]} could not be authorized: {response.text}"}, response.status_code
+
             return get_registered_external_services()[new_service['service']], 201
         return {"message": "Success"}, 200
     except UnsupportedMediaType as e:
