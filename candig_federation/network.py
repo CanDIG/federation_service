@@ -13,6 +13,7 @@ logger = CanDIGLogger(__file__)
 
 TYK_FEDERATION_API_ID = os.getenv("TYK_FEDERATION_API_ID")
 TYK_HTSGET_API_ID = os.getenv("TYK_HTSGET_API_ID")
+TYK_INGEST_API_ID = os.getenv("TYK_INGEST_API_ID")
 CANDIG_USER_KEY = os.getenv("CANDIG_USER_KEY")
 APPROLE_TOKEN = None
 if os.getenv("TESTING", False):
@@ -115,6 +116,7 @@ def register_external_service(obj):
 
         # add provider to tyk: the method will check for and will not add duplicates.
         authx.auth.add_provider_to_tyk_api(TYK_FEDERATION_API_ID, token, issuer)
+        authx.auth.add_provider_to_tyk_api(TYK_INGEST_API_ID, token, issuer)
 
         external_services = get_registered_external_services()
     except Exception as e:
