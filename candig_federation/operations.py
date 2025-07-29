@@ -139,9 +139,6 @@ async def add_external_service():
         req = await connexion.request.json()
         if req is not None and 'service' in req:
             new_service = register_external_service(req)
-            if new_service is None:
-                return {"message": f"Service matching {new_service['service']} already present"}, 200
-
             # the new service user needs to be CanDIG-authorized:
             headers = {
                 "Content-Type": "application/json; charset=utf-8"
