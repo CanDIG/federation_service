@@ -49,6 +49,7 @@ def register_server(obj):
             # add provider to tyk: the method will check for and will not add duplicates.
             authx.auth.add_provider_to_tyk_api(TYK_FEDERATION_API_ID, token, issuer)
             authx.auth.add_provider_to_tyk_api(TYK_HTSGET_API_ID, token, issuer)
+            authx.auth.add_provider_to_tyk_api(TYK_INGEST_API_ID, token, issuer)
 
             # check to see if this exact server is already here: if so, don't add it to our servers list
             servers = get_registered_servers()
