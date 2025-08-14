@@ -47,6 +47,25 @@ curl -X "POST" "http://candig.docker.internal:5080/federation/v1/servers" \
     }'
 ```
 
+### How to add external services
+In order for a service external to the CanDIG node to be registered as an external service, you must make sure that the tokens issued by the service's IDP contain the correct audience claim for the CanDIG node: you can find this audience in any CanDIG-issued token or in the CanDIG node's .env file, under KEYCLOAK_CLIENT_ID. Ask your OIDC administrator to do this, if needed.
+
+To register the service, use the /federation/v1/external-service POST endpoint, described in federation.yaml. This call must be authorized with a site administrator access token from your own server (obtainable via CanDIGv2/site_admin_token.py). The object should contain a valid JWT from the external service's identity issuer, possibly a service token or a special user designated as the "service user". The Keycloak endpoint URL of the issuer should also be included. This will be compared with the `iss` claim in the JWT to make sure that they are the same.
+
+```
+## add external service
+curl -X "POST" "http://candig.docker.internal:5080/federation/v1/external-service" \
+     -H 'Content-Type: application/json' \
+     -H 'Authorization: Bearer <site admin token>' \
+     -d $'{
+  "service": "<external service name, unique in the system>",
+  "authentication": {
+    "token": "<service token>",
+    "issuer": "http://candig.docker.internal:8080/auth/realms/candig"
+  }
+}'
+```
+
 ## Running
 
 You should use `uwsgi` to run the app for all functionalities to work as expected. The `--master` flag enables graceful reloading of the server without closing the socket and is useful to apply  any changes to the code while developing. For more details, read the [uwsgi documentation](https://uwsgi-docs.readthedocs.io/en/latest/Management.html).
