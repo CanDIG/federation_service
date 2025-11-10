@@ -1,6 +1,6 @@
 aiohttp>=3.11.8
-candigv2-authx@git+https://github.com/CanDIG/candigv2-authx.git@v2.8.1
-candigv2-logging@git+https://github.com/CanDIG/candigv2-logging.git@v1.0.1
+candigv2-authx@git+https://github.com/CanDIG/candigv2-authx.git@v2.8.6
+candigv2-logging@git+https://github.com/CanDIG/candigv2-logging.git@v1.0.3
 connexion==3.1.0
 connexion[swagger-ui]
 connexion[flask]
@@ -9,6 +9,7 @@ Flask==3.1.1
 prometheus-flask-exporter==0.13.0
 Flask-Cors==6.0.0
 requests-mock>=1.12.1
+requests==2.32.4
 gunicorn>=23.0.0
 uvicorn[standard]==0.30.6
 pyyaml>=4.2b1
