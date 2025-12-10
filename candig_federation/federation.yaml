@@ -272,6 +272,7 @@ components:
             - katsu
             - htsget
             - query
+            - candig-api
         url:
           type: string
           description: local URL for use by the federation service
