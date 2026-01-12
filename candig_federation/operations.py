@@ -302,6 +302,9 @@ async def post_search():
                     }, 400
 
         endpoint_payload = data["payload"]
+        exclude_servers = None
+        if "exclude_servers" in endpoint_payload:
+            exclude_servers = endpoint_payload.pop("exclude_servers").split('|')
         endpoint_service = data["service"]
         user_jwt = None
         if "user_jwt" in data:
@@ -314,7 +317,8 @@ async def post_search():
             request_dict=connexion.request,
             endpoint_service=endpoint_service,
             user_jwt=user_jwt,
-            unsafe="unsafe" in data
+            unsafe="unsafe" in data,
+            exclude_servers=exclude_servers
         )
 
         federation_response.insert_local_service_token()

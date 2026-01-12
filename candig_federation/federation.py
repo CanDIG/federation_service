@@ -42,8 +42,9 @@ class FederationResponse:
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=too-many-arguments
 
-    def __init__(self, request, endpoint_path, endpoint_payload, request_dict, endpoint_service, user_jwt, return_mimetype='application/json',
-                 timeout=60, unsafe=False):
+    def __init__(self, request, endpoint_path, endpoint_payload, request_dict,
+        endpoint_service, user_jwt, return_mimetype='application/json',
+        timeout=60, unsafe=False, exclude_servers=None):
         """Constructor method
         """
         self.results = {}
@@ -58,6 +59,13 @@ class FederationResponse:
         self.servers = get_registered_servers()
         self.services = get_registered_services()
         self.unsafe = unsafe
+
+        if exclude_servers is not None and len(exclude_servers) > 0:
+            servers = {}
+            for server in self.servers:
+                if self.servers[server]["server"]["location"]["name"] not in exclude_servers:
+                    servers[server] = self.servers[server]
+            self.servers = servers
 
         if user_jwt is not None:
             self.token = f"Bearer {user_jwt}"
