@@ -27,13 +27,10 @@ if TEST_KEY is not None and SERVICE_TOKEN is None:
 else:
     SERVICE_TOKEN = TEST_KEY
 
-def main():
-    # Create the application instance
-    app = connexion.FlaskApp(__name__, specification_dir='./')
-    CORS(app.app)
+@app.route('/')
+def index():
+    return 'INDEX'
 
-    app.add_api('federation.yaml', strict_validation=True, validate_responses=True)
-    return app
 
 if __name__ == '__main__':
     app.run()

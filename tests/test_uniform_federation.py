@@ -13,12 +13,12 @@ sys.path.append("{}/{}".format(os.getcwd(), "candig_federation"))
 
 sys.path.append(os.getcwd())
 
-from server import main
+import server
 from federation import FederationResponse
 import operations
 from tests.test_data.test_structs import *
 
-APP = main()
+APP = server.app
 
 REPO_DIR = os.path.abspath(f"{os.path.dirname(os.path.realpath(__file__))}/..")
 sys.path.insert(0, os.path.abspath(f"{REPO_DIR}"))
