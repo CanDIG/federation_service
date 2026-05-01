@@ -36,4 +36,4 @@ jobs:
         echo "test" > /home/candig/roleid
         pip install -r requirements.txt
     - name: Test with pytest
-      run: pytest tests/ -vv
+      run: pytest --asyncio-mode auto tests/ -vv

@@ -70,7 +70,9 @@ def get_federation_response(request_type, headers="Headers"):
                         endpoint_path=TestParams["path"],
                         request_dict=TestParams[headers],
                         endpoint_service=TestParams["service"],
-                        unsafe=True)
+                        unsafe=True,
+                        user_jwt="test"
+                    )
 
 
 
