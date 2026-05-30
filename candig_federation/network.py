@@ -31,10 +31,15 @@ def get_registered_servers():
     return stored_servers_dict["servers"]
 
 
-def register_server(obj):
+def register_server(obj, as_self=False):
     new_server = obj['server']
     token = obj['authentication']['token']
     issuer = obj['authentication']['issuer']
+
+    if as_self:
+        obj['self'] = True
+
+    already_registered = False
 
     if new_server['url'].endswith("/federation"):
        new_server['url'].replace("/federation", "")
@@ -59,7 +64,7 @@ def register_server(obj):
                     if s_client_id == client_id and s["authentication"]["issuer"] == issuer:
                         if s["server"]["url"] != new_server["url"]:
                             raise Exception(f"Cannot register another server with the same issuer and client")
-                        return None
+                        already_registered = True
         except Exception as e:
             raise Exception(f"Failed to register server with tyk: {type(e)} {str(e)}")
         try:
@@ -71,6 +76,8 @@ def register_server(obj):
     stored_servers_dict, status_code = authx.auth.set_service_store_secret("federation", key="servers", value=json.dumps({"servers": servers}))
     if status_code != 200:
         logger.error(f"Error in register_server: {stored_servers_dict}")
+    if already_registered:
+        return None
     return obj['server']
 
 

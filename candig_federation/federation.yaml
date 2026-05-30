@@ -32,6 +32,7 @@ paths:
       operationId: operations.add_server
       parameters:
         - $ref: '#/components/parameters/register'
+        - $ref: '#/components/parameters/as_self'
       requestBody:
         content:
           'application/json':
@@ -286,6 +287,13 @@ components:
       name: register
       in: query
       description: re-register all known servers/services
+      required: false
+      schema:
+          type: boolean
+    as_self:
+      name: as_self
+      in: query
+      description: register and mark this server as self
       required: false
       schema:
           type: boolean
