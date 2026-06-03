@@ -1,6 +1,6 @@
 aiohttp>=3.13.5
-candigv2-authx@git+https://github.com/CanDIG/candigv2-authx.git@v2.9.0
-candigv2-logging@git+https://github.com/CanDIG/candigv2-logging.git@v1.0.3
+candigv2-authx@git+https://github.com/CanDIG/candigv2-authx.git@v2.9.1
+candigv2-logging@git+https://github.com/CanDIG/candigv2-logging.git@v1.0.4
 connexion==3.3.0
 connexion[swagger-ui]
 connexion[flask]
