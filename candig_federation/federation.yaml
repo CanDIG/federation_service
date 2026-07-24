@@ -7,7 +7,7 @@ info:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 servers:
-  - url: /federation/v1
+  - url: https://your-candig-domain/federation/v1
 paths:
   /service-info:
     get:
@@ -19,6 +19,7 @@ paths:
   /servers:
     get:
       description: List registered servers.
+      summary: List registered servers
       operationId: operations.list_servers
       responses:
         '200':
@@ -27,9 +28,11 @@ paths:
           description: Internal Error
     post:
       description: Add a server to the federation.
+      summary: Add a server to the federation
       operationId: operations.add_server
       parameters:
         - $ref: '#/components/parameters/register'
+        - $ref: '#/components/parameters/as_self'
       requestBody:
         content:
           'application/json':
@@ -78,6 +81,7 @@ paths:
       - $ref: "#/components/parameters/server_id"
     get:
       description: Get a server
+      summary: Get a server
       operationId: operations.get_server
       responses:
         '200':
@@ -88,6 +92,7 @@ paths:
           description: Internal Error
     delete:
       description: Unregister a server
+      summary: Unregister a server
       operationId: operations.delete_server
       responses:
         '200':
@@ -100,7 +105,8 @@ paths:
           description: Internal Error
   /external-service:
     get:
-      description: List external service.
+      description: List external service
+      summary: List external service
       operationId: operations.list_external_services
       responses:
         '200':
@@ -108,7 +114,8 @@ paths:
         '500':
           description: Internal Error
     post:
-      description: Add an external service.
+      description: Add an external service
+      summary: Add an external service
       operationId: operations.add_external_service
       requestBody:
         content:
@@ -149,6 +156,7 @@ paths:
       - $ref: "#/components/parameters/service_id"
     get:
       description: Get an external service
+      summary: Get an external service
       operationId: operations.get_external_service
       responses:
         '200':
@@ -159,6 +167,7 @@ paths:
           description: Internal Error
     delete:
       description: Unregister a service
+      summary: Unregister a service
       operationId: operations.delete_external_service
       responses:
         '200':
@@ -171,7 +180,8 @@ paths:
           description: Internal Error
   /services:
     get:
-      description: List registered services.
+      description: List registered services
+      summary: List registered services
       operationId: operations.list_services
       responses:
         '200':
@@ -183,7 +193,8 @@ paths:
     post:
       parameters:
         - $ref: '#/components/parameters/register'
-      description: Add a service to the federation.
+      description: Add a service to the federation
+      summary: Add a service to the federation
       operationId: operations.add_service
       requestBody:
         content:
@@ -203,6 +214,7 @@ paths:
       - $ref: "#/components/parameters/service_id"
     get:
       description: Get a service
+      summary: Get a service
       operationId: operations.get_service
       responses:
         '200':
@@ -213,6 +225,7 @@ paths:
           description: Internal Error
     delete:
       description: Unregister a service
+      summary: Unregister a service
       operationId: operations.delete_service
       responses:
         '200':
@@ -274,6 +287,13 @@ components:
       name: register
       in: query
       description: re-register all known servers/services
+      required: false
+      schema:
+          type: boolean
+    as_self:
+      name: as_self
+      in: query
+      description: register and mark this server as self
       required: false
       schema:
           type: boolean

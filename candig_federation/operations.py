@@ -36,7 +36,12 @@ def service_info():
     }
     servers = get_registered_servers()
     if servers is not None and len(servers.values()) > 0:
-        response["server"] = list(servers.values()).pop(0)
+        for server in servers:
+            if "self" in servers[server]:
+                response["server"] = servers[server]
+                break
+        if "server" not in response:
+            response["server"] = list(servers.values()).pop(0)
     return response, 200
 
 
@@ -52,7 +57,7 @@ def list_servers():
     return {"message": "Couldn't list servers"}, 500
 
 
-async def add_server(register=False):
+async def add_server(register=False, as_self=False):
     """
     :return: Server added.
     """
@@ -78,7 +83,9 @@ async def add_server(register=False):
         req = await connexion.request.json()
         if req is not None and 'server' in req:
             new_server = req
-            if register_server(new_server) is None:
+            if register_server(new_server, as_self) is None:
+                if as_self:
+                    return {"message": f"Server {new_server['server']['url']} set to self"}, 200
                 return {"message": f"Server matching {new_server['server']['url']} already present"}, 200
             return get_registered_servers()[new_server['server']['id']]['server'], 201
         return {"message": "Success"}, 200
@@ -97,6 +104,8 @@ def get_server(server_id):
     """
     servers = get_registered_servers()
     if servers is not None and server_id in servers:
+        if "self" in servers[server_id]:
+            servers[server_id].pop("self")
         return servers[server_id], 200
     else:
         logger.debug(f"Couldn't find server {server_id}", connexion.request)
@@ -302,6 +311,9 @@ async def post_search():
                     }, 400
 
         endpoint_payload = data["payload"]
+        exclude_servers = None
+        if "exclude_servers" in endpoint_payload:
+            exclude_servers = endpoint_payload.pop("exclude_servers").split('|')
         endpoint_service = data["service"]
         user_jwt = None
         if "user_jwt" in data:
@@ -314,7 +326,8 @@ async def post_search():
             request_dict=connexion.request,
             endpoint_service=endpoint_service,
             user_jwt=user_jwt,
-            unsafe="unsafe" in data
+            unsafe="unsafe" in data,
+            exclude_servers=exclude_servers
         )
 
         federation_response.insert_local_service_token()

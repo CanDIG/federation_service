@@ -13,15 +13,15 @@ jobs:
       TESTING: true
     strategy:
       matrix:
-        python-version: ['3.12']
+        python-version: ['3.14']
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         submodules: true
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install requirements
@@ -36,4 +36,4 @@ jobs:
         echo "test" > /home/candig/roleid
         pip install -r requirements.txt
     - name: Test with pytest
-      run: pytest --cov=candig_federation tests/ -vv
+      run: pytest --asyncio-mode auto tests/ -vv
